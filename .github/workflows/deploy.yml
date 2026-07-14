@@ -22,19 +22,34 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Deploy over IAP tunnel
+      - name: Start IAP tunnel
         run: |
-          gcloud compute start-iap-tunnel myqajn-vm 22 \
+          nohup gcloud compute start-iap-tunnel myqajn-vm 22 \
             --local-host-port=localhost:2222 \
             --zone=asia-southeast1-b \
-            --project=prestij-fisha-complaintagent &
-          sleep 6
+            --project=prestij-fisha-complaintagent \
+            > tunnel.log 2>&1 &
+          echo "Waiting for tunnel to accept connections on :2222..."
+          for i in $(seq 1 30); do
+            if (exec 3<>/dev/tcp/localhost/2222) 2>/dev/null; then
+              exec 3<&- 3>&-
+              echo "Tunnel is up after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Tunnel never came up — dumping log:"
+          cat tunnel.log
+          exit 1
 
+      - name: Deploy over IAP tunnel
+        run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.GCP_DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          ssh -v -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            -o ConnectTimeout=15 \
             -p 2222 ghdeploy@localhost '
               sudo git -C /opt/myqajn pull origin main &&
               sudo docker compose -f /opt/myqajn/docker-compose.yml build &&

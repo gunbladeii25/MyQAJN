@@ -1,0 +1,291 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   // admin | peneraju_sektor | top_management | penyelaras_jpn | penganalisis_data
+  sector       String?  // SDTM | SPIP | SPHEMK | SDP | SPK | SPKN — untuk peneraju_sektor
+  state        String?  // negeri Malaysia — untuk penyelaras_jpn (PIC eskalasi kes peringkat negeri)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  submittedCases     Case[]            @relation("SubmittedCases")
+  reviewedBriefs     ExecutiveBrief[]  @relation("ReviewedBriefs")
+  auditLogs          AuditLog[]
+  triggeredRuns      IngestionRun[]    @relation("TriggeredRuns")
+  reviewedRecords    IngestionRecord[] @relation("ReviewedRecords")
+  caseEscalations    CaseEscalation[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+// Token reset kata laluan sekali-guna (self-service "Lupa Kata Laluan").
+// Hanya HASH token disimpan — token mentah (dihantar dalam pautan e-mel)
+// tidak pernah disimpan dalam DB, supaya kebocoran DB tidak membenarkan
+// replay terus. Token tamat tempoh pantas (30 minit) dan ditanda "used"
+// sebaik sahaja digunakan (elak guna semula pautan lama).
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("password_reset_tokens")
+}
+
+model School {
+  id                   String   @id @default(uuid())
+  schoolCode           String   @unique @map("school_code")
+  schoolName           String   @map("school_name")
+  schoolType           String   @map("school_type") // SK | SMK | SJK | MRSM | SBP | SKK
+  state                String?
+  district             String?
+  jnAuditScore         Float?   @map("jn_audit_score")
+  lastAuditDate        String?  @map("last_audit_date") // ISO date string
+  integrityRiskIndex   Float    @default(0) @map("integrity_risk_index")
+  canteenHygieneScore  Float?   @map("canteen_hygiene_score")
+  emissAccessSuspended Boolean  @default(false) @map("emis_access_suspended")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  cases            Case[]
+  ingestionRecords IngestionRecord[]
+  jnDomainScores   JnDomainScore[]
+
+  @@map("schools")
+}
+
+// Skor JN per domain/standard (SKPM: Kepimpinan, Kurikulum, PdP, dll.)
+// Satu baris per (sekolah, sumber, domain, tempoh audit) — re-pull bulan
+// sama akan upsert; tempoh berbeza mengekalkan sejarah untuk trend.
+model JnDomainScore {
+  id            String   @id @default(uuid())
+  schoolId      String   @map("school_id")
+  sourceCode    String   @map("source_code")            // SKAS | SKPK | PEMERIKSAAN_JN
+  domain        String                                   // kepimpinan | pengurusan_kurikulum | pdpc | ...
+  domainLabel   String   @map("domain_label")           // label paparan, cth. "Kepemimpinan (Standard 1)"
+  komponen      String?                                  // Kekuatan Kami | Pengurusan Kami | Pencapaian Kami
+  domainScore   Float    @map("domain_score")           // peratus 0-100
+  aspectScores  String   @default("{}") @map("aspect_scores") @db.Text // JSON: {"1.1": 78.5, "1.2": 82.0}
+  auditPeriod   String   @map("audit_period")           // "2026-07"
+  pullDate      String   @map("pull_date")              // "YYYY-MM-DD"
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  school School @relation(fields: [schoolId], references: [id])
+
+  @@unique([schoolId, sourceCode, domain, auditPeriod])
+  @@map("jn_domain_scores")
+}
+
+model Case {
+  id               String   @id @default(uuid())
+  caseId           String   @unique @map("case_id")
+  schoolId         String   @map("school_id")
+  submittedById    String   @map("submitted_by")
+  operationalScore Float    @map("operational_score")
+  jnAuditScore     Float    @map("jn_audit_score")
+  discrepancyIndex Float    @map("discrepancy_index")
+  diClassification String   @map("di_classification")
+  alertLevel       String   @map("alert_level")
+  anomalyDetected  Boolean  @map("anomaly_detected")
+  incidentText     String   @map("incident_text") @db.Text
+  category         String
+  severity         String
+  agentAConfidence Float    @default(0) @map("agent_a_confidence")
+  agentBConfidence Float    @default(0) @map("agent_b_confidence")
+  riskFlags        String   @default("[]") @map("risk_flags") @db.Text // JSON string
+  anomalyScore     Float    @default(0) @map("anomaly_score")
+  status           String   @default("pending")
+  payloadChecksum  String   @map("payload_checksum")
+  sourceSystem     String?  @map("source_system")
+  agentAOutput     String?  @map("agent_a_output") @db.Text // JSON string
+  agentBOutput     String?  @map("agent_b_output") @db.Text // JSON string
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  school         School          @relation(fields: [schoolId], references: [id])
+  submittedBy    User            @relation("SubmittedCases", fields: [submittedById], references: [id])
+  executiveBrief ExecutiveBrief?
+  escalations    CaseEscalation[]
+
+  @@map("cases")
+}
+
+// Eskalasi kes ke Penyelaras JPN peringkat NEGERI (bukan PIC peringkat sekolah —
+// dengan ~10k sekolah, notifikasi terus ke setiap sekolah tidak berskala; kes
+// dilaporkan kepada ~16 Penyelaras JPN yang mewakili negeri tempat sekolah
+// berkenaan berada). Satu baris per PIC dinotifikasi bagi satu kes — membenarkan
+// jejak audit e-mel + respons rasmi negeri terhadap syor Agent C.
+model CaseEscalation {
+  id           String    @id @default(uuid())
+  caseId       String    @map("case_id")
+  state        String                                 // negeri sekolah (denormalized pada masa eskalasi)
+  userId       String?   @map("user_id")               // Penyelaras JPN dinotifikasi — null jika tiada PIC didaftarkan utk negeri ini
+  emailStatus  String    @default("pending") @map("email_status") // pending | sent | failed | skipped
+  emailError   String?   @map("email_error") @db.Text
+  status       String    @default("pending")           // pending | responded
+  responseText String?   @map("response_text") @db.Text
+  respondedAt  DateTime? @map("responded_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  case Case  @relation(fields: [caseId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("case_escalations")
+}
+
+model ExecutiveBrief {
+  id                    String    @id @default(uuid())
+  caseId                String    @unique @map("case_id")
+  enforcementActions    String    @map("enforcement_actions") @db.Text    // JSON string
+  policyRecommendations String    @map("policy_recommendations") @db.Text // JSON string
+  legalReferences       String    @map("legal_references") @db.Text       // JSON string
+  directiveText         String    @map("directive_text") @db.Text
+  ragSources            String?   @map("rag_sources") @db.Text            // JSON string
+  llmModelUsed          String?   @map("llm_model_used")
+  llmPromptHash         String?   @map("llm_prompt_hash")
+  reviewedById          String?   @map("reviewed_by")
+  reviewedAt            DateTime? @map("reviewed_at")
+  signedByKetuaJn       Boolean   @default(false) @map("signed_by_ketua_jn")
+  signedByAuditDirector Boolean   @default(false) @map("signed_by_audit_director")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  case       Case  @relation(fields: [caseId], references: [id])
+  reviewedBy User? @relation("ReviewedBriefs", fields: [reviewedById], references: [id])
+
+  @@map("executive_briefs")
+}
+
+// ─── Data Ingestion Models ────────────────────────────────────────────────────
+
+model DataSource {
+  id            String   @id @default(uuid())
+  name          String
+  sourceCode    String   @unique @map("source_code")
+  sourceType     String   @map("source_type")      // api | document | manual
+  sourceCategory String   @default("outsource") @map("source_category") // jn_baseline | outsource
+  isActive       Boolean  @default(true) @map("is_active")
+  apiUrl         String?  @map("api_url")
+  apiAuthType   String?  @map("api_auth_type")   // bearer | apikey | none
+  apiAuthToken  String?  @map("api_auth_token") @db.Text  // stored as-is in dev, encrypt in prod
+  pullSchedule  String   @default("manual") @map("pull_schedule") // monthly | manual
+  fieldMappings String   @default("{}") @map("field_mappings") @db.Text    // JSON
+  description   String?  @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  runs    IngestionRun[]
+  records IngestionRecord[]
+
+  @@map("data_sources")
+}
+
+model IngestionRun {
+  id               String    @id @default(uuid())
+  sourceId         String?   @map("source_id")
+  runType          String    @map("run_type")      // scheduled | manual
+  runCategory      String    @default("outsource") @map("run_category") // jn_baseline | outsource
+  triggeredById    String?   @map("triggered_by")
+  startedAt        DateTime  @default(now()) @map("started_at")
+  completedAt      String?   @map("completed_at") // ISO string
+  status           String    @default("running")  // running | completed | partial | failed
+  recordsCreated   Int       @default(0) @map("records_created")
+  casesAutoCreated Int       @default(0) @map("cases_auto_created")
+  errorLog         String?   @map("error_log") @db.Text    // JSON
+  summary          String?   @db.Text                       // JSON
+
+  source      DataSource?      @relation(fields: [sourceId], references: [id])
+  triggeredBy User?            @relation("TriggeredRuns", fields: [triggeredById], references: [id])
+  records     IngestionRecord[]
+
+  @@map("ingestion_runs")
+}
+
+model IngestionRecord {
+  id                        String   @id @default(uuid())
+  runId                     String   @map("run_id")
+  sourceId                  String   @map("source_id")
+  schoolId                  String?  @map("school_id")
+  schoolCodeRaw             String   @map("school_code_raw")
+  dataType                  String   @default("quantitative") @map("data_type") // quantitative | qualitative | mixed
+  jnAuditScore              Float?   @map("jn_audit_score")            // JN baseline (ground truth)
+  extractedScores           String   @default("{}") @map("extracted_scores") @db.Text   // JSON: raw dari sumber
+  mappedScores              String   @default("{}") @map("mapped_scores") @db.Text       // JSON: selepas field mapping
+  compositeOperationalScore Float?   @map("composite_operational_score")        // skor komposit akhir
+  discrepancyIndex          Float?   @map("discrepancy_index")                  // preliminary DI
+  diClassification          String?  @map("di_classification")
+  domainDi                  String   @default("{}") @map("domain_di") @db.Text  // JSON: DI per standard SKPM {domain: {jn_score, operational_score, di, classification, alert}}
+  agent0Confidence          Float    @default(0) @map("agent0_confidence")
+  conversionMethod          String   @default("direct") @map("conversion_method") // direct | ai_converted | hybrid
+  qualitativeText           String?  @map("qualitative_text") @db.Text
+  sourceFileName            String?  @map("source_file_name")
+  pullDate                  String   @map("pull_date")   // "YYYY-MM-DD"
+  status                    String   @default("pending") // pending | approved | rejected | case_created | error
+  reviewedById              String?  @map("reviewed_by")
+  reviewedAt                String?  @map("reviewed_at")
+  reviewNotes               String?  @map("review_notes") @db.Text
+  linkedCaseId              String?  @map("linked_case_id")
+  errorMessage              String?  @map("error_message") @db.Text
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @updatedAt @map("updated_at")
+
+  run        IngestionRun @relation(fields: [runId], references: [id])
+  source     DataSource   @relation(fields: [sourceId], references: [id])
+  school     School?      @relation(fields: [schoolId], references: [id])
+  reviewedBy User?        @relation("ReviewedRecords", fields: [reviewedById], references: [id])
+
+  @@map("ingestion_records")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  action       String
+  resourceType String   @map("resource_type")
+  resourceId   String?  @map("resource_id")
+  details      String?  @db.Text // JSON string
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// Kandungan UI diterjemah, disimpan sebagai jadual terjemahan (bukan
+// diterjemah "live" setiap kali papar) — teks BM asal (sourceText) ialah
+// bahasa dasar/rujukan sistem dan TIDAK disimpan di sini (hanya sasaran
+// terjemahannya). sourceHash (SHA-256 sourceText) digunakan untuk carian
+// terindeks kerana MySQL tidak boleh indeks unik terus atas lajur TEXT
+// panjang tak terhad. Menambah bahasa baharu = tambah kod bahasa (cth. "ZH",
+// "TA") — tiada perubahan skema diperlukan, hanya baris baharu bagi language
+// tersebut.
+model Translation {
+  id             String   @id @default(uuid())
+  sourceHash     String   @map("source_hash")
+  sourceText     String   @map("source_text") @db.Text
+  language       String                                    // "EN" | "ZH" | "TA" | ... (kod bahasa sasaran)
+  translatedText String   @map("translated_text") @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@unique([sourceHash, language])
+  @@map("translations")
+}

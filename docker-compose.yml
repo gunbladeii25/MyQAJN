@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: prestij25_mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: prestij25_db
+      MYSQL_USER: prestij_admin
+      MYSQL_PASSWORD: prestij_secret
+      MYSQL_ROOT_PASSWORD: prestij_secret
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u prestij_admin -pprestij_secret"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_data:

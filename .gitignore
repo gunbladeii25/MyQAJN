@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+
+# Environment files — NEVER commit real secrets
+.env
+.env.*
+!.env.example
+
+# Secrets (Google service account keys, etc.)
+**/secrets/
+
+# Build output
+dist/
+build/
+
+# ML models / vector store — regenerable via training/ingestion scripts
+*.pkl
+ai-engine/rag/chroma_db/
+
+# Logs
+*.log
+logs/
+
+# Leftover local SQLite DB (project uses MySQL per DATABASE_URL) — may
+# contain real test data, never commit
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Playwright test artifacts
+.playwright-mcp/

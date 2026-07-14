@@ -1,24 +1,23 @@
 version: '3.9'
 
 services:
-  mysql:
-    image: mysql:8
-    container_name: prestij25_mysql
+  postgres:
+    image: postgres:16
+    container_name: prestij25_postgres
     restart: unless-stopped
     ports:
-      - "3306:3306"
+      - "5432:5432"
     environment:
-      MYSQL_DATABASE: prestij25_db
-      MYSQL_USER: prestij_admin
-      MYSQL_PASSWORD: prestij_secret
-      MYSQL_ROOT_PASSWORD: prestij_secret
+      POSTGRES_DB: prestij25_db
+      POSTGRES_USER: prestij_admin
+      POSTGRES_PASSWORD: prestij_secret
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u prestij_admin -pprestij_secret"]
+      test: ["CMD-SHELL", "pg_isready -U prestij_admin -d prestij25_db"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
-  mysql_data:
+  postgres_data:

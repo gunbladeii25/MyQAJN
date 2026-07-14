@@ -44,7 +44,10 @@ const getUser = async (req, res) => {
 }
 
 const createUser = async (req, res) => {
-  const { name, email, password, role, sector, state } = req.body
+  const { name, password, role, sector, state } = req.body
+  // Normalisasi e-mel — pastikan carian keunikan/log masuk konsisten tanpa
+  // bergantung pada collation case-insensitive DB (MySQL ada, Postgres tiada).
+  const email = req.body.email?.trim().toLowerCase()
 
   if (!name || !email || !password || !role) {
     return res.status(400).json({ error: 'Nama, email, kata laluan, dan peranan diperlukan.' })
@@ -77,7 +80,8 @@ const createUser = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
-  const { name, email, role, sector, state, isActive } = req.body
+  const { name, role, sector, state, isActive } = req.body
+  const email = req.body.email ? req.body.email.trim().toLowerCase() : undefined
   const { id } = req.params
 
   const existing = await prisma.user.findUnique({ where: { id } })

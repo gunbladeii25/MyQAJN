@@ -19,7 +19,9 @@ const login = async (req, res) => {
   }
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } })
+    // Padankan tanpa kira huruf besar/kecil — MySQL (utf8mb4_unicode_ci) buat
+    // ini secara automatik, Postgres tidak, jadi normalisasi eksplisit di sini.
+    const user = await prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } })
     if (!user || !user.isActive) {
       return res.status(401).json({ error: 'Email atau kata laluan tidak betul.' })
     }
@@ -88,7 +90,7 @@ const forgotPassword = async (req, res) => {
   const GENERIC_MSG = 'Jika e-mel tersebut wujud dalam sistem, pautan reset kata laluan telah dihantar.'
   if (!email) return res.status(400).json({ error: 'E-mel diperlukan.' })
 
-  const user = await prisma.user.findUnique({ where: { email } })
+  const user = await prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } })
   if (!user || !user.isActive) {
     logger.info(`Forgot-password diminta untuk e-mel tidak wujud/tidak aktif: ${email}`)
     return res.json({ message: GENERIC_MSG })

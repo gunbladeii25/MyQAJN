@@ -99,10 +99,20 @@ const myraChat = async (req, res) => {
       { role: 'user', content: message },
     ]
 
+    // num_predict caps generation length — tanpa ini, model CPU-sahaja pada
+    // VM (tiada GPU) kadangkala jana jawapan sangat panjang dan ambil masa
+    // beberapa minit walaupun sistem prompt minta jawapan pendek. Sistem
+    // prompt sahaja tidak menjamin kepatuhan; had keras di sini elak
+    // pengguna tunggu lama tanpa sebab.
     const response = await fetch(`${OLLAMA_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: OLLAMA_MODEL, messages, stream: false }),
+      body: JSON.stringify({
+        model: OLLAMA_MODEL,
+        messages,
+        stream: false,
+        options: { num_predict: 220 },
+      }),
     })
 
     if (!response.ok) {

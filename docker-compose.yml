@@ -1,16 +1,12 @@
-version: '3.9'
-
 services:
   postgres:
     image: postgres:16
     container_name: prestij25_postgres
     restart: unless-stopped
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_DB: prestij25_db
       POSTGRES_USER: prestij_admin
-      POSTGRES_PASSWORD: prestij_secret
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-prestij_secret}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -19,5 +15,59 @@ services:
       timeout: 5s
       retries: 5
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: prestij25_ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: prestij25_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # Overrides pointing at container hostnames (docker-compose's internal
+      # DNS) — takes precedence over the same keys in .env, which is written
+      # for local (non-Docker) dev against localhost.
+      DATABASE_URL: postgresql://prestij_admin:${POSTGRES_PASSWORD:-prestij_secret}@postgres:5432/prestij25_db
+      AI_ENGINE_URL: http://ai-engine:8010
+      OLLAMA_URL: http://ollama:11434
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+
+  ai-engine:
+    build: ./ai-engine
+    container_name: prestij25_ai_engine
+    restart: unless-stopped
+    env_file:
+      - ./ai-engine/.env
+    environment:
+      OLLAMA_URL: http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: prestij25_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
+  ollama_data:

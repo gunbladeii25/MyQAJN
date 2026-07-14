@@ -1,5 +1,8 @@
-const OLLAMA_URL   = process.env.OLLAMA_URL   || 'http://localhost:11434'
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.2'
+const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434'
+// Myra chat gets its own (smaller) model var — real-time chat needs speed
+// over nuance on a CPU-only VM, unlike translate/briefs which stay on the
+// larger default model for accuracy. Falls back to OLLAMA_MODEL if unset.
+const OLLAMA_MODEL = process.env.OLLAMA_CHAT_MODEL || process.env.OLLAMA_MODEL || 'llama3.2'
 
 const MYRA_SYSTEM = `Kamu adalah Myra, pembantu AI yang ceria, mesra dan bijak untuk sistem MyQA@JN (AI-Powered School QA Resolution Agent) — sistem pengesanan discrepancy data sekolah untuk Jemaah Nazir (JN), Kementerian Pendidikan Malaysia.
 

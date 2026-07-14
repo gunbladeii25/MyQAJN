@@ -40,6 +40,7 @@ services:
       DATABASE_URL: postgresql://prestij_admin:${POSTGRES_PASSWORD:-prestij_secret}@postgres:5432/prestij25_db
       AI_ENGINE_URL: http://ai-engine:8010
       OLLAMA_URL: http://ollama:11434
+      OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-llama3.2:1b}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
     depends_on:
       postgres:

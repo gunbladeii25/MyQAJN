@@ -1,0 +1,42 @@
+name: Deploy to GCP VM
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  id-token: write   # required for Workload Identity Federation (no static key)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: github-deploy@prestij-fisha-complaintagent.iam.gserviceaccount.com
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy over IAP tunnel
+        run: |
+          gcloud compute start-iap-tunnel myqajn-vm 22 \
+            --local-host-port=localhost:2222 \
+            --zone=asia-southeast1-b \
+            --project=prestij-fisha-complaintagent &
+          sleep 6
+
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GCP_DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            -p 2222 ghdeploy@localhost '
+              sudo git -C /opt/myqajn pull origin main &&
+              sudo docker compose -f /opt/myqajn/docker-compose.yml build &&
+              sudo docker compose -f /opt/myqajn/docker-compose.yml up -d
+            '

@@ -4,13 +4,13 @@ services:
     container_name: prestij25_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: prestij25_db
+      POSTGRES_DB: G6_P23
       POSTGRES_USER: prestij_admin
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-prestij_secret}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U prestij_admin -d prestij25_db"]
+      test: ["CMD-SHELL", "pg_isready -U prestij_admin -d G6_P23"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -37,7 +37,7 @@ services:
       # Overrides pointing at container hostnames (docker-compose's internal
       # DNS) — takes precedence over the same keys in .env, which is written
       # for local (non-Docker) dev against localhost.
-      DATABASE_URL: postgresql://prestij_admin:${POSTGRES_PASSWORD:-prestij_secret}@postgres:5432/prestij25_db
+      DATABASE_URL: postgresql://prestij_admin:${POSTGRES_PASSWORD:-prestij_secret}@postgres:5432/G6_P23
       AI_ENGINE_URL: http://ai-engine:8010
       OLLAMA_URL: http://ollama:11434
       OLLAMA_CHAT_MODEL: ${OLLAMA_CHAT_MODEL:-llama3.2:1b}

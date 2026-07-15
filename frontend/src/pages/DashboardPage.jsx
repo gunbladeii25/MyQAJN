@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, FileText, Clock, TrendingUp, X, ExternalLink } from 'lucide-react'
-import { getDashboard, getCases } from '../services/api'
+import { AlertTriangle, FileText, Clock, TrendingUp, X, ExternalLink, MessageSquare } from 'lucide-react'
+import { getDashboard, getCases, dashboardStreamUrl } from '../services/api'
+import { useToast } from '../components/ui/Toast'
 import { useAuthStore } from '../stores/authStore'
 import { AlertBadge, DiClassBadge, StatusBadge } from '../components/ui/AlertBadge'
 import { CASE_STATUS } from '../constants'
@@ -176,10 +177,30 @@ export default function DashboardPage() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(null) // { title, subtitle, filters }
+  const toast = useToast()
 
   useEffect(() => {
     getDashboard().then((r) => setData(r.data)).finally(() => setLoading(false))
   }, [])
+
+  // Live updates — a Penyelaras JPN response (POST /cases/:id/respond)
+  // triggers sseHub.broadcast('jpn-response', ...) on the backend; patch the
+  // KPI counts directly instead of refetching for an instant, snappy update.
+  useEffect(() => {
+    const source = new EventSource(dashboardStreamUrl())
+
+    source.addEventListener('jpn-response', (e) => {
+      const payload = JSON.parse(e.data)
+      toast.success(`${payload.schoolName || 'Sekolah'} (${payload.state}) telah menghantar respons rasmi negeri.`)
+      setData((d) => d && ({
+        ...d,
+        escalationsPending: Math.max(0, (d.escalationsPending ?? 1) - 1),
+        escalationsResponded: (d.escalationsResponded ?? 0) + 1,
+      }))
+    })
+
+    return () => source.close()
+  }, [toast])
 
   if (loading) return <PageLoader />
 
@@ -209,7 +230,7 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Cards — clickable */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <KpiCard icon={FileText} label="Jumlah Kes" value={data?.totalCases ?? 0} color="blue"
           onClick={() => openModal('Semua Kes', 'Senarai keseluruhan kes dalam sistem', {})} />
         <KpiCard icon={Clock} label="Kes Hari Ini" value={data?.todayCases ?? 0} color="indigo"
@@ -218,6 +239,9 @@ export default function DashboardPage() {
           onClick={() => openModal('Amaran RED — Ekstrem', 'DI ≥ 0.75 · Tindakan segera diperlukan', { alertLevel: 'RED' })} />
         <KpiCard icon={Clock} label="Menunggu Semakan" value={data?.pendingReview ?? 0} color="orange"
           onClick={() => openModal('Menunggu Semakan', 'Kes yang belum disemak', { status: 'pending' })} />
+        <KpiCard icon={MessageSquare} label="Respons Penyelaras JPN" value={data?.escalationsPending ?? 0} color="amber"
+          sub={`${data?.escalationsResponded ?? 0} selesai`}
+          onClick={() => navigate('/cases')} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -367,12 +391,13 @@ export default function DashboardPage() {
 }
 
 // ── KPI Card ──────────────────────────────────────────────────────────────────
-function KpiCard({ icon: Icon, label, value, color, onClick }) {
+function KpiCard({ icon: Icon, label, value, color, sub, onClick }) {
   const colors = {
     blue:   'bg-blue-50 text-blue-600',
     red:    'bg-red-50 text-red-600',
     orange: 'bg-orange-50 text-orange-600',
     indigo: 'bg-indigo-50 text-indigo-600',
+    amber:  'bg-warning-50 text-warning-600',
   }
   return (
     <div onClick={onClick}
@@ -382,6 +407,7 @@ function KpiCard({ icon: Icon, label, value, color, onClick }) {
       </div>
       <p className="text-2xl font-bold text-gray-900">{value}</p>
       <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+      {sub && <p className="text-xs text-success-600 mt-0.5">{sub}</p>}
       <p className="text-xs text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity mt-1">Klik untuk lihat kes →</p>
     </div>
   )

@@ -1,4 +1,5 @@
 const prisma = require('../utils/prisma')
+const sseHub = require('../utils/sseHub')
 
 // Skop pertanyaan kes mengikut peranan — dikongsi oleh dashboard & di-trend
 // supaya kedua-dua laporan sentiasa konsisten dengan skop di cases.controller.js
@@ -17,7 +18,7 @@ const dashboard = async (req, res) => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
-  const [totalCases, todayCases, redAlerts, pendingReview, briefsPendingSign, recentCases, byAlert, byStatus] = await Promise.all([
+  const [totalCases, todayCases, redAlerts, pendingReview, briefsPendingSign, recentCases, byAlert, byStatus, escalationsPending, escalationsResponded] = await Promise.all([
     prisma.case.count({ where }),
     prisma.case.count({ where: { ...where, createdAt: { gte: today } } }),
     prisma.case.count({ where: { ...where, alertLevel: 'RED' } }),
@@ -37,9 +38,40 @@ const dashboard = async (req, res) => {
     }),
     prisma.case.groupBy({ by: ['alertLevel'], where, _count: true }),
     prisma.case.groupBy({ by: ['status'],     where, _count: true }),
+    prisma.caseEscalation.count({ where: { status: 'pending',   case: Object.keys(where).length ? where : undefined } }),
+    prisma.caseEscalation.count({ where: { status: 'responded', case: Object.keys(where).length ? where : undefined } }),
   ])
 
-  return res.json({ totalCases, todayCases, redAlerts, pendingReview, briefsPendingSign, recentCases, byAlert, byStatus })
+  return res.json({ totalCases, todayCases, redAlerts, pendingReview, briefsPendingSign, recentCases, byAlert, byStatus, escalationsPending, escalationsResponded })
+}
+
+// Server-Sent Events — long-lived connection notifying the Dashboard the
+// moment a Penyelaras JPN submits a response (see respondToEscalation in
+// cases.controller.js, which calls sseHub.broadcast('jpn-response', ...)).
+// Scoped identically to dashboard(): peneraju_sektor only gets events for
+// their own sector, admin/top_management get everything.
+const dashboardStream = (req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no',
+  })
+  res.write(': connected\n\n')
+
+  const client = sseHub.addClient(res, { role: req.user.role, sector: req.user.sector })
+
+  // Keeps the connection alive through proxies/load balancers that would
+  // otherwise idle-timeout a quiet long-lived response (nginx read timeout
+  // resets on every write, so this also protects the 300s proxy_read_timeout).
+  const heartbeat = setInterval(() => {
+    try { res.write(': ping\n\n') } catch { /* connection already gone */ }
+  }, 25000)
+
+  req.on('close', () => {
+    clearInterval(heartbeat)
+    sseHub.removeClient(client)
+  })
 }
 
 const diTrend = async (req, res) => {
@@ -67,4 +99,4 @@ const bySector = async (req, res) => {
   return res.json({ bySector: results })
 }
 
-module.exports = { dashboard, diTrend, bySector }
+module.exports = { dashboard, dashboardStream, diTrend, bySector }

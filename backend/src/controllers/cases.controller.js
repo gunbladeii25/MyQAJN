@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid')
 const prisma = require('../utils/prisma')
 const logger = require('../utils/logger')
 const { escalateToStatePic, sendEscalationEmail } = require('../utils/stateEscalation')
+const sseHub = require('../utils/sseHub')
 
 const AI_ENGINE = process.env.AI_ENGINE_URL || 'http://localhost:8000'
 
@@ -340,6 +341,22 @@ const respondToEscalation = async (req, res) => {
       resourceId: req.params.id, details: JSON.stringify({ responseText }),
     },
   })
+
+  // Notify any admin/top_management/peneraju_sektor Dashboard currently open
+  // (sseHub.broadcast scopes peneraju_sektor to their own sector, same as
+  // the Dashboard's own _scopedCaseWhere in reports.controller.js).
+  const parentCase = await prisma.case.findUnique({
+    where: { id: escalation.caseId },
+    include: { school: { select: { schoolName: true } }, submittedBy: { select: { sector: true } } },
+  })
+  if (parentCase) {
+    sseHub.broadcast('jpn-response', {
+      caseId: parentCase.caseId,
+      schoolName: parentCase.school?.schoolName,
+      state: escalation.state,
+      respondedAt: updated.respondedAt,
+    }, { sector: parentCase.submittedBy?.sector })
+  }
 
   logger.info(`Penyelaras JPN ${req.user.email} respond ke kes ${req.params.id}`)
   return res.json({ escalation: updated })

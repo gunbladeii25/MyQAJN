@@ -1,11 +1,14 @@
 const router = require('express').Router()
-const { dashboard, diTrend, bySector } = require('../controllers/reports.controller')
+const { dashboard, dashboardStream, diTrend, bySector } = require('../controllers/reports.controller')
 const { authenticate } = require('../middleware/auth.middleware')
 const { authorize } = require('../middleware/rbac.middleware')
 
 router.use(authenticate)
 // penganalisis_data (ingestion-sahaja) tiada keperluan laporan kes/DI.
 router.get('/dashboard', authorize('admin', 'peneraju_sektor', 'top_management', 'penyelaras_jpn'), dashboard)
+// Live notifications (respons Penyelaras JPN) — penyelaras_jpn sendiri tiada
+// laluan Dashboard pada sidebar mereka, jadi tidak disertakan di sini.
+router.get('/dashboard/stream', authorize('admin', 'peneraju_sektor', 'top_management'), dashboardStream)
 router.get('/di-trend',  authorize('admin', 'peneraju_sektor', 'top_management', 'penyelaras_jpn'), diTrend)
 // Pecahan merentas SEMUA sektor — paparan eksekutif sahaja, bukan untuk
 // peranan yang skopnya sepatutnya terhad kepada sektor/negeri sendiri.

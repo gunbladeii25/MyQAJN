@@ -63,6 +63,9 @@ export const bulkSignBriefs = (caseIds, signType) => api.post('/briefs/bulk-sign
 export const getDashboard = () => api.get('/reports/dashboard')
 export const getDiTrend = (days) => api.get('/reports/di-trend', { params: { days } })
 export const getBySector = () => api.get('/reports/by-sector')
+// EventSource can't set an Authorization header, so the JWT rides along as
+// a query param here — verified server-side the same way (auth.middleware.js).
+export const dashboardStreamUrl = () => `/api/v1/reports/dashboard/stream?token=${localStorage.getItem('token')}`
 
 // Ingestion — Sources
 export const getIngestionSources = () => api.get('/ingestion/sources')

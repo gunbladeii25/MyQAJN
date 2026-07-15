@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search, Filter } from 'lucide-react'
-import { getCases } from '../services/api'
+import { Plus, Search, Filter, MessageSquare, X } from 'lucide-react'
+import { getCases, getDashboard } from '../services/api'
 import { useAuthStore } from '../stores/authStore'
 import { AlertBadge, DiClassBadge, StatusBadge } from '../components/ui/AlertBadge'
 import { CASE_STATUS } from '../constants'
@@ -14,9 +14,20 @@ export default function CasesPage() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({ status: '', alertLevel: '', page: 1 })
+  const [jpnPending, setJpnPending] = useState(0)
+  const [stripDismissed, setStripDismissed] = useState(false)
 
   const canSubmit = ['admin', 'peneraju_sektor'].includes(user?.role)
   const isPenyelarasJpn = user?.role === 'penyelaras_jpn'
+
+  // Berapa banyak eskalasi (bukan sekadar kes) masih tertunggak respons rasmi
+  // negeri — kolum "Status" jadual di bawah ialah status KES, bukan status
+  // respons eskalasi, jadi Penyelaras JPN tidak nampak ini pada pandangan
+  // pertama tanpa membuka setiap kes satu-satu.
+  useEffect(() => {
+    if (!isPenyelarasJpn) return
+    getDashboard().then((r) => setJpnPending(r.data.escalationsPending ?? 0)).catch(() => {})
+  }, [isPenyelarasJpn])
 
   const load = async () => {
     setLoading(true)
@@ -49,6 +60,18 @@ export default function CasesPage() {
           </button>
         )}
       </div>
+
+      {isPenyelarasJpn && jpnPending > 0 && !stripDismissed && (
+        <div className="flex items-center justify-between gap-4 bg-primary-50 border border-primary-100 rounded-md px-4 py-3 text-sm">
+          <div className="flex items-center gap-2.5 text-primary-800">
+            <MessageSquare className="w-[18px] h-[18px] flex-shrink-0" />
+            <span>{jpnPending} kes eskalasi masih menunggu respons rasmi negeri anda.</span>
+          </div>
+          <button onClick={() => setStripDismissed(true)} className="flex-shrink-0 text-gray-400 hover:text-gray-600">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="card p-4 flex flex-wrap gap-3">

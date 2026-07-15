@@ -55,6 +55,7 @@ export default function UsersPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Bil.</th>
                 {['Nama', 'E-mel', 'Peranan', 'Sektor / Negeri', 'Status', 'Tindakan'].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
                 ))}
@@ -62,10 +63,11 @@ export default function UsersPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {users.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">Tiada pengguna.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-gray-400">Tiada pengguna.</td></tr>
               )}
-              {users.map((u) => (
+              {users.map((u, i) => (
                 <tr key={u.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-gray-400 tabular-nums">{i + 1}</td>
                   <td className="px-4 py-3 font-medium text-gray-900">{u.name}</td>
                   <td className="px-4 py-3 text-gray-600">{u.email}</td>
                   <td className="px-4 py-3">

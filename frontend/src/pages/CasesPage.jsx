@@ -74,6 +74,7 @@ export default function CasesPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Bil.</th>
                   {['ID Kes', 'Sekolah', 'Negeri', 'DI', 'Amaran', 'Kategori', 'Status', 'Tarikh'].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
                   ))}
@@ -81,13 +82,14 @@ export default function CasesPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {cases.length === 0 && (
-                  <tr><td colSpan={8} className="px-4 py-10 text-center text-gray-400 text-sm">
+                  <tr><td colSpan={9} className="px-4 py-10 text-center text-gray-400 text-sm">
                     {isPenyelarasJpn ? 'Tiada kes dieskalasi ke negeri anda buat masa ini.' : 'Tiada kes ditemui.'}
                   </td></tr>
                 )}
-                {cases.map((c) => (
+                {cases.map((c, i) => (
                   <tr key={c.id} onClick={() => navigate(`/cases/${c.id}`)}
                     className="hover:bg-gray-50 cursor-pointer transition-colors">
+                    <td className="px-4 py-3 text-xs text-gray-500 tabular-nums">{i + 1}</td>
                     <td className="px-4 py-3 font-mono text-xs font-medium text-primary-600">{c.caseId}</td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-gray-900 truncate max-w-[180px]">{c.school?.schoolName}</p>

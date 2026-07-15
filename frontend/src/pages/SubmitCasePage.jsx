@@ -248,6 +248,7 @@ export default function SubmitCasePage() {
               <table className="w-full text-xs">
                 <thead>
                   <tr className="text-gray-500 border-b border-gray-200">
+                    <th className="text-left py-2 pr-4 font-medium">Bil.</th>
                     <th className="text-left py-2 pr-4 font-medium">Sekolah</th>
                     <th className="text-right py-2 px-3 font-medium">Skor JN</th>
                     <th className="text-right py-2 px-3 font-medium">Skor Ops</th>
@@ -256,12 +257,13 @@ export default function SubmitCasePage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {selectedSchools.map(s => {
+                  {selectedSchools.map((s, i) => {
                     const op = parseFloat(scores[s.id])
                     const di = !isNaN(op) && s.jnAuditScore != null ? Math.abs(s.jnAuditScore - op) / 100 : null
                     const cls = diClass(di)
                     return (
                       <tr key={s.id} className="hover:bg-gray-50">
+                        <td className="py-2 pr-2 text-gray-400 tabular-nums">{i + 1}</td>
                         <td className="py-2 pr-4">
                           <p className="font-medium text-gray-900">{s.schoolName}</p>
                           <p className="text-gray-400">{s.schoolCode} · {s.district}</p>

@@ -1028,16 +1028,18 @@ function RunsTab() {
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="px-3 py-2.5 text-left font-semibold text-gray-700">Bil.</th>
                 {['Run ID','Kategori','Sumber','Jenis','Rekod/Sekolah','Status','Dimulakan','Dicetuskan Oleh'].map(h => (
                   <th key={h} className="px-3 py-2.5 text-left font-semibold text-gray-700">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {runs.map(r => {
+              {runs.map((r, i) => {
                 const st = runStatus(r.status)
                 return (
                   <tr key={r.id} className="border-b border-gray-100">
+                    <td className="px-3 py-2.5 text-gray-500 tabular-nums">{i + 1}</td>
                     <td className="px-3 py-2.5"><code className="text-[11px] bg-gray-100 rounded-sm px-1">{r.id.slice(0, 8)}</code></td>
                     <td className="px-3 py-2.5">{categoryLabel(r.runCategory)}</td>
                     <td className="px-3 py-2.5">{r.source?.sourceCode || '—'}</td>
@@ -1050,7 +1052,7 @@ function RunsTab() {
                 )
               })}
               {runs.length === 0 && (
-                <tr><td colSpan={8} className="p-8 text-center text-gray-400">Tiada rekod run.</td></tr>
+                <tr><td colSpan={9} className="p-8 text-center text-gray-400">Tiada rekod run.</td></tr>
               )}
             </tbody>
           </table>

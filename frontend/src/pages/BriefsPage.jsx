@@ -166,6 +166,7 @@ export default function BriefsPage() {
                       onChange={() => toggleSelectAll(filtered)} />
                   </th>
                 )}
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Bil.</th>
                 {['ID Kes', 'Sekolah', 'Negeri', 'Amaran', 'Tarikh', 'Model', 'Ketua Nazir Sekolah', 'Nazir Pemeriksa', ''].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
@@ -173,11 +174,11 @@ export default function BriefsPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filtered.length === 0 && (
-                <tr><td colSpan={isTopManagement ? 10 : 9} className="px-4 py-10 text-center text-gray-400 text-sm">
+                <tr><td colSpan={isTopManagement ? 11 : 10} className="px-4 py-10 text-center text-gray-400 text-sm">
                   {briefs.length === 0 ? 'Tiada executive brief lagi.' : 'Tiada brief sepadan dengan tapisan.'}
                 </td></tr>
               )}
-              {filtered.map((b) => {
+              {filtered.map((b, i) => {
                 const bothSigned = b.signedByKetuaJn && b.signedByAuditDirector
                 return (
                   <tr key={b.id} onClick={() => navigate(`/cases/${b.case?.id}`)}
@@ -189,6 +190,7 @@ export default function BriefsPage() {
                         )}
                       </td>
                     )}
+                    <td className="px-4 py-3 text-xs text-gray-400 tabular-nums">{i + 1}</td>
                     <td className="px-4 py-3 font-mono text-xs font-medium text-primary-600">{b.case?.caseId}</td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-gray-900 truncate max-w-[180px]">{b.case?.school?.schoolName}</p>

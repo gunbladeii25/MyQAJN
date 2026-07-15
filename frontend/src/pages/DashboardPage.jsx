@@ -7,6 +7,7 @@ import { useAuthStore } from '../stores/authStore'
 import { AlertBadge, DiClassBadge, StatusBadge } from '../components/ui/AlertBadge'
 import { CASE_STATUS } from '../constants'
 import { PageLoader } from '../components/ui/Spinner'
+import PageBanner from '../components/ui/PageBanner'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, CartesianGrid,
@@ -213,6 +214,12 @@ export default function DashboardPage() {
   const openModal = (title, subtitle, filters) => setModal({ title, subtitle, filters })
   const closeModal = () => setModal(null)
 
+  const pendingReview = data?.pendingReview ?? 0
+  const jpnPending = data?.escalationsPending ?? 0
+  const bannerSubtitle = (pendingReview === 0 && jpnPending === 0)
+    ? 'Semua kes telah disemak dan tiada respons Penyelaras JPN tertunggak — tiada tindakan segera diperlukan.'
+    : `${pendingReview} kes menunggu semakan${jpnPending > 0 ? ` dan ${jpnPending} respons Penyelaras JPN belum lengkap` : ''} — semak baki tugasan minggu ini.`
+
   return (
     <div className="space-y-6">
       {modal && (
@@ -224,10 +231,14 @@ export default function DashboardPage() {
         />
       )}
 
-      <div>
-        <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Selamat datang, {user?.name}</p>
-      </div>
+      <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
+
+      <PageBanner
+        title={`Selamat kembali, ${user?.name} 👋`}
+        subtitle={bannerSubtitle}
+        ctaLabel="Lihat Kes Tertunggak"
+        onCta={() => navigate('/cases')}
+      />
 
       {/* KPI Cards — clickable */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">

@@ -61,9 +61,21 @@ export default function Sidebar() {
   const stepItems = visible.filter((i) => i.step !== null)
 
   return (
-    <aside className="w-64 bg-primary-800 flex flex-col flex-shrink-0">
+    <aside className="relative w-64 flex flex-col flex-shrink-0 overflow-hidden
+      bg-gradient-to-b from-primary-700/90 via-primary-800/85 to-primary-900/90
+      backdrop-blur-xl border-r border-white/10 shadow-2xl">
+
+      {/* Ambient blurred colour blobs — behind the nav, give the
+          translucent/backdrop-blur "glass" surface something soft to
+          diffuse instead of sitting flat over a plain colour. */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-16 -left-10 w-56 h-56 rounded-full bg-primary-400/30 blur-3xl" />
+        <div className="absolute top-1/2 -right-16 w-64 h-64 rounded-full bg-primary-300/15 blur-3xl" />
+        <div className="absolute -bottom-20 left-1/4 w-56 h-56 rounded-full bg-primary-500/25 blur-3xl" />
+      </div>
+
       {/* Logo */}
-      <div className="p-5 border-b border-white/10">
+      <div className="relative z-10 p-5 border-b border-white/10">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center p-1 shadow-button flex-shrink-0">
             <img src="/KPMJN-Hitam.png" alt="Jata KPM Jemaah Nazir" className="w-full h-full object-contain" />
@@ -76,7 +88,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+      <nav className="relative z-10 flex-1 p-3 space-y-0.5 overflow-y-auto">
         {/* Dashboard — no step */}
         {visible.filter(i => i.step === null && i.to !== '/users').map((item) => (
           <NavLink
@@ -138,6 +150,7 @@ export default function Sidebar() {
                       )}>
                         {item.step}
                       </div>
+                      <item.icon className="w-4 h-4 flex-shrink-0 opacity-80" />
                       <div className="min-w-0">
                         <p className="leading-tight truncate">{item.label}</p>
                         {item.hint && (
@@ -180,7 +193,7 @@ export default function Sidebar() {
       </nav>
 
       {/* User info */}
-      <div className="p-4 border-t border-white/10">
+      <div className="relative z-10 p-4 border-t border-white/10">
         <p className="text-white text-sm font-medium truncate">{user?.name}</p>
         <p className="text-white/45 text-xs mt-0.5 truncate">{user?.email}</p>
       </div>

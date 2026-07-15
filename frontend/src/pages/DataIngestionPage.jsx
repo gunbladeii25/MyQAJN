@@ -307,7 +307,7 @@ function JNBaselineTab({ selSchools, toggleSchool, selectAllSchools, clearAllSch
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 20 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5">
         {/* LEFT: Source selector */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Card>
@@ -704,7 +704,7 @@ function OutsourceTab({ selSchools, selSchoolsMap, toggleSchool, selectAllSchool
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 20 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5">
         {/* LEFT */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Card>
@@ -1175,7 +1175,7 @@ export default function DataIngestionPage() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
+    <div className="p-3 sm:p-6" style={{ maxWidth: 1200, margin: '0 auto' }}>
       {/* Page header */}
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: '#18181B' }}>
@@ -1192,11 +1192,15 @@ export default function DataIngestionPage() {
         </p>
       </div>
 
-      {/* Unified step navigator — replaces both old stepper + tab bar */}
+      {/* Unified step navigator — replaces both old stepper + tab bar.
+          overflowX: auto + a min-width per button means this scrolls
+          horizontally on narrow screens instead of squishing every
+          label into unreadable slivers (the old `flex: 1` + `overflow:
+          hidden` combination did exactly that on phones). */}
       <div style={{
-        display: 'flex', marginBottom: 24,
+        display: 'flex', marginBottom: 24, overflowX: 'auto',
         background: '#FAFAFA', borderRadius: 10,
-        border: '1px solid #E4E4E7', overflow: 'hidden',
+        border: '1px solid #E4E4E7',
       }}>
         {STEPS.map((step, i) => {
           const isActive = step.key === tab
@@ -1219,7 +1223,7 @@ export default function DataIngestionPage() {
               key={step.key}
               onClick={() => setTab(step.key)}
               style={{
-                flex: 1, padding: '13px 16px', border: 'none', textAlign: 'left',
+                flex: '1 1 150px', minWidth: 150, padding: '13px 16px', border: 'none', textAlign: 'left',
                 cursor: 'pointer', background: bg,
                 borderBottom: `3px solid ${borderColor}`,
                 borderRight: i < STEPS.length - 1 ? '1px solid #E4E4E7' : 'none',

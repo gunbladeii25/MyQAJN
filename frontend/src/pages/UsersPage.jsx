@@ -52,6 +52,7 @@ export default function UsersPage() {
 
       <div className="card overflow-hidden">
         {loading ? <PageLoader /> : (
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -92,6 +93,7 @@ export default function UsersPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

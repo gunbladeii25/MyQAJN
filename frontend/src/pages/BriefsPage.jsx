@@ -99,7 +99,7 @@ export default function BriefsPage() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <SummaryCard label="Jumlah Brief" value={summary.total} color="blue" />
         <SummaryCard label="Menunggu Tandatangan" value={summary.pending} color="amber" />
         <SummaryCard label="Lengkap Ditandatangani" value={summary.signed} color="green" />
@@ -308,7 +308,7 @@ function SummaryCard({ label, value, color }) {
     green: 'bg-success-50 text-success-600',
   }
   return (
-    <div className="card p-4">
+    <div className="card p-4 min-w-0">
       <p className="text-2xl font-bold text-gray-900">{value}</p>
       <p className={`text-xs font-medium mt-0.5 inline-block px-2 py-0.5 rounded ${colors[color]}`}>{label}</p>
     </div>

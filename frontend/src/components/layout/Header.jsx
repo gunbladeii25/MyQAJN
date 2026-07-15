@@ -36,7 +36,12 @@ export default function Header({ onMenuClick }) {
       <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
         {/* Penukar bahasa — dropdown, skop untuk tambah bahasa akan datang
             (SUPPORTED_LANGUAGES di constants/index.js) */}
-        <div className="relative flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-full border border-gray-200 bg-gray-50 select-none"
+        {/* Dibataskan lebar pada mudah alih (native <select> akan cuba muat
+            keseluruhan teks pilihan semasa dipilih, boleh tolak/tindih
+            ikon hamburger jika tidak dihadkan) — teks penuh tetap
+            kelihatan bila dropdown dibuka, hanya paparan tertutup dipotong. */}
+        <div className="relative flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-full border border-gray-200 bg-gray-50 select-none
+          max-w-[76px] sm:max-w-none overflow-hidden"
           style={{ opacity: translating ? 0.7 : 1 }}>
           {translating
             ? <Loader2 className="w-3.5 h-3.5 text-gray-400 animate-spin flex-shrink-0" />
@@ -47,7 +52,8 @@ export default function Header({ onMenuClick }) {
             disabled={translating}
             onChange={(e) => setLanguage(e.target.value)}
             title="Tukar bahasa paparan"
-            className="text-xs font-semibold tracking-wide text-gray-700 bg-transparent border-none outline-none pr-5 py-0.5 cursor-pointer disabled:cursor-wait"
+            className="w-full text-xs font-semibold tracking-wide text-gray-700 bg-transparent border-none outline-none pr-5 py-0.5 cursor-pointer disabled:cursor-wait"
+            style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}
           >
             {languages.map((l) => (
               <option key={l.code} value={l.code}>{l.code} — {l.label}</option>

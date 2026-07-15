@@ -90,23 +90,40 @@ const MyraAvatar = ({ size = 36, pulse = false }) => (
           <stop offset="0%" stopColor="#f97316" />
           <stop offset="100%" stopColor="#dc2626" />
         </radialGradient>
+        <linearGradient id="hijabGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#7c5a94" />
+          <stop offset="100%" stopColor="#432c54" />
+        </linearGradient>
       </defs>
-      {/* Tudung (hijab) — dome atas kepala + juntaian melepasi bahu */}
-      <ellipse cx="18" cy="9" rx="8.5" ry="6" fill="#5b3a6b" />
-      <ellipse cx="10.5" cy="18" rx="2.6" ry="9" fill="#5b3a6b" />
-      <ellipse cx="25.5" cy="18" rx="2.6" ry="9" fill="#5b3a6b" />
-      {/* Face (dilukis selepas tudung supaya "membingkai" wajah) */}
-      <circle cx="18" cy="15" r="7" fill="#fde68a" />
+      {/* Tudung (hijab) — satu siluet bersambung: kubah atas kepala,
+          melepasi telinga, juntai ke bahu kiri/kanan, dengan lekukan
+          lembut di bawah dagu (bukan tiga elips berasingan seperti
+          rekaan asal — itu yang buat ia nampak macam "gumpalan", bukan
+          kain yang dilipat). */}
+      <path
+        d="M6 33.5
+           C3.8 27.5 4 19 7.2 13
+           C9.6 8.2 13.4 3 18 3
+           C22.6 3 26.4 8.2 28.8 13
+           C32 19 32.2 27.5 30 33.5
+           C26.8 29.5 23.4 27 18 27
+           C12.6 27 9.2 29.5 6 33.5 Z"
+        fill="url(#hijabGrad)"
+      />
       {/* Sentuhan lipatan halus untuk dimensi */}
-      <ellipse cx="14.5" cy="6.5" rx="2.5" ry="1.5" fill="#7a4f89" opacity="0.4" />
+      <path d="M10.5 12.5 C12.5 7.8 15 5 18 5" stroke="#9b7bb0" strokeWidth="1.1" fill="none" strokeLinecap="round" opacity="0.55" />
+      <path d="M8.3 15 C7.3 20.5 7.3 26 9.3 30.5" stroke="#331f40" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.3" />
+      <path d="M27.7 15 C28.7 20.5 28.7 26 26.7 30.5" stroke="#331f40" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.3" />
+      {/* Face (dilukis selepas tudung supaya "membingkai" wajah) */}
+      <circle cx="18" cy="16" r="7" fill="#fde68a" />
       {/* Eyes */}
-      <circle cx="15.5" cy="14.5" r="1.2" fill="#1e1b4b" />
-      <circle cx="20.5" cy="14.5" r="1.2" fill="#1e1b4b" />
+      <circle cx="15.5" cy="15.5" r="1.2" fill="#1e1b4b" />
+      <circle cx="20.5" cy="15.5" r="1.2" fill="#1e1b4b" />
       {/* Smile */}
-      <path d="M15 17.5 Q18 20 21 17.5" stroke="#92400e" strokeWidth="0.9" fill="none" strokeLinecap="round" />
+      <path d="M15 18.5 Q18 21 21 18.5" stroke="#92400e" strokeWidth="0.9" fill="none" strokeLinecap="round" />
       {/* Body */}
-      <rect x="11" y="23" width="14" height="10" rx="4" fill="#f97316" />
-      <text x="18" y="30" textAnchor="middle" fontSize="5" fill="#fff" fontWeight="bold">JN</text>
+      <rect x="11" y="24" width="14" height="10" rx="4" fill="#f97316" />
+      <text x="18" y="31" textAnchor="middle" fontSize="5" fill="#fff" fontWeight="bold">JN</text>
     </svg>
   </div>
 )

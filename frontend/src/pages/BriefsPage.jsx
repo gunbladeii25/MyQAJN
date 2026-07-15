@@ -127,18 +127,18 @@ export default function BriefsPage() {
 
       {/* Bulk sign result banner */}
       {bulkResult && (
-        <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 flex items-center justify-between">
-          <p className="text-sm text-green-800">
+        <div className="bg-success-50 border border-success-200 rounded-lg px-4 py-3 flex items-center justify-between">
+          <p className="text-sm text-success-800">
             ✅ {bulkResult.signed} brief berjaya ditandatangani pukal.
             {bulkResult.alreadySigned > 0 && ` ${bulkResult.alreadySigned} sudah ditandatangani sebelum ini (dilangkau).`}
           </p>
-          <button onClick={() => setBulkResult(null)} className="text-xs text-green-600 hover:underline">Tutup</button>
+          <button onClick={() => setBulkResult(null)} className="text-xs text-success-600 hover:underline">Tutup</button>
         </div>
       )}
 
       {/* Bulk action bar — Pengurusan Atasan sahaja, muncul apabila ada pilihan */}
       {isTopManagement && selected.size > 0 && (
-        <div className="card p-4 flex flex-wrap items-center justify-between gap-3 bg-primary/5 border-primary/20">
+        <div className="card p-4 flex flex-wrap items-center justify-between gap-3 bg-primary-50 border-primary-200">
           <p className="text-sm font-medium text-gray-800">{selected.size} brief dipilih untuk tandatangan pukal</p>
           <div className="flex items-center gap-2">
             <button onClick={() => setBulkModal('ketua_jn')} className="btn-primary text-xs py-1.5 flex items-center gap-1.5">
@@ -189,7 +189,7 @@ export default function BriefsPage() {
                         )}
                       </td>
                     )}
-                    <td className="px-4 py-3 font-mono text-xs font-medium text-primary">{b.case?.caseId}</td>
+                    <td className="px-4 py-3 font-mono text-xs font-medium text-primary-600">{b.case?.caseId}</td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-gray-900 truncate max-w-[180px]">{b.case?.school?.schoolName}</p>
                       <p className="text-gray-400 text-xs">{b.case?.school?.schoolCode}</p>
@@ -226,7 +226,7 @@ export default function BriefsPage() {
             <p className="text-sm text-gray-600">
               Brief untuk kes <span className="font-mono font-bold">{signModal.case?.caseId}</span> memerlukan tandatangan sebelum pengedaran rasmi.
             </p>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-700">
+            <div className="bg-warning-50 border border-warning-200 rounded-lg p-3 text-xs text-warning-700">
               ⚠️ Tandatangan ini mengesahkan bahawa anda telah menyemak kandungan brief dan bersetuju dengan cadangan tindakan yang disenaraikan.
             </div>
             <div className="space-y-2">
@@ -253,7 +253,7 @@ export default function BriefsPage() {
               Anda akan menandatangani <span className="font-bold">{selected.size} brief</span> sekaligus sebagai{' '}
               <span className="font-bold">{bulkModal === 'ketua_jn' ? 'Ketua Nazir Sekolah' : 'Nazir Pemeriksa'}</span>.
             </p>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-700">
+            <div className="bg-warning-50 border border-warning-200 rounded-lg p-3 text-xs text-warning-700">
               ⚠️ Tandatangan ini mengesahkan bahawa anda telah menyemak kandungan setiap brief yang dipilih dan bersetuju dengan cadangan tindakan yang disenaraikan. Brief yang sudah ditandatangani untuk peranan ini akan dilangkau secara automatik.
             </div>
             <div className="flex gap-3 justify-end">
@@ -272,7 +272,7 @@ export default function BriefsPage() {
 function SignChip({ label, signed }) {
   return (
     <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border
-      ${signed ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-400 border-gray-200'}`}>
+      ${signed ? 'bg-success-100 text-success-700 border-success-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
       {signed ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
       {label}
     </span>
@@ -281,9 +281,9 @@ function SignChip({ label, signed }) {
 
 function SummaryCard({ label, value, color }) {
   const colors = {
-    blue:  'bg-blue-50 text-blue-600',
-    amber: 'bg-amber-50 text-amber-600',
-    green: 'bg-green-50 text-green-600',
+    blue:  'bg-primary-50 text-primary-600',
+    amber: 'bg-warning-50 text-warning-600',
+    green: 'bg-success-50 text-success-600',
   }
   return (
     <div className="card p-4">

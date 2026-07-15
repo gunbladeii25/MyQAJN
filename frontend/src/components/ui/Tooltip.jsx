@@ -54,7 +54,7 @@ export function Tooltip({ content, children, position = 'top' }) {
         ref={triggerRef}
         onMouseEnter={show}
         onMouseLeave={() => setVisible(false)}
-        style={{ borderBottom: '1px dashed #6366f1', cursor: 'help', display: 'inline' }}
+        style={{ borderBottom: '1px dashed #2563EB', cursor: 'help', display: 'inline' }}
       >
         {children}
       </span>
@@ -67,14 +67,14 @@ export function Tooltip({ content, children, position = 'top' }) {
             left: coords.left,
             transform: 'translate(-50%, -100%)',
             zIndex: 9999,
-            background: '#1e1b4b',
-            color: '#e0e7ff',
+            background: '#18181B',
+            color: '#F4F4F5',
             padding: '8px 13px',
             borderRadius: 8,
             fontSize: 12,
             maxWidth: 280,
             lineHeight: 1.55,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+            boxShadow: '0 12px 50px 0 rgba(24,24,27,0.10), 0 2px 6px 0 rgba(24,24,27,0.05)',
             pointerEvents: 'none',
           }}
         >
@@ -82,7 +82,7 @@ export function Tooltip({ content, children, position = 'top' }) {
           {/* Arrow */}
           <div style={{
             position: 'absolute', bottom: -5, left: '50%', transform: 'translateX(-50%)',
-            width: 10, height: 10, background: '#1e1b4b',
+            width: 10, height: 10, background: '#18181B',
             clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
           }} />
         </div>
@@ -98,7 +98,7 @@ export function InfoTip({ content }) {
       <span style={{
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
         width: 15, height: 15, borderRadius: '50%',
-        background: '#e0e7ff', color: '#4f46e5',
+        background: '#DBEAFE', color: '#1D4ED8',
         fontSize: 10, fontWeight: 800, cursor: 'help',
         verticalAlign: 'middle', marginLeft: 4,
       }}>

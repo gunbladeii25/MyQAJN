@@ -10,11 +10,11 @@ export const SUPPORTED_LANGUAGES = [
 ]
 
 export const ROLES = {
-  admin: { label: 'Administrator', color: 'bg-purple-100 text-purple-800' },
-  peneraju_sektor: { label: 'Peneraju Sektor', color: 'bg-blue-100 text-blue-800' },
-  top_management: { label: 'Pengurusan Atasan', color: 'bg-green-100 text-green-800' },
-  penyelaras_jpn: { label: 'Penyelaras JPN', color: 'bg-teal-100 text-teal-800' },
-  penganalisis_data: { label: 'Penganalisis Data', color: 'bg-amber-100 text-amber-800' },
+  admin: { label: 'Administrator', color: 'bg-purple-100 text-purple-700' },
+  peneraju_sektor: { label: 'Peneraju Sektor', color: 'bg-primary-100 text-primary-700' },
+  top_management: { label: 'Pengurusan Atasan', color: 'bg-success-100 text-success-700' },
+  penyelaras_jpn: { label: 'Penyelaras JPN', color: 'bg-teal-100 text-teal-700' },
+  penganalisis_data: { label: 'Penganalisis Data', color: 'bg-warning-100 text-warning-700' },
 }
 
 // Halaman utama (landing) selepas log masuk, mengikut peranan — dipadankan
@@ -48,12 +48,16 @@ export const SECTOR_NAMES = {
   SPKN: 'Sektor Penyelarasan dan Kawalan Nazir',
 }
 
+// RED/BLUE/GREEN map onto MYDS danger/primary/success tokens directly.
+// ORANGE/YELLOW have no MYDS equivalent (MYDS only defines 3 semantic
+// colours) so they keep Tailwind's stock orange/amber scales, weighted
+// to match the same bg-100/text-700/dot-500/border-300 pattern.
 export const ALERT_COLORS = {
-  RED:    { bg: 'bg-red-100',    text: 'text-red-800',    dot: 'bg-red-500',    border: 'border-red-300'    },
-  ORANGE: { bg: 'bg-orange-100', text: 'text-orange-800', dot: 'bg-orange-500', border: 'border-orange-300' },
-  YELLOW: { bg: 'bg-yellow-100', text: 'text-yellow-800', dot: 'bg-yellow-500', border: 'border-yellow-300' },
-  BLUE:   { bg: 'bg-blue-100',   text: 'text-blue-800',   dot: 'bg-blue-500',   border: 'border-blue-300'   },
-  GREEN:  { bg: 'bg-green-100',  text: 'text-green-800',  dot: 'bg-green-500',  border: 'border-green-300'  },
+  RED:    { bg: 'bg-danger-100',  text: 'text-danger-700',  dot: 'bg-danger-500',  border: 'border-danger-300'  },
+  ORANGE: { bg: 'bg-orange-100',  text: 'text-orange-700',  dot: 'bg-orange-500',  border: 'border-orange-300'  },
+  YELLOW: { bg: 'bg-amber-100',   text: 'text-amber-700',   dot: 'bg-amber-500',   border: 'border-amber-300'   },
+  BLUE:   { bg: 'bg-primary-100', text: 'text-primary-700', dot: 'bg-primary-500', border: 'border-primary-300' },
+  GREEN:  { bg: 'bg-success-100', text: 'text-success-700', dot: 'bg-success-500', border: 'border-success-300' },
 }
 
 export const DI_LABELS = {
@@ -65,9 +69,9 @@ export const DI_LABELS = {
 }
 
 export const CASE_STATUS = {
-  pending:   { label: 'Menunggu',    color: 'bg-yellow-100 text-yellow-800' },
-  reviewed:  { label: 'Disemak',     color: 'bg-blue-100 text-blue-800'    },
-  escalated: { label: 'Tindakan Segera', color: 'bg-orange-100 text-orange-800' },
+  pending:   { label: 'Menunggu',    color: 'bg-amber-100 text-amber-700' },
+  reviewed:  { label: 'Disemak',     color: 'bg-primary-100 text-primary-700' },
+  escalated: { label: 'Tindakan Segera', color: 'bg-orange-100 text-orange-700' },
   closed:    { label: 'Ditutup',     color: 'bg-gray-100 text-gray-600'    },
 }
 

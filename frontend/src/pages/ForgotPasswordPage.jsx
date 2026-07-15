@@ -33,11 +33,11 @@ export default function ForgotPasswordPage() {
 
       {sent ? (
         <div className="space-y-4">
-          <div className="bg-green-50 border border-green-200 text-green-800 text-sm rounded-lg px-4 py-3">
+          <div className="bg-success-50 border border-success-200 text-success-700 text-sm rounded-md px-4 py-3">
             Jika e-mel tersebut wujud dalam sistem, pautan reset kata laluan telah dihantar.
             Sila semak peti masuk anda (dan folder spam) — pautan sah selama 30 minit.
           </div>
-          <Link to="/login" className="flex items-center justify-center gap-1.5 text-sm text-primary hover:underline">
+          <Link to="/login" className="flex items-center justify-center gap-1.5 text-sm text-primary-600 hover:underline">
             <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Log Masuk
           </Link>
         </div>
@@ -55,11 +55,11 @@ export default function ForgotPasswordPage() {
                 placeholder="nama@moe.gov.my"
                 {...register('email', { required: 'E-mel diperlukan' })}
               />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+              {errors.email && <p className="text-danger-600 text-xs mt-1">{errors.email.message}</p>}
             </div>
 
             {apiError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+              <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm rounded-md px-4 py-3">
                 {apiError}
               </div>
             )}
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
               {isSubmitting ? 'Menghantar...' : 'Hantar Pautan Reset'}
             </button>
 
-            <Link to="/login" className="flex items-center justify-center gap-1.5 text-sm text-gray-500 hover:text-primary mt-2">
+            <Link to="/login" className="flex items-center justify-center gap-1.5 text-sm text-gray-500 hover:text-primary-600 mt-2">
               <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Log Masuk
             </Link>
           </form>

@@ -75,15 +75,15 @@ export default function UsersPage() {
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-600">{u.sector || u.state || '—'}</td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${u.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${u.isActive ? 'bg-success-100 text-success-700' : 'bg-gray-100 text-gray-500'}`}>
                       {u.isActive ? 'Aktif' : 'Tidak Aktif'}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button onClick={() => openEdit(u)} className="p-1.5 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => openReset(u)} className="p-1.5 hover:bg-yellow-50 text-yellow-600 rounded-lg transition-colors" title="Reset Password"><RotateCcw className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => openDelete(u)} className="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition-colors" title="Padam"><Trash2 className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => openEdit(u)} className="p-1.5 hover:bg-primary-50 text-primary-600 rounded-lg transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => openReset(u)} className="p-1.5 hover:bg-warning-50 text-warning-600 rounded-lg transition-colors" title="Reset Password"><RotateCcw className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => openDelete(u)} className="p-1.5 hover:bg-danger-50 text-danger-600 rounded-lg transition-colors" title="Padam"><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
                   </td>
                 </tr>
@@ -146,17 +146,17 @@ function UserFormModal({ mode, user, apiError, setApiError, onClose, onSuccess }
     <Modal open size="md" onClose={onClose} title={mode === 'create' ? 'Tambah Pengguna Baru' : 'Edit Pengguna'}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="label">Nama Penuh <span className="text-red-500">*</span></label>
+          <label className="label">Nama Penuh <span className="text-danger-600">*</span></label>
           <input className="input" {...register('name', { required: 'Nama diperlukan' })} />
-          {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+          {errors.name && <p className="text-danger-600 text-xs mt-1">{errors.name.message}</p>}
         </div>
         <div>
-          <label className="label">E-mel <span className="text-red-500">*</span></label>
+          <label className="label">E-mel <span className="text-danger-600">*</span></label>
           <input type="email" className="input" placeholder="nama@moe.gov.my" {...register('email', {
             required: 'E-mel diperlukan',
             pattern: { value: /@moe\.gov\.my$/i, message: 'Hanya e-mel domain @moe.gov.my dibenarkan.' },
           })} />
-          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+          {errors.email && <p className="text-danger-600 text-xs mt-1">{errors.email.message}</p>}
           <p className="text-xs text-gray-400 mt-1">
             {mode === 'edit' ? 'Menukar e-mel akan menukar alamat log masuk pengguna ini. ' : ''}
             Hanya domain rasmi @moe.gov.my dibenarkan berdaftar.
@@ -164,13 +164,13 @@ function UserFormModal({ mode, user, apiError, setApiError, onClose, onSuccess }
         </div>
         {mode === 'create' && (
           <div>
-            <label className="label">Kata Laluan <span className="text-red-500">*</span></label>
+            <label className="label">Kata Laluan <span className="text-danger-600">*</span></label>
             <input type="password" className="input" {...register('password', { required: 'Kata laluan diperlukan', minLength: { value: 8, message: 'Minimum 8 aksara' } })} />
-            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+            {errors.password && <p className="text-danger-600 text-xs mt-1">{errors.password.message}</p>}
           </div>
         )}
         <div>
-          <label className="label">Peranan <span className="text-red-500">*</span></label>
+          <label className="label">Peranan <span className="text-danger-600">*</span></label>
           <select className="input" {...register('role', { required: 'Peranan diperlukan' })}>
             <option value="">-- Pilih Peranan --</option>
             {Object.entries(ROLES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
@@ -178,7 +178,7 @@ function UserFormModal({ mode, user, apiError, setApiError, onClose, onSuccess }
         </div>
         {role === 'peneraju_sektor' && (
           <div>
-            <label className="label">Sektor <span className="text-red-500">*</span></label>
+            <label className="label">Sektor <span className="text-danger-600">*</span></label>
             <select className="input" {...register('sector', { required: 'Sektor diperlukan' })}>
               <option value="">-- Pilih Sektor --</option>
               {SECTORS.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -187,7 +187,7 @@ function UserFormModal({ mode, user, apiError, setApiError, onClose, onSuccess }
         )}
         {role === 'penyelaras_jpn' && (
           <div>
-            <label className="label">Negeri <span className="text-red-500">*</span></label>
+            <label className="label">Negeri <span className="text-danger-600">*</span></label>
             <select className="input" {...register('state', { required: 'Negeri diperlukan' })}>
               <option value="">-- Pilih Negeri --</option>
               {MALAYSIA_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -201,7 +201,7 @@ function UserFormModal({ mode, user, apiError, setApiError, onClose, onSuccess }
             <label htmlFor="isActive" className="text-sm text-gray-700">Pengguna aktif</label>
           </div>
         )}
-        {apiError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">{apiError}</div>}
+        {apiError && <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm rounded-lg px-4 py-3">{apiError}</div>}
         <div className="flex gap-3 justify-end pt-2">
           <button type="button" onClick={onClose} className="btn-secondary">Batal</button>
           <button type="submit" disabled={isSubmitting} className="btn-primary">
@@ -226,11 +226,11 @@ function ResetPasswordModal({ user, apiError, setApiError, onClose, onSuccess })
     <Modal open size="sm" onClose={onClose} title={`Reset Kata Laluan — ${user?.name}`}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="label">Kata Laluan Baru <span className="text-red-500">*</span></label>
+          <label className="label">Kata Laluan Baru <span className="text-danger-600">*</span></label>
           <input type="password" className="input" {...register('newPassword', { required: true, minLength: { value: 8, message: 'Minimum 8 aksara' } })} />
-          {errors.newPassword && <p className="text-red-500 text-xs mt-1">{errors.newPassword.message}</p>}
+          {errors.newPassword && <p className="text-danger-600 text-xs mt-1">{errors.newPassword.message}</p>}
         </div>
-        {apiError && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">{apiError}</div>}
+        {apiError && <div className="bg-danger-50 text-danger-700 text-sm rounded-lg px-4 py-3">{apiError}</div>}
         <div className="flex gap-3 justify-end">
           <button type="button" onClick={onClose} className="btn-secondary">Batal</button>
           <button type="submit" disabled={isSubmitting} className="btn-primary">{isSubmitting ? 'Menyimpan...' : 'Reset Kata Laluan'}</button>

@@ -50,7 +50,7 @@ export default function ResetPasswordPage() {
 
       {status === STATUS.invalid && (
         <div className="space-y-4">
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+          <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm rounded-md px-4 py-3">
             Pautan reset tidak sah atau telah tamat tempoh (sah selama 30 minit sahaja). Sila mohon pautan baharu.
           </div>
           <Link to="/forgot-password" className="btn-primary w-full flex items-center justify-center py-2.5">
@@ -60,7 +60,7 @@ export default function ResetPasswordPage() {
       )}
 
       {status === STATUS.done && (
-        <div className="bg-green-50 border border-green-200 text-green-800 text-sm rounded-lg px-4 py-3">
+        <div className="bg-success-50 border border-success-200 text-success-700 text-sm rounded-md px-4 py-3">
           Kata laluan berjaya ditetapkan semula. Mengalihkan ke Log Masuk...
         </div>
       )}
@@ -84,7 +84,7 @@ export default function ResetPasswordPage() {
                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            {errors.newPassword && <p className="text-red-500 text-xs mt-1">{errors.newPassword.message}</p>}
+            {errors.newPassword && <p className="text-danger-600 text-xs mt-1">{errors.newPassword.message}</p>}
           </div>
 
           <div>
@@ -98,11 +98,11 @@ export default function ResetPasswordPage() {
                 validate: (v) => v === watch('newPassword') || 'Kata laluan tidak sepadan',
               })}
             />
-            {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>}
+            {errors.confirmPassword && <p className="text-danger-600 text-xs mt-1">{errors.confirmPassword.message}</p>}
           </div>
 
           {apiError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+            <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm rounded-md px-4 py-3">
               {apiError}
             </div>
           )}

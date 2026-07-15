@@ -88,7 +88,7 @@ export default function CasesPage() {
                 {cases.map((c) => (
                   <tr key={c.id} onClick={() => navigate(`/cases/${c.id}`)}
                     className="hover:bg-gray-50 cursor-pointer transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs font-medium text-primary">{c.caseId}</td>
+                    <td className="px-4 py-3 font-mono text-xs font-medium text-primary-600">{c.caseId}</td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-gray-900 truncate max-w-[180px]">{c.school?.schoolName}</p>
                       <p className="text-gray-400 text-xs">{c.school?.schoolCode}</p>

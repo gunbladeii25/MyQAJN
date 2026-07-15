@@ -5,48 +5,58 @@ import {
   approveIngestionRecord, rejectIngestionRecord, getSchools,
   getGdriveFiles, getMappingPreview,
 } from '../services/api'
+import Spinner, { PageLoader } from '../components/ui/Spinner'
 
 // ── Colour helpers ─────────────────────────────────────────────────────────
-const DI_BADGE = {
-  EXTREME_DISCREPANCY:  { bg: '#fee2e2', color: '#991b1b', label: 'EXTREME'  },
-  SEVERE_DISCREPANCY:   { bg: '#ffedd5', color: '#9a3412', label: 'SEVERE'   },
-  MODERATE_DISCREPANCY: { bg: '#fef9c3', color: '#854d0e', label: 'SEDERHANA'},
-  MINOR_DISCREPANCY:    { bg: '#dbeafe', color: '#1e40af', label: 'MINOR'    },
-  DATA_ALIGNED:         { bg: '#dcfce7', color: '#166534', label: 'SEJAJAR'  },
+// `tone` maps to a MYDS semantic scale; TONE_CLASSES holds full literal class
+// strings (not interpolated) so Tailwind's content scanner can pick them up.
+// `hex` is kept only for one-off inline accents (e.g. Card borderLeft) that
+// can't be expressed as a className.
+const TONE_CLASSES = {
+  success: 'bg-success-100 text-success-700',
+  danger:  'bg-danger-100 text-danger-700',
+  warning: 'bg-warning-100 text-warning-700',
+  primary: 'bg-primary-100 text-primary-700',
+  gray:    'bg-gray-100 text-gray-700',
 }
-const diBadge = (cls) => DI_BADGE[cls] || { bg: '#f3f4f6', color: '#374151', label: cls || '—' }
+const TONE_HEX = {
+  success: '#16A34A', danger: '#DC2626', warning: '#CA8A04', primary: '#2563EB', gray: '#3F3F46',
+}
+
+const DI_BADGE = {
+  EXTREME_DISCREPANCY:  { tone: 'danger',  label: 'EXTREME'  },
+  SEVERE_DISCREPANCY:   { tone: 'danger',  label: 'SEVERE'   },
+  MODERATE_DISCREPANCY: { tone: 'warning', label: 'SEDERHANA'},
+  MINOR_DISCREPANCY:    { tone: 'primary', label: 'MINOR'    },
+  DATA_ALIGNED:         { tone: 'success', label: 'SEJAJAR'  },
+}
+const diBadge = (cls) => DI_BADGE[cls] || { tone: 'gray', label: cls || '—' }
 
 const STATUS_BADGE = {
-  pending:      { bg: '#fef9c3', color: '#854d0e', label: 'Menunggu' },
-  approved:     { bg: '#dcfce7', color: '#166534', label: 'Diluluskan' },
-  rejected:     { bg: '#fee2e2', color: '#991b1b', label: 'Ditolak' },
-  case_created: { bg: '#ede9fe', color: '#5b21b6', label: 'Kes Dicipta' },
-  error:        { bg: '#fee2e2', color: '#991b1b', label: 'Ralat' },
+  pending:      { tone: 'warning', label: 'Menunggu' },
+  approved:     { tone: 'success', label: 'Diluluskan' },
+  rejected:     { tone: 'danger',  label: 'Ditolak' },
+  case_created: { tone: 'primary', label: 'Kes Dicipta' },
+  error:        { tone: 'danger',  label: 'Ralat' },
 }
-const statusBadge = (s) => STATUS_BADGE[s] || { bg: '#f3f4f6', color: '#374151', label: s }
+const statusBadge = (s) => STATUS_BADGE[s] || { tone: 'gray', label: s }
 
-const Badge = ({ bg, color, label }) => (
-  <span style={{ background: bg, color, padding: '2px 10px', borderRadius: 9999, fontSize: 12, fontWeight: 600 }}>
+const Badge = ({ tone = 'gray', label }) => (
+  <span className={`rounded-full text-xs font-semibold px-2.5 py-0.5 ${TONE_CLASSES[tone] || TONE_CLASSES.gray}`}>
     {label}
   </span>
 )
 
-const Card = ({ children, style = {} }) => (
-  <div style={{ background: '#fff', borderRadius: 10, border: '1px solid #e5e7eb', padding: 20, ...style }}>
+const Card = ({ children, style = {}, className = '' }) => (
+  <div className={`card p-5 ${className}`} style={style}>
     {children}
   </div>
 )
 
 function Modal({ children, onClose }) {
   return (
-    <div onClick={onClose} style={{
-      position: 'fixed', inset: 0, background: 'rgba(17, 24, 39, 0.5)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20,
-    }}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background: '#fff', borderRadius: 12, padding: 24, maxWidth: 440, width: '100%',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-      }}>
+    <div onClick={onClose} className="fixed inset-0 z-[1000] flex items-center justify-center p-5 bg-gray-900/40 backdrop-blur-sm">
+      <div onClick={e => e.stopPropagation()} className="bg-white rounded-lg p-6 max-w-[440px] w-full shadow-menu">
         {children}
       </div>
     </div>
@@ -66,15 +76,17 @@ function SchoolPicker({ schools, selected, onToggle, onSelectAll, onClearAll }) 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <span style={{ fontWeight: 700, fontSize: 14 }}>
           Pilih Sekolah
-          {selected.length > 0 && <span style={{ marginLeft: 8, color: '#6366f1' }}>({selected.length} dipilih)</span>}
+          {selected.length > 0 && <span style={{ marginLeft: 8, color: '#2563EB' }}>({selected.length} dipilih)</span>}
         </span>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button onClick={() => onSelectAll(filtered.map(s => s.id))} style={btnStyle('#fff','#374151','#d1d5db')}>Pilih Semua</button>
-          <button onClick={onClearAll} style={btnStyle('#fff','#374151','#d1d5db')}>Nyahpilih</button>
+          <button onClick={() => onSelectAll(filtered.map(s => s.id))}
+            className="text-xs font-medium px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">Pilih Semua</button>
+          <button onClick={onClearAll}
+            className="text-xs font-medium px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">Nyahpilih</button>
         </div>
       </div>
       <input placeholder="Cari sekolah…" value={search} onChange={e => setSearch(e.target.value)}
-        style={{ width: '100%', padding: '7px 10px', borderRadius: 7, border: '1px solid #d1d5db', fontSize: 13, marginBottom: 8, boxSizing: 'border-box' }} />
+        className="input mb-2" />
       <div style={{ maxHeight: 320, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
         {filtered.map(s => {
           const breakdown = s.jnDomainBreakdown || []
@@ -88,28 +100,25 @@ function SchoolPicker({ schools, selected, onToggle, onSelectAll, onClearAll }) 
           return (
             <div key={s.id} style={{
               borderRadius: 7,
-              background: selected.includes(s.id) ? '#f5f3ff' : '#f9fafb',
-              border: selected.includes(s.id) ? '1px solid #a5b4fc' : '1px solid transparent',
+              background: selected.includes(s.id) ? '#EFF6FF' : '#FAFAFA',
+              border: selected.includes(s.id) ? '1px solid #96B7FF' : '1px solid transparent',
             }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', cursor: 'pointer' }}>
                 <input type="checkbox" checked={selected.includes(s.id)} onChange={() => onToggle(s.id)} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{s.schoolName}</div>
-                  <div style={{ fontSize: 11, color: '#9ca3af' }}>
+                  <div style={{ fontSize: 11, color: '#A1A1AA' }}>
                     {s.schoolCode} · {s.schoolType} · {s.state}
-                    {s.jnAuditScore != null && <span style={{ color: '#6366f1' }}> · Skor JN semasa: <strong>{s.jnAuditScore}</strong></span>}
+                    {s.jnAuditScore != null && <span style={{ color: '#2563EB' }}> · Skor JN semasa: <strong>{s.jnAuditScore}</strong></span>}
                   </div>
                 </div>
                 {ordered.length > 0 && (
                   <button
                     onClick={e => { e.preventDefault(); e.stopPropagation(); setExpanded(isOpen ? null : s.id) }}
                     title="Lihat pecahan skor per standard SKPM"
-                    style={{
-                      fontSize: 11, padding: '3px 9px', borderRadius: 9999, cursor: 'pointer', fontWeight: 600,
-                      border: isOpen ? '1px solid #6366f1' : '1px solid #d1d5db',
-                      background: isOpen ? '#eef2ff' : '#fff', color: isOpen ? '#4f46e5' : '#6b7280',
-                      flexShrink: 0,
-                    }}>
+                    className={`text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0 border ${
+                      isOpen ? 'border-primary-600 bg-primary-50 text-primary-700' : 'border-gray-300 bg-white text-gray-500'
+                    }`}>
                     {isOpen ? '▾' : '▸'} {ordered.length} standard
                   </button>
                 )}
@@ -120,14 +129,14 @@ function SchoolPicker({ schools, selected, onToggle, onSelectAll, onClearAll }) 
                     {ordered.map(d => (
                       <div key={d.domain} style={{
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8,
-                        padding: '4px 10px', borderRadius: 6, background: '#fff', border: '1px solid #e5e7eb',
+                        padding: '4px 10px', borderRadius: 6, background: '#fff', border: '1px solid #E4E4E7',
                       }}>
-                        <span style={{ fontSize: 11, color: '#4b5563' }}>{DOMAIN_LABELS[d.domain] || d.domainLabel}</span>
-                        <strong style={{ fontSize: 12, color: '#4f46e5' }}>{d.domainScore?.toFixed(1)}</strong>
+                        <span style={{ fontSize: 11, color: '#52525B' }}>{DOMAIN_LABELS[d.domain] || d.domainLabel}</span>
+                        <strong style={{ fontSize: 12, color: '#1D4ED8' }}>{d.domainScore?.toFixed(1)}</strong>
                       </div>
                     ))}
                   </div>
-                  <p style={{ margin: '6px 0 0', fontSize: 10.5, color: '#9ca3af' }}>
+                  <p style={{ margin: '6px 0 0', fontSize: 10.5, color: '#A1A1AA' }}>
                     Tempoh audit: {ordered[0]?.auditPeriod} · Skor JN semasa = purata berwajaran standard di atas.
                   </p>
                 </div>
@@ -135,16 +144,11 @@ function SchoolPicker({ schools, selected, onToggle, onSelectAll, onClearAll }) 
             </div>
           )
         })}
-        {filtered.length === 0 && <p style={{ color: '#9ca3af', fontSize: 13, padding: '12px 0', textAlign: 'center' }}>Tiada sekolah dijumpai.</p>}
+        {filtered.length === 0 && <p style={{ color: '#A1A1AA', fontSize: 13, padding: '12px 0', textAlign: 'center' }}>Tiada sekolah dijumpai.</p>}
       </div>
     </div>
   )
 }
-
-const btnStyle = (bg, color, border, extra = {}) => ({
-  fontSize: 12, padding: '5px 12px', border: `1px solid ${border}`, borderRadius: 6,
-  cursor: 'pointer', background: bg, color, fontWeight: 500, ...extra,
-})
 
 // Standard/domain SKPM untuk tarikan separa SK@S.
 // `key` MESTI sepadan dengan kunci SKPM_DOMAINS (ai-engine/ingestion/skpm_structure.py)
@@ -239,11 +243,11 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
   return (
     <div>
       {/* Info banner */}
-      <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, padding: '14px 18px', marginBottom: 20, display: 'flex', gap: 12 }}>
+      <div style={{ background: '#EFF6FF', border: '1px solid #C2D5FF', borderRadius: 10, padding: '14px 18px', marginBottom: 20, display: 'flex', gap: 12 }}>
         <span style={{ fontSize: 20 }}>🔵</span>
         <div>
-          <p style={{ margin: 0, fontWeight: 700, color: '#1e40af', fontSize: 14 }}>Fasa A — Kemaskini Data Audit JN (Baseline)</p>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#3b82f6' }}>
+          <p style={{ margin: 0, fontWeight: 700, color: '#1E40AF', fontSize: 14 }}>Fasa A — Kemaskini Data Audit JN (Baseline)</p>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#3A75F6' }}>
             Tarik skor audit SKPMG2 daripada SK@S, SKPK, atau dokumen Pemeriksaan JN.
             Nilai ini akan dikemaskini terus ke <strong>School.jnAuditScore</strong> — tiada semakan diperlukan.
             Lakukan Fasa A terlebih dahulu sebelum tarik data luar (Fasa B).
@@ -257,20 +261,20 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
           <Card>
             <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700 }}>1. Pilih Sumber JN</h4>
             {sources.length === 0
-              ? <p style={{ fontSize: 13, color: '#9ca3af' }}>Tiada sumber JN baseline aktif.</p>
+              ? <p style={{ fontSize: 13, color: '#A1A1AA' }}>Tiada sumber JN baseline aktif.</p>
               : sources.map(s => (
                 <button key={s.id} onClick={() => { setSelSource(s); setResult(null); setFile(null); setError('') }} style={{
                   display: 'block', width: '100%', textAlign: 'left', padding: '10px 12px', borderRadius: 8,
                   cursor: 'pointer', marginBottom: 8,
-                  border: selSource?.id === s.id ? '2px solid #2563eb' : '1px solid #e5e7eb',
-                  background: selSource?.id === s.id ? '#eff6ff' : '#fff',
+                  border: selSource?.id === s.id ? '2px solid #2563EB' : '1px solid #E4E4E7',
+                  background: selSource?.id === s.id ? '#EFF6FF' : '#fff',
                 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13, color: selSource?.id === s.id ? '#1e40af' : '#111827' }}>{s.name}</div>
-                  <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>
+                  <div style={{ fontWeight: 600, fontSize: 13, color: selSource?.id === s.id ? '#1E40AF' : '#18181B' }}>{s.name}</div>
+                  <div style={{ fontSize: 11, color: '#A1A1AA', marginTop: 2 }}>
                     {s.sourceType === 'api' ? '🔌 API Endpoint' : '📄 Dokumen (Google Drive)'} · {s.sourceCode}
                   </div>
                   {s.description && (
-                    <div style={{ fontSize: 12, color: '#4b5563', marginTop: 6, lineHeight: 1.4 }}>
+                    <div style={{ fontSize: 12, color: '#52525B', marginTop: 6, lineHeight: 1.4 }}>
                       {s.description}
                     </div>
                   )}
@@ -280,7 +284,7 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
           </Card>
 
           {selSource?.sourceCode === 'SKPK' && (
-            <div style={{ background: '#fefce8', border: '1px solid #fde047', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#854d0e', lineHeight: 1.5 }}>
+            <div style={{ background: '#FEFCE8', border: '1px solid #FDE047', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#854D0E', lineHeight: 1.5 }}>
               🧸 <strong>Instrumen SKPK (pra-sekolah)</strong> — menggunakan set standard tersendiri,
               bukan standard SKPM. Skor per standard SKPK akan disimpan dan dipaparkan dalam
               pecahan sekolah. <em>Struktur standard semasa adalah placeholder — akan digantikan
@@ -289,7 +293,7 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
           )}
 
           {isPemeriksaan && (
-            <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#075985', lineHeight: 1.5 }}>
+            <div style={{ background: '#EFF6FF', border: '1px solid #C2D5FF', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#1E40AF', lineHeight: 1.5 }}>
               📜 <strong>Dokumen Syor Pemeriksaan JN</strong> — laluan utama:
               sistem <strong>tarik terus dari folder Google Drive</strong> rasmi.
               Dokumen lazimnya dalam format <strong>DOCX</strong> dan mengandungi
@@ -317,15 +321,15 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
               <h4 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 700 }}>
                 📂 Fail dalam Google Drive
                 {gdriveFiles.length > 0 && (
-                  <span style={{ marginLeft: 8, color: '#6366f1', fontWeight: 600, fontSize: 12 }}>
+                  <span style={{ marginLeft: 8, color: '#2563EB', fontWeight: 600, fontSize: 12 }}>
                     ({gdriveFiles.length} fail)
                   </span>
                 )}
               </h4>
               {gdriveLoading ? (
-                <p style={{ fontSize: 13, color: '#9ca3af', padding: '10px 0' }}>⏳ Menyenaraikan fail…</p>
+                <p className="text-sm text-gray-400 py-2.5 flex items-center gap-2"><Spinner size="sm" /> Menyenaraikan fail…</p>
               ) : gdriveFiles.length === 0 ? (
-                <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, padding: '12px 14px', fontSize: 12, color: '#92400e' }}>
+                <div style={{ background: '#FEFCE8', border: '1px solid #FEF08A', borderRadius: 8, padding: '12px 14px', fontSize: 12, color: '#854D0E' }}>
                   ⚠️ Tiada fail dijumpai dalam folder Google Drive untuk tahun semasa.
                   <br />Sila muat naik fail DOCX pemeriksaan secara manual.
                 </div>
@@ -339,14 +343,14 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
                         style={{
                           display: 'flex', alignItems: 'center', gap: 10,
                           padding: '10px 12px', borderRadius: 8, cursor: 'pointer',
-                          background: isSel ? '#eff6ff' : gf.isDocx ? '#f0fdf4' : '#f9fafb',
-                          border: isSel ? '2px solid #2563eb' : gf.isDocx ? '1px solid #bbf7d0' : '1px solid #e5e7eb',
+                          background: isSel ? '#EFF6FF' : gf.isDocx ? '#F0FDF4' : '#FAFAFA',
+                          border: isSel ? '2px solid #2563EB' : gf.isDocx ? '1px solid #BBF7D0' : '1px solid #E4E4E7',
                           transition: 'all 0.15s',
                         }}
                       >
                         <span style={{
                           width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
-                          border: isSel ? '5px solid #2563eb' : '2px solid #d1d5db',
+                          border: isSel ? '5px solid #2563EB' : '2px solid #D4D4D8',
                           background: isSel ? '#fff' : 'transparent',
                           transition: 'all 0.15s',
                         }} />
@@ -354,13 +358,13 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
                           {gf.isDocx ? '📄' : '📎'}
                         </span>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 12.5, fontWeight: 600, color: isSel ? '#1e40af' : '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: 12.5, fontWeight: 600, color: isSel ? '#1E40AF' : '#27272A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {gf.name}
                           </div>
-                          <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 1 }}>
+                          <div style={{ fontSize: 11, color: '#A1A1AA', marginTop: 1 }}>
                             {gf.theme && gf.theme !== 'Umum' && (
                               <span style={{
-                                background: '#e0f2fe', color: '#0369a1', padding: '1px 6px',
+                                background: '#DBEAFE', color: '#1D4ED8', padding: '1px 6px',
                                 borderRadius: 4, marginRight: 6, fontWeight: 600,
                               }}>📋 {gf.theme}</span>
                             )}
@@ -370,7 +374,7 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
                         {gf.webViewLink && (
                           <a href={gf.webViewLink} target="_blank" rel="noopener noreferrer"
                             onClick={e => e.stopPropagation()}
-                            style={{ fontSize: 11, color: '#6366f1', textDecoration: 'none', flexShrink: 0, fontWeight: 600 }}>
+                            style={{ fontSize: 11, color: '#2563EB', textDecoration: 'none', flexShrink: 0, fontWeight: 600 }}>
                             Buka ↗
                           </a>
                         )}
@@ -379,7 +383,7 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
                   })}
                 </div>
               )}
-              <p style={{ margin: '10px 0 0', fontSize: 11, color: '#9ca3af' }}>
+              <p style={{ margin: '10px 0 0', fontSize: 11, color: '#A1A1AA' }}>
                 {selGdriveFile
                   ? <>✅ <strong>{selGdriveFile.name}</strong> dipilih — AI akan analisa kandungan fail ini.</>
                   : <>👆 Pilih satu fail di atas. AI akan membaca kandungan dan mengesan kod sekolah secara automatik.</>
@@ -391,22 +395,25 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
           {selSource?.sourceType === 'document' && (
             <Card>
               <h4 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 700 }}>
-                2. Muat Naik Dokumen{isPemeriksaan && <span style={{ color: '#9ca3af', fontWeight: 500 }}> (Pilihan)</span>}
+                2. Muat Naik Dokumen{isPemeriksaan && <span style={{ color: '#A1A1AA', fontWeight: 500 }}> (Pilihan)</span>}
               </h4>
               {isPemeriksaan && file && (
                 <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'flex-end' }}>
-                  <button onClick={() => setFile(null)} style={btnStyle('#fff','#991b1b','#fca5a5')}>✕ Buang fail — guna Google Drive</button>
+                  <button onClick={() => setFile(null)}
+                    className="text-xs font-medium px-3 py-1 rounded-md border border-danger-300 bg-white text-danger-800 hover:bg-danger-50">
+                    ✕ Buang fail — guna Google Drive
+                  </button>
                 </div>
               )}
               <label style={{
-                display: 'block', border: '2px dashed #93c5fd', borderRadius: 8,
-                padding: 20, textAlign: 'center', cursor: 'pointer', background: '#f0f9ff',
+                display: 'block', border: '2px dashed #96B7FF', borderRadius: 8,
+                padding: 20, textAlign: 'center', cursor: 'pointer', background: '#EFF6FF',
               }}>
                 <div style={{ fontSize: 24, marginBottom: 6 }}>📋</div>
-                <div style={{ fontSize: 13, color: '#374151' }}>
-                  {file ? <span style={{ color: '#1d4ed8' }}>✅ {file.name}</span> : 'Klik atau seret fail pemeriksaan JN (DOCX/PDF)'}
+                <div style={{ fontSize: 13, color: '#3F3F46' }}>
+                  {file ? <span style={{ color: '#1D4ED8' }}>✅ {file.name}</span> : 'Klik atau seret fail pemeriksaan JN (DOCX/PDF)'}
                 </div>
-                <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>DOCX, PDF, XLSX (maks 20MB) · Satu fail boleh mengandungi pelbagai sekolah</div>
+                <div style={{ fontSize: 11, color: '#A1A1AA', marginTop: 4 }}>DOCX, PDF, XLSX (maks 20MB) · Satu fail boleh mengandungi pelbagai sekolah</div>
                 <input type="file" style={{ display: 'none' }} accept=".pdf,.docx,.xlsx,.xls,.txt"
                   onChange={e => setFile(e.target.files[0])} />
               </label>
@@ -421,13 +428,15 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                 <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>
                   2. Pilih Standard SKPM
-                  <span style={{ marginLeft: 8, color: isPartialPull ? '#2563eb' : '#9ca3af', fontWeight: 600, fontSize: 12 }}>
+                  <span style={{ marginLeft: 8, color: isPartialPull ? '#2563EB' : '#A1A1AA', fontWeight: 600, fontSize: 12 }}>
                     ({selDomains.length}/{ALL_DOMAIN_KEYS.length} dipilih)
                   </span>
                 </h4>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button onClick={() => setSelDomains(ALL_DOMAIN_KEYS)} style={btnStyle('#fff','#374151','#d1d5db')}>Pilih Semua</button>
-                  <button onClick={() => setSelDomains([])} style={btnStyle('#fff','#374151','#d1d5db')}>Nyahpilih</button>
+                  <button onClick={() => setSelDomains(ALL_DOMAIN_KEYS)}
+                    className="text-xs font-medium px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">Pilih Semua</button>
+                  <button onClick={() => setSelDomains([])}
+                    className="text-xs font-medium px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">Nyahpilih</button>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
@@ -435,8 +444,8 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
                   <label key={d.key} style={{
                     display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 7, cursor: 'pointer',
                     fontSize: 12.5, fontWeight: 500,
-                    background: selDomains.includes(d.key) ? '#eff6ff' : '#f9fafb',
-                    border: selDomains.includes(d.key) ? '1px solid #93c5fd' : '1px solid transparent',
+                    background: selDomains.includes(d.key) ? '#EFF6FF' : '#FAFAFA',
+                    border: selDomains.includes(d.key) ? '1px solid #96B7FF' : '1px solid transparent',
                   }}>
                     <input type="checkbox" checked={selDomains.includes(d.key)}
                       onChange={() => setSelDomains(p => p.includes(d.key) ? p.filter(x => x !== d.key) : [...p, d.key])} />
@@ -445,7 +454,7 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
                 ))}
               </div>
               {isPartialPull && (
-                <p style={{ margin: '10px 0 0', fontSize: 11.5, color: '#6b7280', lineHeight: 1.5 }}>
+                <p style={{ margin: '10px 0 0', fontSize: 11.5, color: '#6B6B74', lineHeight: 1.5 }}>
                   ℹ️ Tarikan separa: hanya standard dipilih akan dikemaskini.
                   Skor komposit JN dikira semula merangkumi skor standard sedia ada dalam pangkalan data (tempoh audit sama).
                 </p>
@@ -466,17 +475,12 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
             />
           </Card>
 
-          {error && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '10px 14px', borderRadius: 8, fontSize: 13 }}>{error}</div>}
+          {error && <div className="bg-danger-100 text-danger-800 rounded-md px-3.5 py-2.5 text-sm">{error}</div>}
 
           <button
             disabled={pulling || !selSource || selSchools.length === 0 || (isSKAS && selDomains.length === 0) || (isPemeriksaan && !selGdriveFile && !file)}
             onClick={handlePull}
-            style={{
-              padding: '12px 24px', borderRadius: 8, border: 'none', fontWeight: 700, fontSize: 14, color: '#fff',
-              background: pulling ? '#93c5fd' : '#2563eb',
-              cursor: pulling || !selSource || selSchools.length === 0 || (isSKAS && selDomains.length === 0) || (isPemeriksaan && !selGdriveFile && !file) ? 'not-allowed' : 'pointer',
-              opacity: !selSource || selSchools.length === 0 || (isSKAS && selDomains.length === 0) || (isPemeriksaan && !selGdriveFile && !file) ? 0.5 : 1,
-            }}>
+            className="btn-primary !px-6 !py-3 !text-sm w-full sm:w-auto">
             {pulling ? '⏳ Sedang kemaskini JN baseline…'
               : isPemeriksaan && !selGdriveFile && !file ? '👆 Pilih fail syor di atas dahulu'
               : isPemeriksaan ? (selGdriveFile ? `🔵 Tarik Syor dari ${selGdriveFile.name.slice(0, 25)}…` : '🔵 Tarik Syor dari Google Drive')
@@ -485,8 +489,8 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
           </button>
 
           {result && result.runCategory === 'jn_baseline' && (
-            <Card style={{ borderColor: result.schoolsUpdated > 0 ? '#93c5fd' : '#fca5a5', background: result.schoolsUpdated > 0 ? '#eff6ff' : '#fef2f2' }}>
-              <div style={{ fontWeight: 700, color: result.schoolsUpdated > 0 ? '#1e40af' : '#991b1b', marginBottom: 10 }}>
+            <Card className={result.schoolsUpdated > 0 ? 'border-primary-300 bg-primary-50' : 'border-danger-300 bg-danger-50'}>
+              <div style={{ fontWeight: 700, color: result.schoolsUpdated > 0 ? '#1E40AF' : '#991B1B', marginBottom: 10 }}>
                 {result.schoolsUpdated > 0
                   ? `✅ ${result.schoolsUpdated} sekolah berjaya dikemaskini!`
                   : '⚠️ Tiada sekolah dikemaskini'}
@@ -494,29 +498,29 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
               {(result.failedSchools || []).length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: (result.schools || []).length > 0 ? 10 : 0 }}>
                   {result.failedSchools.map(f => (
-                    <div key={f.schoolCode} style={{ padding: '8px 12px', background: '#fff', borderRadius: 8, border: '1px solid #fecaca' }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, color: '#991b1b' }}>{f.schoolName || f.schoolCode}</div>
-                      <div style={{ fontSize: 12, color: '#b91c1c', marginTop: 2 }}>{f.error}</div>
+                    <div key={f.schoolCode} style={{ padding: '8px 12px', background: '#fff', borderRadius: 8, border: '1px solid #FECACA' }}>
+                      <div style={{ fontWeight: 600, fontSize: 13, color: '#991B1B' }}>{f.schoolName || f.schoolCode}</div>
+                      <div style={{ fontSize: 12, color: '#B91C1C', marginTop: 2 }}>{f.error}</div>
                     </div>
                   ))}
                 </div>
               )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {(result.schools || []).map(s => (
-                  <div key={s.schoolCode} style={{ padding: '8px 12px', background: '#fff', borderRadius: 8, border: '1px solid #bfdbfe' }}>
+                  <div key={s.schoolCode} style={{ padding: '8px 12px', background: '#fff', borderRadius: 8, border: '1px solid #C2D5FF' }}>
                     <div style={{ fontWeight: 600, fontSize: 13 }}>{s.schoolName || s.schoolCode}</div>
-                    <div style={{ fontSize: 12, color: '#3b82f6', marginTop: 2 }}>
-                      Skor JN Baharu: <strong style={{ fontSize: 14, color: '#1e40af' }}>{s.jnAuditScore?.toFixed(2)}</strong>
+                    <div style={{ fontSize: 12, color: '#3A75F6', marginTop: 2 }}>
+                      Skor JN Baharu: <strong style={{ fontSize: 14, color: '#1E40AF' }}>{s.jnAuditScore?.toFixed(2)}</strong>
                       {s.partial && (
-                        <span style={{ marginLeft: 8, background: '#dbeafe', color: '#1e40af', padding: '1px 8px', borderRadius: 9999, fontSize: 11, fontWeight: 600 }}>
+                        <span style={{ marginLeft: 8, background: '#DBEAFE', color: '#1E40AF', padding: '1px 8px', borderRadius: 9999, fontSize: 11, fontWeight: 600 }}>
                           Separa — komposit termasuk standard sedia ada
                         </span>
                       )}
                     </div>
                     {(s.sourceFile || s.inspectionTheme) && (
-                      <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>
+                      <div style={{ fontSize: 11, color: '#A1A1AA', marginTop: 2 }}>
                         {s.inspectionTheme && (
-                          <span style={{ marginRight: 10, background: '#e0f2fe', color: '#0369a1', padding: '1px 6px', borderRadius: 4 }}>
+                          <span style={{ marginRight: 10, background: '#DBEAFE', color: '#1D4ED8', padding: '1px 6px', borderRadius: 4 }}>
                             📋 {s.inspectionTheme}
                           </span>
                         )}
@@ -532,7 +536,7 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
                             : dim.replace('domain_', '').replace(/_/g, ' ')
                           if (score == null) return null
                           return (
-                            <span key={dim} style={{ fontSize: 11, color: '#6b7280' }}>
+                            <span key={dim} style={{ fontSize: 11, color: '#6B6B74' }}>
                               {label}: <strong>{score}</strong>
                             </span>
                           )
@@ -544,10 +548,10 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
               </div>
               {result.schoolsUpdated > 0 && (
                 <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ flex: 1, height: 4, background: '#bfdbfe', borderRadius: 9999, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', background: '#2563eb', borderRadius: 9999, animation: 'progress-fill 2.2s linear forwards' }} />
+                  <div className="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-primary-600 rounded-full" style={{ animation: 'progress-fill 2.2s linear forwards' }} />
                   </div>
-                  <span style={{ fontSize: 12, color: '#3b82f6', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: 12, color: '#3A75F6', whiteSpace: 'nowrap' }}>
                     ⏩ Beralih ke Fasa B…
                   </span>
                 </div>
@@ -628,18 +632,18 @@ function OutsourceTab({ schools, selSchools, setSelSchools, onRecordsCreated }) 
   return (
     <div>
       {/* Info banner */}
-      <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 10, padding: '14px 18px', marginBottom: 20, display: 'flex', gap: 12 }}>
+      <div style={{ background: '#FEFCE8', border: '1px solid #FEF08A', borderRadius: 10, padding: '14px 18px', marginBottom: 20, display: 'flex', gap: 12 }}>
         <span style={{ fontSize: 20 }}>🟠</span>
         <div style={{ flex: 1 }}>
-          <p style={{ margin: 0, fontWeight: 700, color: '#9a3412', fontSize: 14 }}>Fasa B — Data Luar untuk Perbandingan DI</p>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#c2410c' }}>
+          <p style={{ margin: 0, fontWeight: 700, color: '#854D0E', fontSize: 14 }}>Fasa B — Data Luar untuk Perbandingan DI</p>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#A16207' }}>
             Tarik data operasi dari EMIS, APDM, atau laporan JPN/PPD. Sistem akan kira
             <strong> DI = |jnAuditScore − skor_ops| / 100</strong> bagi setiap sekolah.
             Rekod akan disimpan untuk semakan pegawai sebelum kes dijanakan.
           </p>
-          <div style={{ marginTop: 8, fontSize: 12, color: '#9a3412' }}>
+          <div style={{ marginTop: 8, fontSize: 12, color: '#854D0E' }}>
             📊 Liputan JN Baseline: <strong>{schoolsWithJn.length}/{schools.length} sekolah ({jnCoverage}%)</strong> telah ada skor JN.
-            {jnCoverage < 80 && <span style={{ marginLeft: 8, color: '#dc2626' }}>⚠ Kemaskini Fasa A dahulu untuk liputan yang lebih baik.</span>}
+            {jnCoverage < 80 && <span style={{ marginLeft: 8, color: '#DC2626' }}>⚠ Kemaskini Fasa A dahulu untuk liputan yang lebih baik.</span>}
           </div>
         </div>
       </div>
@@ -653,15 +657,15 @@ function OutsourceTab({ schools, selSchools, setSelSchools, onRecordsCreated }) 
               <button key={s.id} onClick={() => { setSelSource(s); setResult(null); setFile(null); setError('') }} style={{
                 display: 'block', width: '100%', textAlign: 'left', padding: '10px 12px', borderRadius: 8,
                 cursor: 'pointer', marginBottom: 8,
-                border: selSource?.id === s.id ? '2px solid #ea580c' : '1px solid #e5e7eb',
-                background: selSource?.id === s.id ? '#fff7ed' : '#fff',
+                border: selSource?.id === s.id ? '2px solid #CA8A04' : '1px solid #E4E4E7',
+                background: selSource?.id === s.id ? '#FEFCE8' : '#fff',
               }}>
-                <div style={{ fontWeight: 600, fontSize: 13, color: selSource?.id === s.id ? '#9a3412' : '#111827' }}>{s.name}</div>
-                <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>
+                <div style={{ fontWeight: 600, fontSize: 13, color: selSource?.id === s.id ? '#854D0E' : '#18181B' }}>{s.name}</div>
+                <div style={{ fontSize: 11, color: '#A1A1AA', marginTop: 2 }}>
                   {s.sourceType === 'api' ? '🔌 API' : '📄 Dokumen'} · {s.sourceCode}
                 </div>
                 {s.description && (
-                  <div style={{ fontSize: 12, color: '#4b5563', marginTop: 6, lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: '#52525B', marginTop: 6, lineHeight: 1.4 }}>
                     {s.description}
                   </div>
                 )}
@@ -673,14 +677,14 @@ function OutsourceTab({ schools, selSchools, setSelSchools, onRecordsCreated }) 
             <Card>
               <h4 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 700 }}>2. Muat Naik Dokumen</h4>
               <label style={{
-                display: 'block', border: '2px dashed #fed7aa', borderRadius: 8,
-                padding: 20, textAlign: 'center', cursor: 'pointer', background: '#fff7ed',
+                display: 'block', border: '2px dashed #FEF08A', borderRadius: 8,
+                padding: 20, textAlign: 'center', cursor: 'pointer', background: '#FEFCE8',
               }}>
                 <div style={{ fontSize: 24, marginBottom: 6 }}>📎</div>
-                <div style={{ fontSize: 13, color: '#374151' }}>
-                  {file ? <span style={{ color: '#9a3412' }}>✅ {file.name}</span> : 'Klik atau seret fail laporan'}
+                <div style={{ fontSize: 13, color: '#3F3F46' }}>
+                  {file ? <span style={{ color: '#854D0E' }}>✅ {file.name}</span> : 'Klik atau seret fail laporan'}
                 </div>
-                <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>PDF, DOCX, Excel (maks 20MB)</div>
+                <div style={{ fontSize: 11, color: '#A1A1AA', marginTop: 4 }}>PDF, DOCX, Excel (maks 20MB)</div>
                 <input type="file" style={{ display: 'none' }} accept=".pdf,.docx,.xlsx,.xls,.txt"
                   onChange={e => setFile(e.target.files[0])} />
               </label>
@@ -705,38 +709,36 @@ function OutsourceTab({ schools, selSchools, setSelSchools, onRecordsCreated }) 
 
           {/* ── Mapping Preview ────────────────────────────────────────── */}
           {previewLoading && (
-            <Card style={{ borderColor: '#fcd34d', background: '#fffbeb' }}>
-              <p style={{ margin: 0, fontSize: 13, color: '#92400e' }}>⏳ Menganalisis keserasian data...</p>
+            <Card className="border-warning-300 bg-warning-50">
+              <p className="text-sm text-warning-800 flex items-center gap-2 m-0"><Spinner size="sm" /> Menganalisis keserasian data...</p>
             </Card>
           )}
           {mappingPreview && !previewLoading && (
-            <Card style={{ borderColor: '#d8b4fe', background: '#faf5ff' }}>
-              <h4 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: '#6b21a8' }}>
+            <Card className="border-primary-200 bg-primary-50">
+              <h4 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: '#1E40AF' }}>
                 📊 Keserasian Data: {mappingPreview.source_label} ↔ JN Baseline
               </h4>
               {mappingPreview.schools?.map(school => (
                 <div key={school.school_code} style={{ marginBottom: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#4c1d95' }}>{school.school_code}</span>
-                    <span style={{
-                      fontSize: 11, padding: '1px 8px', borderRadius: 9999, fontWeight: 600,
-                      background: school.coverage_status === 'good' ? '#dcfce7' : school.coverage_status === 'partial' ? '#fef9c3' : '#fee2e2',
-                      color: school.coverage_status === 'good' ? '#166534' : school.coverage_status === 'partial' ? '#854d0e' : '#991b1b',
-                    }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#1E3A8A' }}>{school.school_code}</span>
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${
+                      school.coverage_status === 'good' ? 'bg-success-100 text-success-700'
+                        : school.coverage_status === 'partial' ? 'bg-warning-100 text-warning-700'
+                        : 'bg-danger-100 text-danger-700'
+                    }`}>
                       {school.coverage_pct}% sepadan
                     </span>
-                    <span style={{ fontSize: 10, color: '#9ca3af' }}>
+                    <span style={{ fontSize: 10, color: '#A1A1AA' }}>
                       ({school.jn_domain_count} standard JN ada baseline)
                     </span>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                     {school.mapped_dimensions?.map(dim => (
-                      <div key={dim.dimension} title={`${dim.dimension_label}: ${dim.outsource_fields.join(', ')}`} style={{
-                        padding: '3px 8px', borderRadius: 5, fontSize: 10.5,
-                        background: dim.has_jn_baseline ? '#dcfce7' : '#fef2f2',
-                        border: dim.has_jn_baseline ? '1px solid #86efac' : '1px solid #fecaca',
-                        color: dim.has_jn_baseline ? '#166534' : '#991b1b',
-                      }}>
+                      <div key={dim.dimension} title={`${dim.dimension_label}: ${dim.outsource_fields.join(', ')}`}
+                        className={`px-2 py-0.5 rounded-sm text-[10.5px] border ${
+                          dim.has_jn_baseline ? 'bg-success-100 border-success-200 text-success-700' : 'bg-danger-50 border-danger-200 text-danger-700'
+                        }`}>
                         {dim.has_jn_baseline ? '✓' : '✗'} {dim.dimension_label}
                         {dim.has_jn_baseline && dim.jn_score != null && (
                           <span style={{ marginLeft: 4, fontWeight: 700 }}>{dim.jn_score.toFixed(1)}</span>
@@ -746,36 +748,31 @@ function OutsourceTab({ schools, selSchools, setSelSchools, onRecordsCreated }) 
                   </div>
                 </div>
               ))}
-              <p style={{ margin: '8px 0 0', fontSize: 10.5, color: '#9ca3af' }}>
+              <p style={{ margin: '8px 0 0', fontSize: 10.5, color: '#A1A1AA' }}>
                 ✓ = standard JN ada baseline dari Fasa A · ✗ = tiada baseline — DI tak bermakna
               </p>
             </Card>
           )}
 
-          {error && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '10px 14px', borderRadius: 8, fontSize: 13 }}>{error}</div>}
+          {error && <div className="bg-danger-100 text-danger-800 rounded-md px-3.5 py-2.5 text-sm">{error}</div>}
 
           <button
             disabled={pulling || !selSource || selSchools.length === 0}
             onClick={handlePull}
-            style={{
-              padding: '12px 24px', borderRadius: 8, border: 'none', fontWeight: 700, fontSize: 14, color: '#fff',
-              background: pulling ? '#fdba74' : '#ea580c',
-              cursor: pulling || !selSource || selSchools.length === 0 ? 'not-allowed' : 'pointer',
-              opacity: !selSource || selSchools.length === 0 ? 0.5 : 1,
-            }}>
+            className="btn-primary !px-6 !py-3 !text-sm w-full sm:w-auto">
             {pulling ? '⏳ Sedang memproses…' :
               selSource?.sourceType === 'api' ? '🟠 Tarik Data dari API' : '🟠 Muat Naik & Proses Dokumen'}
           </button>
 
           {result && result.runCategory === 'outsource' && (
-            <Card style={{ borderColor: '#fed7aa', background: '#fff7ed' }}>
-              <div style={{ fontWeight: 700, color: '#9a3412', marginBottom: 8 }}>
+            <Card className="border-warning-200 bg-warning-50">
+              <div style={{ fontWeight: 700, color: '#854D0E', marginBottom: 8 }}>
                 ✅ {result.records} rekod berjaya diekstrak!
               </div>
-              <p style={{ margin: 0, fontSize: 13, color: '#374151' }}>
+              <p style={{ margin: 0, fontSize: 13, color: '#3F3F46' }}>
                 Rekod disimpan dalam status <strong>Menunggu Semakan</strong>.
               </p>
-              <p style={{ margin: '6px 0 0', fontSize: 12, color: '#c2410c' }}>
+              <p style={{ margin: '6px 0 0', fontSize: 12, color: '#A16207' }}>
                 Pergi ke tab <strong>🔍 Semakan Rekod</strong> untuk luluskan rekod dan jana kes.
               </p>
             </Card>
@@ -851,57 +848,51 @@ function RecordsTab({ highlight }) {
     <div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         {['pending', 'approved', 'rejected', 'case_created', ''].map(s => (
-          <button key={s} onClick={() => setFilter(s)} style={{
-            padding: '6px 14px', borderRadius: 20, fontSize: 13, cursor: 'pointer',
-            border: filter === s ? '2px solid #6366f1' : '1px solid #e5e7eb',
-            background: filter === s ? '#f5f3ff' : '#fff',
-            fontWeight: filter === s ? 700 : 400,
-          }}>
+          <button key={s} onClick={() => setFilter(s)}
+            className={`px-3.5 py-1.5 rounded-full text-sm ${
+              filter === s ? 'border-2 border-primary-600 bg-primary-50 font-bold' : 'border border-gray-200 bg-white font-normal'
+            }`}>
             {s === '' ? 'Semua' : statusBadge(s).label}
           </button>
         ))}
-        <span style={{ marginLeft: 'auto', fontSize: 13, color: '#9ca3af', alignSelf: 'center' }}>{total} rekod</span>
+        <span style={{ marginLeft: 'auto', fontSize: 13, color: '#A1A1AA', alignSelf: 'center' }}>{total} rekod</span>
       </div>
 
       {actionMsg && (
-        <div style={{
-          marginBottom: 12, padding: '10px 14px', borderRadius: 8, fontSize: 13,
-          background: actionMsg.startsWith('✅') ? '#f0fdf4' : '#fee2e2',
-          color: actionMsg.startsWith('✅') ? '#166534' : '#991b1b',
-          display: 'flex', alignItems: 'center', gap: 8,
-        }}>
+        <div className={`mb-3 px-3.5 py-2.5 rounded-md text-sm flex items-center gap-2 ${
+          actionMsg.startsWith('✅') ? 'bg-success-50 text-success-800' : 'bg-danger-100 text-danger-800'
+        }`}>
           <span style={{ flex: 1 }}>{actionMsg}</span>
           {createdCaseId && (
-            <a href={`/cases/${createdCaseId}`} style={{
-              color: '#2563eb', fontWeight: 600, fontSize: 12,
-              background: '#dbeafe', padding: '3px 10px', borderRadius: 6,
-              textDecoration: 'none', flexShrink: 0,
-            }}>Lihat Kes →</a>
+            <a href={`/cases/${createdCaseId}`}
+              className="text-primary-600 font-semibold text-xs bg-primary-100 px-2.5 py-1 rounded-md no-underline flex-shrink-0">
+              Lihat Kes →
+            </a>
           )}
         </div>
       )}
 
-      {loading ? <p style={{ color: '#6b7280' }}>Memuatkan rekod…</p>
-        : records.length === 0 ? <p style={{ color: '#6b7280', textAlign: 'center', padding: 48 }}>Tiada rekod ditemui.</p>
+      {loading ? <PageLoader />
+        : records.length === 0 ? <p className="text-gray-500 text-center p-12">Tiada rekod ditemui.</p>
         : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {records.map(rec => {
               const di = diBadge(rec.diClassification)
               const st = statusBadge(rec.status)
               return (
-                <Card key={rec.id} style={{ borderLeft: `4px solid ${di.color}` }}>
+                <Card key={rec.id} style={{ borderLeft: `4px solid ${TONE_HEX[di.tone]}` }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
                         <span style={{ fontWeight: 700 }}>{rec.school?.schoolName || rec.schoolCodeRaw}</span>
-                        <code style={{ fontSize: 11, background: '#f3f4f6', padding: '1px 6px', borderRadius: 4 }}>{rec.schoolCodeRaw}</code>
+                        <code className="text-xs bg-gray-100 rounded-sm px-1.5 py-0.5">{rec.schoolCodeRaw}</code>
                         {rec.school?.state && (
-                          <span style={{ fontSize: 11, color: '#6b7280', background: '#f3f4f6', padding: '1px 8px', borderRadius: 999 }}>{rec.school.state}</span>
+                          <span className="text-xs text-gray-500 bg-gray-100 rounded-full px-2 py-0.5">{rec.school.state}</span>
                         )}
                         <Badge {...di} />
                         <Badge {...st} />
                       </div>
-                      <div style={{ display: 'flex', gap: 20, fontSize: 12, color: '#6b7280', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', gap: 20, fontSize: 12, color: '#6B6B74', flexWrap: 'wrap' }}>
                         <span>Sumber: <strong>{rec.source?.sourceCode}</strong></span>
                         <span>Skor JN: <strong>{rec.jnAuditScore?.toFixed(1) ?? '—'}</strong></span>
                         <span>Skor Ops: <strong>{rec.compositeOperationalScore?.toFixed(1) ?? '—'}</strong></span>
@@ -910,24 +901,22 @@ function RecordsTab({ highlight }) {
                       </div>
                       {Object.keys(rec.domainDi || {}).length > 0 && (
                         <div style={{ marginTop: 10 }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: '#6B6B74', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
                             DI per Standard SKPM
                           </div>
                           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                             {Object.entries(rec.domainDi).map(([dom, d]) => {
                               const b = diBadge(d.classification)
                               return (
-                                <div key={dom} title={`JN ${d.jn_score?.toFixed(1)} vs Ops ${d.operational_score?.toFixed(1)}`} style={{
-                                  display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px',
-                                  borderRadius: 8, background: b.bg, border: `1px solid ${b.color}22`,
-                                }}>
-                                  <span style={{ fontSize: 11.5, fontWeight: 600, color: b.color }}>
+                                <div key={dom} title={`JN ${d.jn_score?.toFixed(1)} vs Ops ${d.operational_score?.toFixed(1)}`}
+                                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md ${TONE_CLASSES[b.tone] || TONE_CLASSES.gray}`}>
+                                  <span className="text-[11.5px] font-semibold">
                                     {DOMAIN_LABELS[dom] || dom.replace(/_/g, ' ')}
                                   </span>
-                                  <span style={{ fontSize: 11.5, color: b.color }}>
+                                  <span className="text-[11.5px]">
                                     {d.jn_score?.toFixed(1)} → {d.operational_score?.toFixed(1)}
                                   </span>
-                                  <strong style={{ fontSize: 12, color: b.color }}>DI {d.di?.toFixed(3)}</strong>
+                                  <strong className="text-xs">DI {d.di?.toFixed(3)}</strong>
                                 </div>
                               )
                             })}
@@ -935,8 +924,8 @@ function RecordsTab({ highlight }) {
                         </div>
                       )}
                       {rec.linkedCaseId && (
-                        <div style={{ marginTop: 6, fontSize: 12, color: '#6366f1' }}>
-                          → Kes berkaitan: <a href={`/cases/${rec.linkedCaseId}`} style={{ color: '#6366f1' }}>Lihat Kes</a>
+                        <div style={{ marginTop: 6, fontSize: 12, color: '#2563EB' }}>
+                          → Kes berkaitan: <a href={`/cases/${rec.linkedCaseId}`} style={{ color: '#2563EB' }}>Lihat Kes</a>
                         </div>
                       )}
                     </div>
@@ -944,11 +933,11 @@ function RecordsTab({ highlight }) {
                     {rec.status === 'pending' && (
                       <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                         <button onClick={() => { setApproving(rec); setRejecting(null); setActionMsg(''); setIncidentText(suggestedIncidentText(rec)) }}
-                          style={{ padding: '6px 14px', borderRadius: 7, cursor: 'pointer', background: '#6366f1', color: '#fff', border: 'none', fontWeight: 600, fontSize: 13 }}>
+                          className="btn-primary !text-xs !px-3.5 !py-1.5">
                           Lulus & Cipta Kes
                         </button>
                         <button onClick={() => { setRejecting(rec); setApproving(null); setActionMsg('') }}
-                          style={{ padding: '6px 14px', borderRadius: 7, cursor: 'pointer', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', fontWeight: 600, fontSize: 13 }}>
+                          className="btn-danger !bg-danger-100 !text-danger-800 !border !border-danger-300 !shadow-none hover:!bg-danger-200 !text-xs !px-3.5 !py-1.5">
                           Tolak
                         </button>
                       </div>
@@ -957,27 +946,25 @@ function RecordsTab({ highlight }) {
 
                   {approving?.id === rec.id && (
                     <Modal onClose={() => setApproving(null)}>
-                      <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 15, color: '#4c1d95' }}>
+                      <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 15, color: '#1E3A8A' }}>
                         Luluskan Rekod → Cipta Kes Baharu
                       </p>
-                      <p style={{ margin: '0 0 14px', fontSize: 13, color: '#6b7280' }}>
+                      <p style={{ margin: '0 0 14px', fontSize: 13, color: '#6B6B74' }}>
                         {rec.school?.schoolName || rec.schoolCodeRaw}
                       </p>
                       {ROUTINE_DI_CLASSIFICATIONS.includes(rec.diClassification) && (
-                        <p style={{ margin: '0 0 10px', fontSize: 12, color: '#7c3aed', background: '#f5f3ff', padding: '8px 12px', borderRadius: 7 }}>
+                        <p className="text-xs text-primary-700 bg-primary-50 px-3 py-2 rounded-md mb-2.5">
                           💡 Cadangan draf disediakan kerana rekod ini tiada anomali — sunting jika perlu.
                         </p>
                       )}
                       <textarea rows={4} placeholder="Huraikan insiden atau konteks discrepancy (min 20 aksara)…"
                         value={incidentText} onChange={e => setIncidentText(e.target.value)}
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: 7, border: '1px solid #c4b5fd', fontSize: 13, boxSizing: 'border-box', resize: 'vertical' }} />
+                        className="input resize-y" />
                       <div style={{ display: 'flex', gap: 8, marginTop: 14, justifyContent: 'flex-end' }}>
-                        <button onClick={() => setApproving(null)}
-                          style={{ padding: '8px 16px', borderRadius: 7, cursor: 'pointer', background: '#fff', border: '1px solid #d1d5db' }}>
+                        <button onClick={() => setApproving(null)} className="btn-secondary">
                           Batal
                         </button>
-                        <button onClick={() => doApprove(rec.id)} disabled={incidentText.length < 20}
-                          style={{ padding: '8px 20px', borderRadius: 7, cursor: 'pointer', background: '#6366f1', color: '#fff', border: 'none', fontWeight: 700, opacity: incidentText.length < 20 ? 0.5 : 1 }}>
+                        <button onClick={() => doApprove(rec.id)} disabled={incidentText.length < 20} className="btn-primary">
                           ✅ Sahkan & Jalankan AI Pipeline
                         </button>
                       </div>
@@ -992,19 +979,17 @@ function RecordsTab({ highlight }) {
 
       {rejecting && (
         <Modal onClose={() => setRejecting(null)}>
-          <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 15, color: '#991b1b' }}>Tolak Rekod</p>
-          <p style={{ margin: '0 0 14px', fontSize: 13, color: '#6b7280' }}>
+          <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 15, color: '#991B1B' }}>Tolak Rekod</p>
+          <p style={{ margin: '0 0 14px', fontSize: 13, color: '#6B6B74' }}>
             {rejecting.school?.schoolName || rejecting.schoolCodeRaw}
           </p>
           <input placeholder="Sebab penolakan (pilihan)…" value={rejectReason} onChange={e => setRejectReason(e.target.value)}
-            style={{ width: '100%', padding: '10px 12px', borderRadius: 7, border: '1px solid #fca5a5', fontSize: 13, boxSizing: 'border-box' }} />
+            className="input" />
           <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-            <button onClick={() => setRejecting(null)}
-              style={{ padding: '8px 16px', borderRadius: 7, cursor: 'pointer', background: '#fff', border: '1px solid #d1d5db' }}>
+            <button onClick={() => setRejecting(null)} className="btn-secondary">
               Batal
             </button>
-            <button onClick={() => doReject(rejecting.id)}
-              style={{ padding: '8px 20px', borderRadius: 7, cursor: 'pointer', background: '#ef4444', color: '#fff', border: 'none', fontWeight: 700 }}>
+            <button onClick={() => doReject(rejecting.id)} className="btn-danger">
               Tolak Rekod
             </button>
           </div>
@@ -1026,25 +1011,25 @@ function RunsTab() {
   }, [])
 
   const runStatus = (s) => ({
-    running:   { bg: '#dbeafe', color: '#1e40af', label: 'Berjalan' },
-    completed: { bg: '#dcfce7', color: '#166534', label: 'Selesai' },
-    partial:   { bg: '#fef9c3', color: '#854d0e', label: 'Separa' },
-    failed:    { bg: '#fee2e2', color: '#991b1b', label: 'Gagal' },
-  }[s] || { bg: '#f3f4f6', color: '#374151', label: s })
+    running:   { tone: 'primary', label: 'Berjalan' },
+    completed: { tone: 'success', label: 'Selesai' },
+    partial:   { tone: 'warning', label: 'Separa' },
+    failed:    { tone: 'danger',  label: 'Gagal' },
+  }[s] || { tone: 'gray', label: s })
 
   const categoryLabel = (c) => c === 'jn_baseline'
-    ? <span style={{ color: '#1d4ed8', fontWeight: 600 }}>🔵 JN Baseline</span>
-    : <span style={{ color: '#9a3412', fontWeight: 600 }}>🟠 Data Luar</span>
+    ? <span style={{ color: '#1D4ED8', fontWeight: 600 }}>🔵 JN Baseline</span>
+    : <span style={{ color: '#854D0E', fontWeight: 600 }}>🟠 Data Luar</span>
 
   return (
     <div>
-      {loading ? <p style={{ color: '#6b7280' }}>Memuatkan…</p> : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+      {loading ? <PageLoader /> : (
+        <div className="card overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
             <thead>
-              <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+              <tr className="bg-gray-50 border-b border-gray-200">
                 {['Run ID','Kategori','Sumber','Jenis','Rekod/Sekolah','Status','Dimulakan','Dicetuskan Oleh'].map(h => (
-                  <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>{h}</th>
+                  <th key={h} className="px-3 py-2.5 text-left font-semibold text-gray-700">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -1052,20 +1037,20 @@ function RunsTab() {
               {runs.map(r => {
                 const st = runStatus(r.status)
                 return (
-                  <tr key={r.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                    <td style={{ padding: '10px 12px' }}><code style={{ fontSize: 11 }}>{r.id.slice(0, 8)}</code></td>
-                    <td style={{ padding: '10px 12px' }}>{categoryLabel(r.runCategory)}</td>
-                    <td style={{ padding: '10px 12px' }}>{r.source?.sourceCode || '—'}</td>
-                    <td style={{ padding: '10px 12px' }}>{r.runType}</td>
-                    <td style={{ padding: '10px 12px', fontWeight: 600 }}>{r.recordsCreated}</td>
-                    <td style={{ padding: '10px 12px' }}><Badge {...st} /></td>
-                    <td style={{ padding: '10px 12px', color: '#6b7280' }}>{new Date(r.startedAt).toLocaleString('ms-MY')}</td>
-                    <td style={{ padding: '10px 12px' }}>{r.triggeredBy?.name || 'Sistem'}</td>
+                  <tr key={r.id} className="border-b border-gray-100">
+                    <td className="px-3 py-2.5"><code className="text-[11px] bg-gray-100 rounded-sm px-1">{r.id.slice(0, 8)}</code></td>
+                    <td className="px-3 py-2.5">{categoryLabel(r.runCategory)}</td>
+                    <td className="px-3 py-2.5">{r.source?.sourceCode || '—'}</td>
+                    <td className="px-3 py-2.5">{r.runType}</td>
+                    <td className="px-3 py-2.5 font-semibold">{r.recordsCreated}</td>
+                    <td className="px-3 py-2.5"><Badge {...st} /></td>
+                    <td className="px-3 py-2.5 text-gray-500">{new Date(r.startedAt).toLocaleString('ms-MY')}</td>
+                    <td className="px-3 py-2.5">{r.triggeredBy?.name || 'Sistem'}</td>
                   </tr>
                 )
               })}
               {runs.length === 0 && (
-                <tr><td colSpan={8} style={{ padding: 32, textAlign: 'center', color: '#9ca3af' }}>Tiada rekod run.</td></tr>
+                <tr><td colSpan={8} className="p-8 text-center text-gray-400">Tiada rekod run.</td></tr>
               )}
             </tbody>
           </table>
@@ -1078,13 +1063,13 @@ function RunsTab() {
 // ══════════════════════════════════════════════════════════════════════════
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════════════════════
-const STEP_COLORS = { jn: '#2563eb', luar: '#ea580c', records: '#6366f1' }
+const STEP_COLORS = { jn: '#2563EB', luar: '#CA8A04', records: '#2563EB' }
 
 const STEPS = [
-  { key: 'jn',      emoji: '🔵', label: 'Fasa A — JN Baseline',   sub: 'SK@S / SKPK / GDrive',       color: '#2563eb', activeBg: '#eff6ff' },
-  { key: 'luar',    emoji: '🟠', label: 'Fasa B — Data Luar',      sub: 'EMIS / APDM / Laporan',      color: '#ea580c', activeBg: '#fff7ed' },
-  { key: 'records', emoji: '🔍', label: 'Semak & Lulus Rekod',     sub: 'DI comparison review',       color: '#6366f1', activeBg: '#f5f3ff' },
-  { key: 'runs',    emoji: '📋', label: 'Sejarah Run',             sub: 'Log semua ingestion',         color: '#6b7280', activeBg: '#f9fafb' },
+  { key: 'jn',      emoji: '🔵', label: 'Fasa A — JN Baseline',   sub: 'SK@S / SKPK / GDrive',       color: '#2563EB', activeBg: '#EFF6FF' },
+  { key: 'luar',    emoji: '🟠', label: 'Fasa B — Data Luar',      sub: 'EMIS / APDM / Laporan',      color: '#CA8A04', activeBg: '#FEFCE8' },
+  { key: 'records', emoji: '🔍', label: 'Semak & Lulus Rekod',     sub: 'DI comparison review',       color: '#2563EB', activeBg: '#EFF6FF' },
+  { key: 'runs',    emoji: '📋', label: 'Sejarah Run',             sub: 'Log semua ingestion',         color: '#6B6B74', activeBg: '#FAFAFA' },
 ]
 
 export default function DataIngestionPage() {
@@ -1119,14 +1104,14 @@ export default function DataIngestionPage() {
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       {/* Page header */}
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: '#1e1b4b' }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: '#18181B' }}>
           🗄️ Pengurusan Ingestion Data
         </h1>
-        <p style={{ margin: '4px 0 0', color: '#6b7280', fontSize: 14 }}>
+        <p style={{ margin: '4px 0 0', color: '#6B6B74', fontSize: 14 }}>
           <strong>Fasa A</strong>: Kemaskini skor audit JN →{' '}
           <strong>Fasa B</strong>: Tarik data luar → kira DI → semak → jana kes.
           {(tab === 'jn' || tab === 'luar') && selSchools.length > 0 && (
-            <span style={{ marginLeft: 10, background: '#eff6ff', color: '#2563eb', padding: '1px 10px', borderRadius: 9999, fontSize: 12, fontWeight: 600 }}>
+            <span style={{ marginLeft: 10, background: '#EFF6FF', color: '#2563EB', padding: '1px 10px', borderRadius: 9999, fontSize: 12, fontWeight: 600 }}>
               {selSchools.length} sekolah dipilih
             </span>
           )}
@@ -1136,8 +1121,8 @@ export default function DataIngestionPage() {
       {/* Unified step navigator — replaces both old stepper + tab bar */}
       <div style={{
         display: 'flex', marginBottom: 24,
-        background: '#f9fafb', borderRadius: 10,
-        border: '1px solid #e5e7eb', overflow: 'hidden',
+        background: '#FAFAFA', borderRadius: 10,
+        border: '1px solid #E4E4E7', overflow: 'hidden',
       }}>
         {STEPS.map((step, i) => {
           const isActive = step.key === tab
@@ -1145,15 +1130,15 @@ export default function DataIngestionPage() {
 
           let bg = 'transparent'
           if (isActive) bg = step.activeBg
-          else if (isDone) bg = '#f0fdf4'
+          else if (isDone) bg = '#F0FDF4'
 
           let borderColor = 'transparent'
           if (isActive) borderColor = step.color
-          else if (isDone) borderColor = '#22c55e'
+          else if (isDone) borderColor = '#22C55E'
 
-          let labelColor = '#9ca3af'
-          if (isActive) labelColor = '#111827'
-          else if (isDone) labelColor = '#15803d'
+          let labelColor = '#A1A1AA'
+          if (isActive) labelColor = '#18181B'
+          else if (isDone) labelColor = '#15803D'
 
           return (
             <button
@@ -1163,7 +1148,7 @@ export default function DataIngestionPage() {
                 flex: 1, padding: '13px 16px', border: 'none', textAlign: 'left',
                 cursor: 'pointer', background: bg,
                 borderBottom: `3px solid ${borderColor}`,
-                borderRight: i < STEPS.length - 1 ? '1px solid #e5e7eb' : 'none',
+                borderRight: i < STEPS.length - 1 ? '1px solid #E4E4E7' : 'none',
                 transition: 'background 0.15s',
               }}
             >
@@ -1173,8 +1158,8 @@ export default function DataIngestionPage() {
                   width: 22, height: 22, borderRadius: '50%', display: 'inline-flex',
                   alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800,
                   flexShrink: 0,
-                  background: isDone ? '#22c55e' : isActive ? step.color : '#e5e7eb',
-                  color: isDone || isActive ? '#fff' : '#9ca3af',
+                  background: isDone ? '#22C55E' : isActive ? step.color : '#E4E4E7',
+                  color: isDone || isActive ? '#fff' : '#A1A1AA',
                 }}>
                   {isDone ? '✓' : i + 1}
                 </span>
@@ -1182,7 +1167,7 @@ export default function DataIngestionPage() {
                   {step.label}
                 </div>
               </div>
-              <div style={{ fontSize: 11, color: isDone ? '#4ade80' : '#9ca3af', paddingLeft: 30 }}>
+              <div style={{ fontSize: 11, color: isDone ? '#4ADE80' : '#A1A1AA', paddingLeft: 30 }}>
                 {step.sub}
               </div>
             </button>

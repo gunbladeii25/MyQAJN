@@ -42,7 +42,7 @@ export default function LoginPage() {
             placeholder="nama@moe.gov.my"
             {...register('email', { required: 'E-mel diperlukan' })}
           />
-          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+          {errors.email && <p className="text-danger-600 text-xs mt-1">{errors.email.message}</p>}
         </div>
 
         <div>
@@ -60,13 +60,13 @@ export default function LoginPage() {
             </button>
           </div>
           <div className="text-right mt-1.5">
-            <Link to="/forgot-password" className="text-xs text-primary hover:underline">Lupa Kata Laluan?</Link>
+            <Link to="/forgot-password" className="text-xs text-primary-600 hover:underline">Lupa Kata Laluan?</Link>
           </div>
-          {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+          {errors.password && <p className="text-danger-600 text-xs mt-1">{errors.password.message}</p>}
         </div>
 
         {apiError && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+          <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm rounded-md px-4 py-3">
             {apiError}
           </div>
         )}

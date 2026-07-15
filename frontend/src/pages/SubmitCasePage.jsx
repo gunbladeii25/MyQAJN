@@ -15,11 +15,11 @@ const SCHOOL_TYPES = ['SK','SMK','SJK','MRSM','SBP','SKK']
 
 const diClass = (di) => {
   if (di === null || di === undefined) return null
-  if (di >= 0.75) return { label: 'EXTREME', color: 'text-red-700 bg-red-100' }
-  if (di >= 0.50) return { label: 'SEVERE',  color: 'text-orange-700 bg-orange-100' }
-  if (di >= 0.25) return { label: 'MODERATE',color: 'text-yellow-700 bg-yellow-100' }
-  if (di >= 0.10) return { label: 'MINOR',   color: 'text-blue-700 bg-blue-100' }
-  return { label: 'ALIGNED', color: 'text-green-700 bg-green-100' }
+  if (di >= 0.75) return { label: 'EXTREME', color: 'text-danger-700 bg-danger-100' }
+  if (di >= 0.50) return { label: 'SEVERE',  color: 'text-warning-700 bg-warning-100' }
+  if (di >= 0.25) return { label: 'MODERATE',color: 'text-warning-700 bg-warning-50' }
+  if (di >= 0.10) return { label: 'MINOR',   color: 'text-primary-700 bg-primary-100' }
+  return { label: 'ALIGNED', color: 'text-success-700 bg-success-100' }
 }
 
 export default function SubmitCasePage() {
@@ -117,10 +117,10 @@ export default function SubmitCasePage() {
           {['Pilih Sekolah & Skor','Semak & Hantar','Keputusan'].map((label, i) => (
             <span key={i} className={`flex items-center gap-1 ${i < 2 ? 'after:content-["→"] after:mx-1 after:text-gray-300' : ''}`}>
               <span className={`w-5 h-5 rounded-full flex items-center justify-center font-bold
-                ${step === i+1 ? 'bg-primary text-white' : step > i+1 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                ${step === i+1 ? 'bg-primary-600 text-white' : step > i+1 ? 'bg-success-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
                 {step > i+1 ? '✓' : i+1}
               </span>
-              <span className={step === i+1 ? 'font-semibold text-primary' : 'text-gray-400'}>{label}</span>
+              <span className={step === i+1 ? 'font-semibold text-primary-700' : 'text-gray-400'}>{label}</span>
             </span>
           ))}
         </div>
@@ -130,11 +130,11 @@ export default function SubmitCasePage() {
       {step === 1 && (
         <div className="space-y-5">
           {/* Redirect notice */}
-          <div className="card p-4 flex items-start gap-3" style={{ background: '#eff6ff', border: '1px solid #bfdbfe' }}>
-            <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="card p-4 flex items-start gap-3 bg-primary-50 border border-primary-200">
+            <Info className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-blue-900">Halaman ini untuk Input Manual sahaja</p>
-              <p className="text-xs text-blue-700 mt-0.5">
+              <p className="text-sm font-semibold text-primary-900">Halaman ini untuk Input Manual sahaja</p>
+              <p className="text-xs text-primary-700 mt-0.5">
                 Untuk tarik data dari API (EMIS, APDM, SK@S, SKPK) atau muat naik dokumen (JPN/PPD), sila guna halaman{' '}
                 <button onClick={() => navigate('/ingestion')} className="font-bold underline">Ingestion Data</button>.
               </p>
@@ -143,10 +143,10 @@ export default function SubmitCasePage() {
 
           {/* Manual mode — source label fixed */}
           <div className="card p-5">
-            <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary bg-blue-50">
-              <PenLine className="w-5 h-5 text-primary" />
+            <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary-600 bg-primary-50">
+              <PenLine className="w-5 h-5 text-primary-600" />
               <div>
-                <p className="text-sm font-semibold text-primary">Input Manual</p>
+                <p className="text-sm font-semibold text-primary-700">Input Manual</p>
                 <p className="text-xs text-gray-500">Pegawai JN masukkan skor operasi sekolah secara terus</p>
               </div>
             </div>
@@ -177,14 +177,14 @@ export default function SubmitCasePage() {
             </div>
 
             <div className="flex items-center justify-between text-xs text-gray-500">
-              <button onClick={toggleAll} className="flex items-center gap-1.5 hover:text-primary font-medium">
+              <button onClick={toggleAll} className="flex items-center gap-1.5 hover:text-primary-700 font-medium">
                 {filtered.length > 0 && filtered.every(s => selectedIds.has(s.id))
-                  ? <CheckSquare className="w-4 h-4 text-primary" />
+                  ? <CheckSquare className="w-4 h-4 text-primary-600" />
                   : <Square className="w-4 h-4" />}
                 Pilih semua ({filtered.length} ditapis)
               </button>
               {selectedIds.size > 0 && (
-                <span className="bg-primary text-white px-2 py-0.5 rounded-full font-semibold">{selectedIds.size} dipilih</span>
+                <span className="bg-primary-600 text-white px-2 py-0.5 rounded-full font-semibold">{selectedIds.size} dipilih</span>
               )}
             </div>
 
@@ -199,9 +199,9 @@ export default function SubmitCasePage() {
                   return (
                     <div key={s.id} onClick={() => toggleSchool(s.id)}
                       className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-gray-50 transition-colors
-                        ${selectedIds.has(s.id) ? 'bg-blue-50' : ''}`}>
+                        ${selectedIds.has(s.id) ? 'bg-primary-50' : ''}`}>
                       {selectedIds.has(s.id)
-                        ? <CheckSquare className="w-4 h-4 text-primary flex-shrink-0" />
+                        ? <CheckSquare className="w-4 h-4 text-primary-600 flex-shrink-0" />
                         : <Square className="w-4 h-4 text-gray-300 flex-shrink-0" />}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{s.schoolName}</p>
@@ -267,7 +267,7 @@ export default function SubmitCasePage() {
                           <p className="text-gray-400">{s.schoolCode} · {s.district}</p>
                         </td>
                         <td className="text-right px-3 font-mono font-semibold text-gray-700">{s.jnAuditScore ?? '—'}</td>
-                        <td className="text-right px-3 font-mono font-semibold text-blue-700">{isNaN(op) ? '—' : op.toFixed(1)}</td>
+                        <td className="text-right px-3 font-mono font-semibold text-primary-700">{isNaN(op) ? '—' : op.toFixed(1)}</td>
                         <td className="text-right px-3">
                           {cls
                             ? <span className={`font-bold px-1.5 py-0.5 rounded ${cls.color}`}>{cls.label}<br/><span className="font-mono">{di.toFixed(3)}</span></span>
@@ -289,7 +289,7 @@ export default function SubmitCasePage() {
           </div>
 
           <div className="card p-5">
-            <label className="label">Teks Laporan / Pemerhatian <span className="text-red-500">*</span></label>
+            <label className="label">Teks Laporan / Pemerhatian <span className="text-danger-600">*</span></label>
             <p className="text-xs text-gray-400 mb-2">Dikongsi untuk semua sekolah yang dipilih. Agent A akan menganalisis untuk klasifikasi dan severity.</p>
             <textarea rows={5} className="input resize-none"
               placeholder="Huraikan pemerhatian atau isu yang dikesan..."
@@ -297,7 +297,7 @@ export default function SubmitCasePage() {
               onChange={e => setIncidentText(e.target.value)}
             />
             {incidentText.length > 0 && incidentText.length < 20 && (
-              <p className="text-red-500 text-xs mt-1">Minimum 20 aksara diperlukan</p>
+              <p className="text-danger-600 text-xs mt-1">Minimum 20 aksara diperlukan</p>
             )}
           </div>
 
@@ -320,8 +320,8 @@ export default function SubmitCasePage() {
           <div className="card p-5">
             <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
               {submitting
-                ? <><Loader2 className="w-4 h-4 animate-spin text-primary" /> Pipeline AI sedang memproses...</>
-                : <><CheckCircle className="w-4 h-4 text-green-600" /> Pemprosesan Selesai</>}
+                ? <><Loader2 className="w-4 h-4 animate-spin text-primary-600" /> Pipeline AI sedang memproses...</>
+                : <><CheckCircle className="w-4 h-4 text-success-600" /> Pemprosesan Selesai</>}
             </h3>
             <div className="space-y-2">
               {selectedSchools.map((school) => {
@@ -329,27 +329,27 @@ export default function SubmitCasePage() {
                 return (
                   <div key={school.id}
                     className={`flex items-center gap-3 p-3 rounded-xl border
-                      ${r?.case ? 'bg-green-50 border-green-200' : r?.error ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'}`}>
+                      ${r?.case ? 'bg-success-50 border-success-200' : r?.error ? 'bg-danger-50 border-danger-200' : 'bg-gray-50 border-gray-200'}`}>
                     {r?.case
-                      ? <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      ? <CheckCircle className="w-4 h-4 text-success-600 flex-shrink-0" />
                       : r?.error
-                      ? <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                      ? <AlertTriangle className="w-4 h-4 text-danger-500 flex-shrink-0" />
                       : <Loader2 className="w-4 h-4 text-gray-400 animate-spin flex-shrink-0" />}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{school.schoolName}</p>
                       {r?.case && (
-                        <p className="text-xs text-green-700">
+                        <p className="text-xs text-success-700">
                           ID: <span className="font-mono">{r.case.caseId}</span>
                           {' · '}DI: <span className="font-mono">{Number(r.case.discrepancyIndex).toFixed(4)}</span>
                           {' · '}{r.case.alertLevel}
                         </p>
                       )}
-                      {r?.error && <p className="text-xs text-red-600">{r.error}</p>}
+                      {r?.error && <p className="text-xs text-danger-600">{r.error}</p>}
                       {!r && <p className="text-xs text-gray-400">Menunggu...</p>}
                     </div>
                     {r?.case && (
                       <button onClick={() => navigate(`/cases/${r.case.id}`)}
-                        className="text-xs text-primary font-medium hover:underline flex-shrink-0">
+                        className="text-xs text-primary-700 font-medium hover:underline flex-shrink-0">
                         Lihat →
                       </button>
                     )}

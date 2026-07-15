@@ -18,8 +18,8 @@ const EXTERNAL_SYSTEMS = [
   { id: 'skas',   name: 'SK@S — Sistem Kualiti Pendidikan',   endpoint: '', color: '#2563eb' },
   { id: 'emis',   name: 'EMIS — Education Management Info System', endpoint: '', color: '#7c3aed' },
   { id: 'jpn',    name: 'Portal JPN — Jabatan Pendidikan Negeri',  endpoint: '', color: '#0891b2' },
-  { id: 'ppd',    name: 'Portal PPD — Pejabat Pendidikan Daerah',  endpoint: '', color: '#059669' },
-  { id: 'manual', name: 'Notifikasi Manual (Emel / WhatsApp)',      endpoint: '', color: '#d97706' },
+  { id: 'ppd',    name: 'Portal PPD — Pejabat Pendidikan Daerah',  endpoint: '', color: '#16A34A' },
+  { id: 'manual', name: 'Notifikasi Manual (Emel / WhatsApp)',      endpoint: '', color: '#CA8A04' },
 ]
 
 const URGENCY_LEVELS = [
@@ -91,14 +91,14 @@ function EscalationModal({ caseData, onClose, onConfirm }) {
       backdropFilter: 'blur(3px)',
     }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{
-        background: '#fff', borderRadius: 16, width: '100%', maxWidth: 580,
+        background: '#fff', borderRadius: 14, width: '100%', maxWidth: 580,
         boxShadow: '0 25px 60px rgba(0,0,0,0.25)',
         margin: '0 16px', display: 'flex', flexDirection: 'column',
         maxHeight: '90vh', overflow: 'hidden',
       }}>
         {/* Modal header */}
         <div style={{
-          background: 'linear-gradient(135deg, #ea580c 0%, #dc2626 100%)',
+          background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
           padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 12,
         }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -117,41 +117,41 @@ function EscalationModal({ caseData, onClose, onConfirm }) {
           /* Success state */
           <div style={{ padding: 32, textAlign: 'center', overflowY: 'auto' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
-            <p style={{ fontWeight: 700, fontSize: 16, color: '#111827', margin: '0 0 8px' }}>Tindakan Segera Dihantar!</p>
+            <p style={{ fontWeight: 700, fontSize: 16, color: '#18181B', margin: '0 0 8px' }}>Tindakan Segera Dihantar!</p>
             {result.noEndpoint
-              ? <p style={{ color: '#6b7280', fontSize: 13 }}>Endpoint belum dikonfigurasi. Rekod disimpan secara tempatan. Tambah URL endpoint sistem luar untuk penghantaran automatik.</p>
-              : <p style={{ color: '#6b7280', fontSize: 13 }}>Notifikasi berjaya dihantar ke <strong>{sys.name}</strong>.<br/>Status kes telah dikemaskini kepada <strong>Tindakan Segera</strong>.</p>
+              ? <p style={{ color: '#6B6B74', fontSize: 13 }}>Endpoint belum dikonfigurasi. Rekod disimpan secara tempatan. Tambah URL endpoint sistem luar untuk penghantaran automatik.</p>
+              : <p style={{ color: '#6B6B74', fontSize: 13 }}>Notifikasi berjaya dihantar ke <strong>{sys.name}</strong>.<br/>Status kes telah dikemaskini kepada <strong>Tindakan Segera</strong>.</p>
             }
-            <button onClick={onClose} style={{ marginTop: 20, padding: '10px 28px', borderRadius: 8, background: '#ea580c', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer' }}>
+            <button onClick={onClose} style={{ marginTop: 20, padding: '10px 28px', borderRadius: 8, background: '#DC2626', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer' }}>
               Tutup
             </button>
           </div>
         ) : (
           <div style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto', flex: 1 }}>
             {/* DI summary strip */}
-            <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 10, padding: '10px 14px', display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 12, color: '#9a3412' }}>DI: <strong style={{ fontSize: 15 }}>{Number(caseData.discrepancyIndex).toFixed(4)}</strong></span>
-              <span style={{ fontSize: 12, color: '#9a3412' }}>Tahap: <strong>{caseData.alertLevel}</strong></span>
-              <span style={{ fontSize: 12, color: '#9a3412' }}>Anomali: <strong>{caseData.anomalyDetected ? 'DIKESAN' : 'Tidak'}</strong></span>
+            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '10px 14px', display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 12, color: '#991B1B' }}>DI: <strong style={{ fontSize: 15 }}>{Number(caseData.discrepancyIndex).toFixed(4)}</strong></span>
+              <span style={{ fontSize: 12, color: '#991B1B' }}>Tahap: <strong>{caseData.alertLevel}</strong></span>
+              <span style={{ fontSize: 12, color: '#991B1B' }}>Anomali: <strong>{caseData.anomalyDetected ? 'DIKESAN' : 'Tidak'}</strong></span>
             </div>
 
             {/* Target system */}
             <div>
-              <label style={{ fontSize: 13, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 8 }}>
+              <label style={{ fontSize: 13, fontWeight: 700, color: '#3F3F46', display: 'block', marginBottom: 8 }}>
                 1. Sistem Penerima Eskalasi
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {EXTERNAL_SYSTEMS.map(s => (
                   <label key={s.id} style={{
                     display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 8,
-                    cursor: 'pointer', border: selSystem === s.id ? `2px solid ${s.color}` : '1px solid #e5e7eb',
-                    background: selSystem === s.id ? '#fff7ed' : '#fafafa',
+                    cursor: 'pointer', border: selSystem === s.id ? `2px solid ${s.color}` : '1px solid #E4E4E7',
+                    background: selSystem === s.id ? '#FEF2F2' : '#FAFAFA',
                   }}>
                     <input type="radio" name="sys" value={s.id} checked={selSystem === s.id} onChange={() => setSelSystem(s.id)} />
-                    <span style={{ fontSize: 13, fontWeight: selSystem === s.id ? 700 : 400, color: selSystem === s.id ? s.color : '#374151' }}>
+                    <span style={{ fontSize: 13, fontWeight: selSystem === s.id ? 700 : 400, color: selSystem === s.id ? s.color : '#3F3F46' }}>
                       {s.name}
                     </span>
-                    {!s.endpoint && <span style={{ marginLeft: 'auto', fontSize: 11, color: '#9ca3af', background: '#f3f4f6', padding: '1px 8px', borderRadius: 9999 }}>Endpoint belum set</span>}
+                    {!s.endpoint && <span style={{ marginLeft: 'auto', fontSize: 11, color: '#A1A1AA', background: '#F4F4F5', padding: '1px 8px', borderRadius: 9999 }}>Endpoint belum set</span>}
                   </label>
                 ))}
               </div>
@@ -159,34 +159,34 @@ function EscalationModal({ caseData, onClose, onConfirm }) {
 
             {/* Custom endpoint override */}
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 4 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#6B6B74', display: 'block', marginBottom: 4 }}>
                 API Endpoint (kosongkan jika sudah dikonfigurasi)
               </label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input
                   placeholder="https://sistem-jn.edu.my/api/eskalasi"
                   value={apiUrl} onChange={e => setApiUrl(e.target.value)}
-                  style={{ flex: 1, padding: '8px 10px', borderRadius: 7, border: '1px solid #d1d5db', fontSize: 13 }}
+                  style={{ flex: 1, padding: '8px 10px', borderRadius: 7, border: '1px solid #D4D4D8', fontSize: 13 }}
                 />
-                <ExternalLink size={14} color="#9ca3af" />
+                <ExternalLink size={14} color="#A1A1AA" />
               </div>
-              <p style={{ fontSize: 11, color: '#9ca3af', margin: '4px 0 0' }}>
+              <p style={{ fontSize: 11, color: '#A1A1AA', margin: '4px 0 0' }}>
                 Endpoint ini akan menerima payload JSON: caseId, school, DI, alertLevel, urgency, nota.
               </p>
             </div>
 
             {/* Urgency */}
             <div>
-              <label style={{ fontSize: 13, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 8 }}>
+              <label style={{ fontSize: 13, fontWeight: 700, color: '#3F3F46', display: 'block', marginBottom: 8 }}>
                 2. Tahap Kecemasan
               </label>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {URGENCY_LEVELS.map(u => (
                   <button key={u.value} onClick={() => setUrgency(u.value)} style={{
-                    padding: '7px 14px', borderRadius: 8, border: urgency === u.value ? `2px solid ${u.color}` : '1px solid #e5e7eb',
+                    padding: '7px 14px', borderRadius: 8, border: urgency === u.value ? `2px solid ${u.color}` : '1px solid #E4E4E7',
                     background: urgency === u.value ? u.color + '15' : '#fff',
                     cursor: 'pointer', fontSize: 12, fontWeight: urgency === u.value ? 700 : 400,
-                    color: urgency === u.value ? u.color : '#374151',
+                    color: urgency === u.value ? u.color : '#3F3F46',
                   }}>
                     {u.label}
                   </button>
@@ -196,23 +196,23 @@ function EscalationModal({ caseData, onClose, onConfirm }) {
 
             {/* Officer */}
             <div>
-              <label style={{ fontSize: 13, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>
+              <label style={{ fontSize: 13, fontWeight: 700, color: '#3F3F46', display: 'block', marginBottom: 6 }}>
                 3. Pegawai Bertanggungjawab (pilihan)
               </label>
               <input placeholder="Nama pegawai yang dipertanggungjawabkan…"
                 value={pegawai} onChange={e => setPegawai(e.target.value)}
-                style={{ width: '100%', padding: '8px 10px', borderRadius: 7, border: '1px solid #d1d5db', fontSize: 13, boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 7, border: '1px solid #D4D4D8', fontSize: 13, boxSizing: 'border-box' }}
               />
             </div>
 
             {/* Notes */}
             <div>
-              <label style={{ fontSize: 13, fontWeight: 700, color: '#374151', display: 'block', marginBottom: 6 }}>
+              <label style={{ fontSize: 13, fontWeight: 700, color: '#3F3F46', display: 'block', marginBottom: 6 }}>
                 4. Nota Tindakan <span style={{ color: '#dc2626' }}>*</span>
               </label>
               <textarea rows={3} placeholder="Huraikan tindakan segera yang perlu diambil…"
                 value={nota} onChange={e => setNota(e.target.value)}
-                style={{ width: '100%', padding: '8px 10px', borderRadius: 7, border: '1px solid #d1d5db', fontSize: 13, boxSizing: 'border-box', resize: 'vertical' }}
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 7, border: '1px solid #D4D4D8', fontSize: 13, boxSizing: 'border-box', resize: 'vertical' }}
               />
             </div>
 
@@ -220,12 +220,12 @@ function EscalationModal({ caseData, onClose, onConfirm }) {
 
             {/* Actions */}
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button onClick={onClose} style={{ padding: '10px 18px', borderRadius: 8, border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontSize: 13 }}>
+              <button onClick={onClose} style={{ padding: '10px 18px', borderRadius: 8, border: '1px solid #D4D4D8', background: '#fff', cursor: 'pointer', fontSize: 13 }}>
                 Batal
               </button>
               <button onClick={handleSend} disabled={sending || !nota.trim()} style={{
                 padding: '10px 22px', borderRadius: 8, border: 'none', cursor: sending ? 'wait' : 'pointer',
-                background: sending ? '#fdba74' : 'linear-gradient(135deg, #ea580c, #dc2626)',
+                background: sending ? '#FCA5A5' : 'linear-gradient(135deg, #DC2626, #B91C1C)',
                 color: '#fff', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8,
                 opacity: !nota.trim() ? 0.5 : 1,
               }}>
@@ -306,7 +306,7 @@ export default function CaseDetailPage() {
           <div className="h-10 w-px bg-gray-200" />
           <div><p className="text-xs text-gray-500">Skor Operasi</p><p className="text-xl font-bold text-gray-800">{Number(c.operationalScore).toFixed(1)}</p></div>
           <div><p className="text-xs text-gray-500">Skor Audit JN</p><p className="text-xl font-bold text-gray-800">{Number(c.jnAuditScore).toFixed(1)}</p></div>
-          <div><p className="text-xs text-gray-500">Anomali</p><p className={`text-base font-bold ${c.anomalyDetected ? 'text-red-700' : 'text-green-700'}`}>{c.anomalyDetected ? 'DIKESAN' : 'TIDAK'}</p></div>
+          <div><p className="text-xs text-gray-500">Anomali</p><p className={`text-base font-bold ${c.anomalyDetected ? 'text-danger-700' : 'text-success-700'}`}>{c.anomalyDetected ? 'DIKESAN' : 'TIDAK'}</p></div>
           <div><p className="text-xs text-gray-500">Klasifikasi</p><DiClassBadge classification={c.diClassification} /></div>
         </div>
       </div>
@@ -315,8 +315,8 @@ export default function CaseDetailPage() {
         {/* Agent A */}
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Shield className="w-4 h-4 text-blue-600" />
+            <div className="w-7 h-7 rounded-lg bg-primary-100 flex items-center justify-center">
+              <Shield className="w-4 h-4 text-primary-600" />
             </div>
             <h3 className="text-sm font-semibold text-gray-900">Agent A — Ingesti Semantik</h3>
           </div>
@@ -332,8 +332,8 @@ export default function CaseDetailPage() {
         {/* Agent B */}
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Flag className="w-4 h-4 text-orange-600" />
+            <div className="w-7 h-7 rounded-lg bg-warning-100 flex items-center justify-center">
+              <Flag className="w-4 h-4 text-warning-700" />
             </div>
             <h3 className="text-sm font-semibold text-gray-900">Agent B — Pengesanan Anomali</h3>
           </div>
@@ -344,10 +344,10 @@ export default function CaseDetailPage() {
             <div>
               <p className="text-xs text-gray-500 mb-1.5">Risk Flags ({(c.riskFlags || []).length})</p>
               {(c.riskFlags || []).length === 0
-                ? <span className="text-xs text-green-600">Tiada flag</span>
+                ? <span className="text-xs text-success-600">Tiada flag</span>
                 : <div className="flex flex-wrap gap-1">
                     {(c.riskFlags || []).map((f) => (
-                      <span key={f} className="text-xs bg-red-50 text-red-700 border border-red-200 rounded px-2 py-0.5 font-mono">{f}</span>
+                      <span key={f} className="text-xs bg-danger-50 text-danger-700 border border-danger-200 rounded px-2 py-0.5 font-mono">{f}</span>
                     ))}
                   </div>
               }
@@ -416,12 +416,7 @@ export default function CaseDetailPage() {
               if (k === 'escalated') {
                 return (
                   <button key={k} onClick={() => setShowEscModal(true)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 6,
-                      padding: '7px 16px', borderRadius: 8, border: '1.5px solid #ea580c',
-                      background: 'linear-gradient(135deg, #fff7ed, #fff)', cursor: 'pointer',
-                      color: '#ea580c', fontWeight: 700, fontSize: 13,
-                    }}>
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-md border-[1.5px] border-warning-600 bg-gradient-to-br from-warning-50 to-white cursor-pointer text-warning-700 font-bold text-[13px]">
                     <Zap size={13} />
                     {v.label}
                   </button>
@@ -439,20 +434,15 @@ export default function CaseDetailPage() {
 
       {/* Reopen — admin only, closed cases */}
       {user?.role === 'admin' && c.status === 'closed' && (
-        <div className="card p-5" style={{ borderColor: '#e5e7eb', background: '#fafafa' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+        <div className="card p-5 bg-gray-50">
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <p className="text-sm font-semibold text-gray-700">Kes Ditutup</p>
               <p className="text-xs text-gray-400 mt-0.5">Hanya Administrator boleh membuka semula kes yang telah ditutup.</p>
             </div>
             <button
               onClick={() => handleStatusUpdate('pending')}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '8px 18px', borderRadius: 8,
-                border: '1.5px solid #6366f1', background: '#f5f3ff',
-                cursor: 'pointer', color: '#4f46e5', fontWeight: 700, fontSize: 13,
-              }}>
+              className="flex items-center gap-1.5 px-[18px] py-2 rounded-md border-[1.5px] border-primary-600 bg-primary-50 cursor-pointer text-primary-700 font-bold text-sm">
               🔓 Buka Semula Kes
             </button>
           </div>
@@ -684,12 +674,12 @@ function OfficialLetter({ brief, caseData, user, navigate, onRegenerate, regener
         </div>
         <div className="flex items-center gap-2">
           {brief.signedByKetuaJn && (
-            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+            <span className="text-xs bg-success-100 text-success-700 px-2 py-0.5 rounded-full flex items-center gap-1">
               <CheckCircle className="w-3 h-3" /> Ketua Nazir Sekolah
             </span>
           )}
           {brief.signedByAuditDirector && (
-            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+            <span className="text-xs bg-success-100 text-success-700 px-2 py-0.5 rounded-full flex items-center gap-1">
               <CheckCircle className="w-3 h-3" /> Nazir Pemeriksa
             </span>
           )}
@@ -901,10 +891,10 @@ function Row({ label, value }) {
 // sekolah, notifikasi terus ke setiap sekolah tidak berskala). Kad ini
 // memaparkan status e-mel + respons setiap Penyelaras JPN yang dinotifikasi.
 const EMAIL_STATUS_LABEL = {
-  sent:    { label: 'E-mel Dihantar',   color: 'bg-green-100 text-green-700' },
+  sent:    { label: 'E-mel Dihantar',   color: 'bg-success-100 text-success-700' },
   skipped: { label: 'Log Sahaja (Dev)', color: 'bg-gray-100 text-gray-600' },
-  failed:  { label: 'E-mel Gagal',      color: 'bg-red-100 text-red-700' },
-  pending: { label: 'Memproses…',       color: 'bg-yellow-100 text-yellow-700' },
+  failed:  { label: 'E-mel Gagal',      color: 'bg-danger-100 text-danger-700' },
+  pending: { label: 'Memproses…',       color: 'bg-warning-100 text-warning-700' },
 }
 
 function StateEscalationCard({ escalations, user, onRespond, onAdd, onEdit, onDelete }) {
@@ -936,11 +926,11 @@ function StateEscalationCard({ escalations, user, onRespond, onAdd, onEdit, onDe
                     {noPic ? `Negeri ${esc.state} — tiada PIC berdaftar` : `${esc.user.name} — Penyelaras JPN ${esc.state}`}
                   </p>
                   {!noPic && <p className="text-xs text-gray-400">{esc.user.email}</p>}
-                  {noPic && esc.emailError && <p className="text-xs text-red-500 mt-0.5">{esc.emailError}</p>}
+                  {noPic && esc.emailError && <p className="text-xs text-danger-600 mt-0.5">{esc.emailError}</p>}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${emailStatus.color}`}>{emailStatus.label}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${esc.status === 'responded' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${esc.status === 'responded' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'}`}>
                     {esc.status === 'responded' ? 'Telah Respons' : 'Menunggu Respons'}
                   </span>
                   {isAdmin && (
@@ -948,7 +938,7 @@ function StateEscalationCard({ escalations, user, onRespond, onAdd, onEdit, onDe
                       <button onClick={() => onEdit(esc)} title="Sunting" className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500">
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => onDelete(esc)} title="Padam" className="p-1.5 hover:bg-red-50 text-red-600 rounded-lg">
+                      <button onClick={() => onDelete(esc)} title="Padam" className="p-1.5 hover:bg-danger-50 text-danger-600 rounded-lg">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </>
@@ -956,11 +946,11 @@ function StateEscalationCard({ escalations, user, onRespond, onAdd, onEdit, onDe
                 </div>
               </div>
               {esc.responseText && (
-                <div className="mt-2 bg-blue-50 border border-blue-100 rounded-lg p-3">
-                  <p className="text-xs font-medium text-blue-900 mb-1">
+                <div className="mt-2 bg-primary-50 border border-primary-100 rounded-lg p-3">
+                  <p className="text-xs font-medium text-primary-900 mb-1">
                     Respons {esc.user?.name} · {esc.respondedAt ? new Date(esc.respondedAt).toLocaleDateString('ms-MY') : ''}
                   </p>
-                  <p className="text-sm text-blue-800 whitespace-pre-wrap">{esc.responseText}</p>
+                  <p className="text-sm text-primary-800 whitespace-pre-wrap">{esc.responseText}</p>
                 </div>
               )}
               {isMine && esc.status !== 'responded' && (
@@ -1019,7 +1009,7 @@ function AddEscalationModal({ caseId, onClose, onSuccess }) {
             ))}
           </select>
         )}
-        {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>}
+        {error && <div className="bg-danger-50 text-danger-700 text-sm rounded-lg px-4 py-3">{error}</div>}
         <div className="flex gap-3 justify-end">
           <button onClick={onClose} className="btn-secondary">Batal</button>
           <button onClick={handleSubmit} disabled={submitting || loadingPics} className="btn-primary">
@@ -1095,7 +1085,7 @@ function EditEscalationModal({ caseId, escalation, onClose, onSuccess }) {
             {resending ? 'Menghantar...' : '📧 Hantar Semula E-mel Eskalasi'}
           </button>
         )}
-        {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>}
+        {error && <div className="bg-danger-50 text-danger-700 text-sm rounded-lg px-4 py-3">{error}</div>}
         <div className="flex gap-3 justify-end">
           <button onClick={onClose} className="btn-secondary">Batal</button>
           <button onClick={handleSubmit} disabled={submitting} className="btn-primary">
@@ -1130,7 +1120,7 @@ function DeleteEscalationModal({ caseId, escalation, onClose, onSuccess }) {
           <span className="font-medium text-gray-900">{escalation.user?.name || `Negeri ${escalation.state}`}</span>?
           Tindakan ini tidak boleh dibatalkan.
         </p>
-        {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>}
+        {error && <div className="bg-danger-50 text-danger-700 text-sm rounded-lg px-4 py-3">{error}</div>}
         <div className="flex gap-3 justify-end">
           <button onClick={onClose} className="btn-secondary">Batal</button>
           <button onClick={handleDelete} disabled={submitting} className="btn-danger">
@@ -1168,7 +1158,7 @@ function RespondEscalationModal({ caseId, onClose, onSuccess }) {
         </p>
         <textarea rows={5} className="input" placeholder="Nyatakan tindakan yang telah/akan diambil oleh negeri terhadap syor ini…"
           value={responseText} onChange={(e) => setResponseText(e.target.value)} />
-        {error && <div className="bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>}
+        {error && <div className="bg-danger-50 text-danger-700 text-sm rounded-lg px-4 py-3">{error}</div>}
         <div className="flex gap-3 justify-end">
           <button onClick={onClose} className="btn-secondary">Batal</button>
           <button onClick={handleSubmit} disabled={submitting} className="btn-primary">

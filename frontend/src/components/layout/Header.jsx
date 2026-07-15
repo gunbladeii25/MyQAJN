@@ -17,7 +17,7 @@ export default function Header() {
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
       <div>
-        <h2 className="text-sm font-semibold text-gray-900">
+        <h2 className="text-sm font-heading font-semibold text-gray-900">
           {user?.sector ? SECTOR_NAMES[user.sector] : 'Dashboard Sistem'}
         </h2>
         <p className="text-xs text-gray-500 mt-0.5">
@@ -56,12 +56,12 @@ export default function Header() {
             </span>
           )}
           {user?.sector && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-medium">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 font-medium">
               {user.sector}
             </span>
           )}
         </div>
-        <button onClick={handleLogout} className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Log Keluar">
+        <button onClick={handleLogout} className="p-2 text-gray-500 hover:text-danger-600 hover:bg-danger-50 rounded-md transition-colors" title="Log Keluar">
           <LogOut className="w-4 h-4" />
         </button>
       </div>

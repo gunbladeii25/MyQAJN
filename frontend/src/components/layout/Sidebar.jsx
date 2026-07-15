@@ -61,16 +61,16 @@ export default function Sidebar() {
   const stepItems = visible.filter((i) => i.step !== null)
 
   return (
-    <aside className="w-64 bg-primary flex flex-col flex-shrink-0">
+    <aside className="w-64 bg-primary-800 flex flex-col flex-shrink-0">
       {/* Logo */}
       <div className="p-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-md bg-white/15 flex items-center justify-center">
             <ShieldCheck className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-white font-bold text-sm leading-tight">MyQA@JN</p>
-            <p className="text-white/60 text-xs">AI-Powered School QA Resolution Agent</p>
+            <p className="text-white font-heading font-semibold text-sm leading-tight">MyQA@JN</p>
+            <p className="text-white/55 text-xs">AI-Powered School QA Resolution Agent</p>
           </div>
         </div>
       </div>
@@ -84,8 +84,8 @@ export default function Sidebar() {
             to={item.to}
             className={({ isActive }) =>
               clsx(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all mb-2',
-                isActive ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'
+                'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all mb-2',
+                isActive ? 'bg-white/15 text-white shadow-button' : 'text-white/65 hover:bg-white/10 hover:text-white'
               )
             }
           >
@@ -98,7 +98,7 @@ export default function Sidebar() {
         {stepItems.length > 0 && (
           <>
             <div className="px-3 pt-1 pb-2">
-              <p className="text-white/40 text-xs font-semibold uppercase tracking-widest">Aliran Kerja</p>
+              <p className="text-white/35 text-xs font-semibold uppercase tracking-widest">Aliran Kerja</p>
             </div>
 
             {/* Vertical step connector */}
@@ -122,8 +122,8 @@ export default function Sidebar() {
                   to={item.to}
                   className={({ isActive }) =>
                     clsx(
-                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all mb-1 relative z-10',
-                      isActive ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'
+                      'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all mb-1 relative z-10',
+                      isActive ? 'bg-white/15 text-white shadow-button' : 'text-white/65 hover:bg-white/10 hover:text-white'
                     )
                   }
                 >
@@ -133,15 +133,15 @@ export default function Sidebar() {
                       <div className={clsx(
                         'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 border',
                         isActive
-                          ? 'bg-white text-primary border-white'
-                          : 'bg-white/10 text-white/80 border-white/20'
+                          ? 'bg-white text-primary-700 border-white'
+                          : 'bg-white/10 text-white/75 border-white/20'
                       )}>
                         {item.step}
                       </div>
                       <div className="min-w-0">
                         <p className="leading-tight truncate">{item.label}</p>
                         {item.hint && (
-                          <p className={clsx('text-xs leading-tight mt-0.5 truncate', isActive ? 'text-white/70' : 'text-white/40')}>
+                          <p className={clsx('text-xs leading-tight mt-0.5 truncate', isActive ? 'text-white/70' : 'text-white/35')}>
                             {item.hint}
                           </p>
                         )}
@@ -158,7 +158,7 @@ export default function Sidebar() {
         {visible.filter(i => i.to === '/users').length > 0 && (
           <>
             <div className="px-3 pt-3 pb-1">
-              <p className="text-white/40 text-xs font-semibold uppercase tracking-widest">Pentadbiran</p>
+              <p className="text-white/35 text-xs font-semibold uppercase tracking-widest">Pentadbiran</p>
             </div>
             {visible.filter(i => i.to === '/users').map((item) => (
               <NavLink
@@ -166,8 +166,8 @@ export default function Sidebar() {
                 to={item.to}
                 className={({ isActive }) =>
                   clsx(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-                    isActive ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'
+                    'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all',
+                    isActive ? 'bg-white/15 text-white shadow-button' : 'text-white/65 hover:bg-white/10 hover:text-white'
                   )
                 }
               >
@@ -182,7 +182,7 @@ export default function Sidebar() {
       {/* User info */}
       <div className="p-4 border-t border-white/10">
         <p className="text-white text-sm font-medium truncate">{user?.name}</p>
-        <p className="text-white/50 text-xs mt-0.5 truncate">{user?.email}</p>
+        <p className="text-white/45 text-xs mt-0.5 truncate">{user?.email}</p>
       </div>
     </aside>
   )

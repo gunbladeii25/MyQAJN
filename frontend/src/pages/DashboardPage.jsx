@@ -11,6 +11,7 @@ import {
   PieChart, Pie, Cell, Legend, CartesianGrid,
 } from 'recharts'
 
+// MYDS-aligned tokens: danger-600, orange-600 (stock), amber-600 (warning), primary-600, success-600
 const KPI_COLORS = ['#DC2626', '#EA580C', '#CA8A04', '#2563EB', '#16A34A']
 const ALERT_ORDER = ['RED', 'ORANGE', 'YELLOW', 'BLUE', 'GREEN']
 const ALERT_LABELS = {
@@ -53,8 +54,9 @@ const BarTooltip = ({ active, payload }) => {
   const { name, value, fill } = payload[0].payload
   return (
     <div style={{
-      background: '#1e1b4b', color: '#fff', padding: '8px 14px',
-      borderRadius: 8, fontSize: 13, fontWeight: 600, boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+      background: '#18181B', color: '#FAFAFA', padding: '8px 14px',
+      borderRadius: 8, fontSize: 13, fontWeight: 600,
+      boxShadow: '0 2px 6px 0 rgba(24,24,27,.05), 0 12px 50px 0 rgba(24,24,27,.10)',
     }}>
       <span style={{ color: fill, marginRight: 8 }}>●</span>
       {ALERT_LABELS[name] || name} ({ALERT_SUBLABELS[name]}): {value} kes
@@ -75,7 +77,7 @@ const PieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
   )
 }
 
-const STATUS_COLORS = ['#6366f1', '#16A34A', '#EA580C', '#6B7280']
+const STATUS_COLORS = ['#2563EB', '#16A34A', '#EA580C', '#6B6B74'] // primary-600, success-600, orange-600, gray-500
 
 // entry.color daripada Recharts merujuk fill Cell (`url(#pieGrad0)` — rujukan
 // gradient SVG), yang tidak sah sebagai CSS `background` di luar konteks SVG
@@ -105,9 +107,8 @@ function CasesModal({ title, subtitle, filters, onClose }) {
   }, [])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.45)' }} onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col"
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/45" onClick={onClose}>
+      <div className="bg-white rounded-lg shadow-menu w-full max-w-lg max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
@@ -136,7 +137,7 @@ function CasesModal({ title, subtitle, filters, onClose }) {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-semibold text-gray-900">{c.caseId}</p>
-                      <ExternalLink className="w-3 h-3 text-gray-300 group-hover:text-primary transition-colors" />
+                      <ExternalLink className="w-3 h-3 text-gray-300 group-hover:text-primary-600 transition-colors" />
                     </div>
                     <p className="text-xs text-gray-500 truncate">
                       {c.school?.schoolName}{c.school?.state ? ` · ${c.school.state}` : ''}
@@ -159,7 +160,7 @@ function CasesModal({ title, subtitle, filters, onClose }) {
         <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
           <span className="text-xs text-gray-400">{cases.length} kes</span>
           <button onClick={() => { navigate('/cases'); onClose() }}
-            className="text-xs text-primary hover:underline font-medium">
+            className="text-xs text-primary-600 hover:underline font-medium">
             Lihat Semua Kes →
           </button>
         </div>
@@ -307,7 +308,7 @@ export default function DashboardPage() {
                 </Pie>
                 <Legend layout="vertical" align="right" verticalAlign="middle" content={<PieLegend />} />
                 <Tooltip
-                  contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', fontSize: 13 }}
+                  contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 2px 6px 0 rgba(24,24,27,.05), 0 12px 50px 0 rgba(24,24,27,.10)', fontSize: 13 }}
                   formatter={(value, name) => [`${value} kes`, name]}
                 />
               </PieChart>
@@ -320,7 +321,7 @@ export default function DashboardPage() {
       <div className="card">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-gray-900">Kes Terbaru</h3>
-          <button onClick={() => navigate('/cases')} className="text-xs text-primary hover:underline">Lihat Semua</button>
+          <button onClick={() => navigate('/cases')} className="text-xs text-primary-600 hover:underline">Lihat Semua</button>
         </div>
         <div className="divide-y divide-gray-50">
           {(data?.recentCases || []).length === 0 && (
@@ -381,7 +382,7 @@ function KpiCard({ icon: Icon, label, value, color, onClick }) {
       </div>
       <p className="text-2xl font-bold text-gray-900">{value}</p>
       <p className="text-xs text-gray-500 mt-0.5">{label}</p>
-      <p className="text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity mt-1">Klik untuk lihat kes →</p>
+      <p className="text-xs text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity mt-1">Klik untuk lihat kes →</p>
     </div>
   )
 }

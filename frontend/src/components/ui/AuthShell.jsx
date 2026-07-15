@@ -16,13 +16,13 @@ const FLOATING_ICONS = [
 // merentas ketiga-tiga halaman tanpa menduplikasi markup.
 export default function AuthShell({ children, footer }) {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-dark flex items-center justify-center p-4">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 flex items-center justify-center p-4">
 
       {/* Ambient gradient blobs — pergerakan perlahan, buram */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="animate-auth-blob absolute -top-24 -left-16 w-[28rem] h-[28rem] rounded-full bg-blue-400/25 blur-3xl" />
-        <div className="animate-auth-blob absolute top-1/3 -right-24 w-[24rem] h-[24rem] rounded-full bg-amber-300/15 blur-3xl" style={{ animationDelay: '4s' }} />
-        <div className="animate-auth-blob absolute -bottom-28 left-1/4 w-[26rem] h-[26rem] rounded-full bg-indigo-400/20 blur-3xl" style={{ animationDelay: '8s' }} />
+        <div className="animate-auth-blob absolute -top-24 -left-16 w-[28rem] h-[28rem] rounded-full bg-primary-400/25 blur-3xl" />
+        <div className="animate-auth-blob absolute top-1/3 -right-24 w-[24rem] h-[24rem] rounded-full bg-warning-300/15 blur-3xl" style={{ animationDelay: '4s' }} />
+        <div className="animate-auth-blob absolute -bottom-28 left-1/4 w-[26rem] h-[26rem] rounded-full bg-primary-300/20 blur-3xl" style={{ animationDelay: '8s' }} />
       </div>
 
       {/* Tekstur titik halus */}
@@ -49,12 +49,15 @@ export default function AuthShell({ children, footer }) {
               <img src="/KPMJN-Hitam.png" alt="Jata KPM Jemaah Nazir" className="w-full h-full object-contain" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-white">MyQA@JN</h1>
+          <h1 className="text-2xl font-heading font-bold text-white">MyQA@JN</h1>
           <p className="text-white/70 text-sm mt-1">AI-Powered School QA Resolution Agent</p>
           <p className="text-white/50 text-xs mt-1">Kementerian Pendidikan Malaysia</p>
         </div>
 
-        <div className="animate-auth-fade-up bg-white rounded-2xl shadow-2xl p-8" style={{ animationDelay: '0.15s' }}>
+        {/* Hero card radius kept above the xl (14px) token as a deliberate
+            brand exception — MYDS's scale tops out there, but this is a
+            marketing-style hero card, not a content card. */}
+        <div className="animate-auth-fade-up bg-white rounded-2xl shadow-menu p-8" style={{ animationDelay: '0.15s' }}>
           {children}
         </div>
 

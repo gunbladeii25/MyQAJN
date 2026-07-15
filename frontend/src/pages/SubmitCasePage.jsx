@@ -11,7 +11,18 @@ const STATES = [
   'Pahang','Perak','Perlis','Pulau Pinang','Sabah',
   'Sarawak','Selangor','Terengganu','Kuala Lumpur','Labuan','Putrajaya'
 ]
-const SCHOOL_TYPES = ['SK','SMK','SJK','MRSM','SBP','SKK']
+// 19 nilai sebenar JENISSEKOLAH daripada senarai_sekolah.csv (backend/data) —
+// termasuk "SM  Agama (SABK)" dengan ruang berganda, itu sememangnya nilai
+// sebenar dalam data sumber, bukan salah taip di sini. Guna sama persis
+// supaya filter server-side (padanan tepat pada School.schoolType) berfungsi.
+const SCHOOL_TYPES = [
+  'Kolej Tingkatan 6', 'Kolej Vokasional', 'SJK(C)', 'SJK(T)', 'SK',
+  'SK (Pendidikan Khas)', 'SM  Agama (SABK)', 'SM (Pendidikan Khas)',
+  'SM + SR (Model Khas)', 'SM Berasrama Penuh', 'SM Teknik', 'SMK',
+  'SMK Agama', 'SR Agama (SABK)', 'SR Model Khas Komprehensif K9',
+  'Sekolah Bimbingan Jalinan Kasih', 'Sekolah Model Khas Komprehensif 11',
+  'Sekolah Seni', 'Sekolah Sukan',
+]
 
 const diClass = (di) => {
   if (di === null || di === undefined) return null
@@ -27,13 +38,26 @@ export default function SubmitCasePage() {
 
   const [step, setStep] = useState(1)
 
-  // Schools
-  const [allSchools, setAllSchools] = useState([])
+  // Schools — server-side search (backend/src/controllers/schools.controller.js
+  // already supports state/schoolType/district/search/limit). With the real
+  // ~10,251-school directory imported, a one-shot "load 500, filter
+  // client-side" approach would silently hide everything past the first
+  // 500 by schoolCode — so this page reflects live search results, not a
+  // static prefetched list.
+  const [results, setResults] = useState([])
+  const [searchLoading, setSearchLoading] = useState(true)
   const [filterNegeri, setFilterNegeri] = useState('')
   const [filterDaerah, setFilterDaerah] = useState('')
   const [filterJenis, setFilterJenis]   = useState('')
   const [searchQ, setSearchQ] = useState('')
-  const [selectedIds, setSelectedIds] = useState(new Set())
+  const [daerahList, setDaerahList] = useState([])
+
+  // id -> full school object, so a selected school survives even after the
+  // search results move on (selection is no longer a Set over one static
+  // fetched array — the array itself changes as you search/filter).
+  const [selectedMap, setSelectedMap] = useState({})
+  const selectedIds = new Set(Object.keys(selectedMap))
+  const selectedSchools = Object.values(selectedMap)
 
   // Manual scores: { [schoolId]: operationalScore }
   const [scores, setScores] = useState({})
@@ -42,37 +66,50 @@ export default function SubmitCasePage() {
   const [incidentText, setIncidentText] = useState('')
 
   // Batch submit results
-  const [results, setResults] = useState([])
+  const [submitResults, setSubmitResults] = useState([])
   const [submitting, setSubmitting] = useState(false)
 
+  // Debounced server-side search — refires on any filter/search change.
   useEffect(() => {
-    getSchools({ limit: 500 }).then((r) => setAllSchools(r.data.schools || []))
-  }, [])
+    setSearchLoading(true)
+    const handle = setTimeout(() => {
+      getSchools({
+        state: filterNegeri || undefined,
+        district: filterDaerah || undefined,
+        schoolType: filterJenis || undefined,
+        search: searchQ || undefined,
+        limit: 50,
+      }).then((r) => setResults(r.data.schools || [])).finally(() => setSearchLoading(false))
+    }, 300)
+    return () => clearTimeout(handle)
+  }, [filterNegeri, filterDaerah, filterJenis, searchQ])
 
-  const daerahList = [...new Set(
-    allSchools.filter(s => !filterNegeri || s.state === filterNegeri).map(s => s.district).filter(Boolean)
-  )].sort()
+  // District options — fetched fresh per selected state (one state safely
+  // has well under 500 schools) rather than derived from a capped
+  // nationwide fetch, which would miss most districts once real data is in.
+  useEffect(() => {
+    if (!filterNegeri) { setDaerahList([]); return }
+    getSchools({ state: filterNegeri, limit: 500 }).then((r) =>
+      setDaerahList([...new Set((r.data.schools || []).map((s) => s.district).filter(Boolean))].sort())
+    )
+  }, [filterNegeri])
 
-  const filtered = allSchools.filter((s) => {
-    if (filterNegeri && s.state !== filterNegeri) return false
-    if (filterDaerah && s.district !== filterDaerah) return false
-    if (filterJenis  && s.schoolType !== filterJenis) return false
-    if (searchQ && !`${s.schoolCode} ${s.schoolName}`.toLowerCase().includes(searchQ.toLowerCase())) return false
-    return true
-  })
-
-  const toggleSchool = (id) => {
-    setSelectedIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+  const toggleSchool = (school) => {
+    setSelectedMap((prev) => {
+      const next = { ...prev }
+      if (next[school.id]) delete next[school.id]
+      else next[school.id] = school
+      return next
+    })
   }
   const toggleAll = () => {
-    if (filtered.every(s => selectedIds.has(s.id))) {
-      setSelectedIds(prev => { const n = new Set(prev); filtered.forEach(s => n.delete(s.id)); return n })
-    } else {
-      setSelectedIds(prev => { const n = new Set(prev); filtered.forEach(s => n.add(s.id)); return n })
-    }
+    const allSelected = results.length > 0 && results.every((s) => selectedMap[s.id])
+    setSelectedMap((prev) => {
+      const next = { ...prev }
+      results.forEach((s) => { allSelected ? delete next[s.id] : (next[s.id] = s) })
+      return next
+    })
   }
-
-  const selectedSchools = allSchools.filter(s => selectedIds.has(s.id))
 
   const canProceed = selectedIds.size > 0 &&
     selectedSchools.every(s => scores[s.id] !== undefined && scores[s.id] !== '')
@@ -96,7 +133,7 @@ export default function SubmitCasePage() {
       } catch (e) {
         res.push({ school, error: e.response?.data?.error || 'Ralat pipeline AI' })
       }
-      setResults([...res])
+      setSubmitResults([...res])
     }
     setSubmitting(false)
   }
@@ -178,10 +215,10 @@ export default function SubmitCasePage() {
 
             <div className="flex items-center justify-between text-xs text-gray-500">
               <button onClick={toggleAll} className="flex items-center gap-1.5 hover:text-primary-700 font-medium">
-                {filtered.length > 0 && filtered.every(s => selectedIds.has(s.id))
+                {results.length > 0 && results.every(s => selectedIds.has(s.id))
                   ? <CheckSquare className="w-4 h-4 text-primary-600" />
                   : <Square className="w-4 h-4" />}
-                Pilih semua ({filtered.length} ditapis)
+                Pilih semua ({results.length} dipaparkan)
               </button>
               {selectedIds.size > 0 && (
                 <span className="bg-primary-600 text-white px-2 py-0.5 rounded-full font-semibold">{selectedIds.size} dipilih</span>
@@ -189,15 +226,19 @@ export default function SubmitCasePage() {
             </div>
 
             <div className="max-h-72 overflow-y-auto border border-gray-200 rounded-xl divide-y divide-gray-100">
-              {filtered.length === 0
+              {searchLoading
+                ? <p className="text-center text-sm text-gray-400 py-8 flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Mencari sekolah...
+                  </p>
+                : results.length === 0
                 ? <p className="text-center text-sm text-gray-400 py-8">Tiada sekolah dijumpai</p>
-                : filtered.map(s => {
+                : results.map(s => {
                   const opScore = scores[s.id]
                   const di = opScore !== undefined && s.jnAuditScore !== null
                     ? Math.abs(s.jnAuditScore - parseFloat(opScore)) / 100 : null
                   const cls = diClass(di)
                   return (
-                    <div key={s.id} onClick={() => toggleSchool(s.id)}
+                    <div key={s.id} onClick={() => toggleSchool(s)}
                       className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-gray-50 transition-colors
                         ${selectedIds.has(s.id) ? 'bg-primary-50' : ''}`}>
                       {selectedIds.has(s.id)
@@ -327,7 +368,7 @@ export default function SubmitCasePage() {
             </h3>
             <div className="space-y-2">
               {selectedSchools.map((school) => {
-                const r = results.find(x => x.school.id === school.id)
+                const r = submitResults.find(x => x.school.id === school.id)
                 return (
                   <div key={school.id}
                     className={`flex items-center gap-3 p-3 rounded-xl border
@@ -364,7 +405,7 @@ export default function SubmitCasePage() {
           {!submitting && (
             <div className="flex gap-3 justify-end">
               <button onClick={() => navigate('/cases')} className="btn-secondary">Senarai Kes</button>
-              <button onClick={() => { setStep(1); setResults([]); setSelectedIds(new Set()); setScores({}); setIncidentText('') }}
+              <button onClick={() => { setStep(1); setSubmitResults([]); setSelectedMap({}); setScores({}); setIncidentText('') }}
                 className="btn-primary">Hantar Kes Manual Baharu</button>
             </div>
           )}

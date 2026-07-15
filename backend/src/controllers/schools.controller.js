@@ -1,14 +1,18 @@
 const prisma = require('../utils/prisma')
 
 const listSchools = async (req, res) => {
-  const { state, schoolType, search, page = 1, limit = 50 } = req.query
+  const { state, district, schoolType, search, page = 1, limit = 50 } = req.query
   const skip = (parseInt(page) - 1) * parseInt(limit)
   const where = {}
   if (state) where.state = state
+  if (district) where.district = district
   if (schoolType) where.schoolType = schoolType
+  // mode: 'insensitive' — the real school directory (senarai_sekolah.csv)
+  // stores names/codes in ALL CAPS; without this, typing a normal lowercase
+  // query would silently match nothing.
   if (search) where.OR = [
-    { schoolName: { contains: search } },
-    { schoolCode: { contains: search } },
+    { schoolName: { contains: search, mode: 'insensitive' } },
+    { schoolCode: { contains: search, mode: 'insensitive' } },
   ]
 
   const [schools, total] = await Promise.all([

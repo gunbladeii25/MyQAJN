@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, FileText, Users, BookOpen, ShieldCheck, Database } from 'lucide-react'
+import { LayoutDashboard, FileText, Users, BookOpen, Database } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { clsx } from 'clsx'
 
@@ -65,8 +65,8 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="p-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-md bg-white/15 flex items-center justify-center">
-            <ShieldCheck className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center p-1 shadow-button flex-shrink-0">
+            <img src="/KPMJN-Hitam.png" alt="Jata KPM Jemaah Nazir" className="w-full h-full object-contain" />
           </div>
           <div>
             <p className="text-white font-heading font-semibold text-sm leading-tight">MyQA@JN</p>

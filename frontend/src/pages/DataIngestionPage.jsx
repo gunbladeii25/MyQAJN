@@ -197,7 +197,6 @@ function SchoolPicker({ selected, onToggle, onSelectAll, onClearAll }) {
             </div>
           )
         })}
-        {filtered.length === 0 && <p style={{ color: '#A1A1AA', fontSize: 13, padding: '12px 0', textAlign: 'center' }}>Tiada sekolah dijumpai.</p>}
       </div>
     </div>
   )

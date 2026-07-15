@@ -1,10 +1,10 @@
-import { LogOut, User, Globe, Loader2 } from 'lucide-react'
+import { LogOut, User, Globe, Loader2, Menu } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { ROLES, SECTOR_NAMES } from '../../constants'
 
-export default function Header() {
+export default function Header({ onMenuClick }) {
   const { user, logout } = useAuthStore()
   const { lang, languages, setLanguage, translating } = useLanguage()
   const navigate = useNavigate()
@@ -15,17 +15,25 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
-      <div>
-        <h2 className="text-sm font-heading font-semibold text-gray-900">
-          {user?.sector ? SECTOR_NAMES[user.sector] : 'Dashboard Sistem'}
-        </h2>
-        <p className="text-xs text-gray-500 mt-0.5">
-          {new Date().toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </p>
+    <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between flex-shrink-0 gap-3">
+      <div className="flex items-center gap-3 min-w-0">
+        <button
+          onClick={onMenuClick}
+          className="md:hidden flex-shrink-0 p-2 -ml-1 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <div className="min-w-0">
+          <h2 className="text-sm font-heading font-semibold text-gray-900 truncate">
+            {user?.sector ? SECTOR_NAMES[user.sector] : 'Dashboard Sistem'}
+          </h2>
+          <p className="text-xs text-gray-500 mt-0.5 truncate">
+            {new Date().toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
         {/* Penukar bahasa — dropdown, skop untuk tambah bahasa akan datang
             (SUPPORTED_LANGUAGES di constants/index.js) */}
         <div className="relative flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-full border border-gray-200 bg-gray-50 select-none"
@@ -47,16 +55,19 @@ export default function Header() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100">
-          <User className="w-4 h-4 text-gray-500" />
-          <span className="text-xs font-medium text-gray-700">{user?.name}</span>
+        {/* Nama + peranan — pada skrin kecil hanya ikon + nama dipaparkan
+            (badge peranan/sektor disembunyikan) supaya baris ini tidak
+            melimpah/paksa skrol pada telefon. */}
+        <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-gray-100 max-w-[140px] sm:max-w-none">
+          <User className="w-4 h-4 text-gray-500 flex-shrink-0" />
+          <span className="text-xs font-medium text-gray-700 truncate">{user?.name}</span>
           {user?.role && (
-            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ROLES[user.role]?.color}`}>
+            <span className={`hidden sm:inline text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${ROLES[user.role]?.color}`}>
               {ROLES[user.role]?.label}
             </span>
           )}
           {user?.sector && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 font-medium">
+            <span className="hidden sm:inline text-xs px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 font-medium whitespace-nowrap">
               {user.sector}
             </span>
           )}

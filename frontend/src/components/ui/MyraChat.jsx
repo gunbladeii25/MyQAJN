@@ -195,7 +195,7 @@ export default function MyraChat() {
       `}</style>
 
       {/* Floating trigger button */}
-      <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 2000 }}>
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6" style={{ zIndex: 2000 }}>
         {!open && (
           <div style={{ position: 'relative' }}>
             {unread > 0 && (
@@ -224,7 +224,8 @@ export default function MyraChat() {
         {/* Chat window */}
         {open && (
           <div style={{
-            width: 360, height: 560,
+            width: 'min(360px, calc(100vw - 32px))',
+            height: 'min(560px, calc(100vh - 120px))',
             background: '#fff', borderRadius: 18,
             boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
             display: 'flex', flexDirection: 'column', overflow: 'hidden',

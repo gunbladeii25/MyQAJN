@@ -91,39 +91,34 @@ const MyraAvatar = ({ size = 36, pulse = false }) => (
           <stop offset="100%" stopColor="#dc2626" />
         </radialGradient>
         <linearGradient id="hijabGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#7c5a94" />
-          <stop offset="100%" stopColor="#432c54" />
+          <stop offset="0%" stopColor="#8a67a3" />
+          <stop offset="100%" stopColor="#4a2f5c" />
         </linearGradient>
       </defs>
-      {/* Tudung (hijab) — satu siluet bersambung: kubah atas kepala,
-          melepasi telinga, juntai ke bahu kiri/kanan, dengan lekukan
-          lembut di bawah dagu (bukan tiga elips berasingan seperti
-          rekaan asal — itu yang buat ia nampak macam "gumpalan", bukan
-          kain yang dilipat). */}
+      {/* Tudung (hijab) — satu siluet "bust portrait" besar yang memenuhi
+          hampir keseluruhan bulatan (macam rujukan ikon hijab-chatbot),
+          bukan aksesori kecil di atas kepala sahaja. Melimpah terus ke
+          tepi bawah bulatan sebagai bahu/dada, supaya ia jelas kelihatan
+          sebagai kain tudung walaupun pada saiz ikon yang sangat kecil. */}
       <path
-        d="M6 33.5
-           C3.8 27.5 4 19 7.2 13
-           C9.6 8.2 13.4 3 18 3
-           C22.6 3 26.4 8.2 28.8 13
-           C32 19 32.2 27.5 30 33.5
-           C26.8 29.5 23.4 27 18 27
-           C12.6 27 9.2 29.5 6 33.5 Z"
+        d="M3 36
+           C1.5 25 2 13.5 8.5 6.5
+           C11.8 2.8 15 1.2 18 1.2
+           C21 1.2 24.2 2.8 27.5 6.5
+           C34 13.5 34.5 25 33 36 Z"
         fill="url(#hijabGrad)"
       />
       {/* Sentuhan lipatan halus untuk dimensi */}
-      <path d="M10.5 12.5 C12.5 7.8 15 5 18 5" stroke="#9b7bb0" strokeWidth="1.1" fill="none" strokeLinecap="round" opacity="0.55" />
-      <path d="M8.3 15 C7.3 20.5 7.3 26 9.3 30.5" stroke="#331f40" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.3" />
-      <path d="M27.7 15 C28.7 20.5 28.7 26 26.7 30.5" stroke="#331f40" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.3" />
-      {/* Face (dilukis selepas tudung supaya "membingkai" wajah) */}
-      <circle cx="18" cy="16" r="7" fill="#fde68a" />
+      <path d="M9.5 10 C11.5 5.8 14.5 3 18 2.8" stroke="#ab8cc0" strokeWidth="1.1" fill="none" strokeLinecap="round" opacity="0.5" />
+      <path d="M6.5 16 C5.3 23 5.5 30 7 36" stroke="#341f42" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.3" />
+      <path d="M29.5 16 C30.7 23 30.5 30 29 36" stroke="#341f42" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.3" />
+      {/* Face — besar & tersergam di tengah supaya jelas pada saiz kecil */}
+      <circle cx="18" cy="15" r="8" fill="#fde68a" />
       {/* Eyes */}
-      <circle cx="15.5" cy="15.5" r="1.2" fill="#1e1b4b" />
-      <circle cx="20.5" cy="15.5" r="1.2" fill="#1e1b4b" />
+      <circle cx="15" cy="14.5" r="1.35" fill="#1e1b4b" />
+      <circle cx="21" cy="14.5" r="1.35" fill="#1e1b4b" />
       {/* Smile */}
-      <path d="M15 18.5 Q18 21 21 18.5" stroke="#92400e" strokeWidth="0.9" fill="none" strokeLinecap="round" />
-      {/* Body */}
-      <rect x="11" y="24" width="14" height="10" rx="4" fill="#f97316" />
-      <text x="18" y="31" textAnchor="middle" fontSize="5" fill="#fff" fontWeight="bold">JN</text>
+      <path d="M14.5 18 Q18 21 21.5 18" stroke="#92400e" strokeWidth="1" fill="none" strokeLinecap="round" />
     </svg>
   </div>
 )

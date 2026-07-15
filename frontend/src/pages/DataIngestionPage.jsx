@@ -6,6 +6,7 @@ import {
   getGdriveFiles, getMappingPreview,
 } from '../services/api'
 import Spinner, { PageLoader } from '../components/ui/Spinner'
+import { MALAYSIA_STATES, SCHOOL_TYPES } from '../constants'
 
 // ── Colour helpers ─────────────────────────────────────────────────────────
 // `tone` maps to a MYDS semantic scale; TONE_CLASSES holds full literal class
@@ -63,14 +64,44 @@ function Modal({ children, onClose }) {
   )
 }
 
-// School picker shared component
-function SchoolPicker({ schools, selected, onToggle, onSelectAll, onClearAll }) {
+// School picker shared component — searches server-side across the full
+// ~10,251-school directory (state/district/type/keyword, backend/src/
+// controllers/schools.controller.js), instead of filtering a client-side
+// prefetched batch. A fixed-size prefetch would only ever show whichever
+// state happens to sort first alphabetically by schoolCode.
+function SchoolPicker({ selected, onToggle, onSelectAll, onClearAll }) {
   const [search, setSearch] = useState('')
+  const [filterNegeri, setFilterNegeri] = useState('')
+  const [filterDaerah, setFilterDaerah] = useState('')
+  const [filterJenis, setFilterJenis] = useState('')
+  const [daerahList, setDaerahList] = useState([])
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)   // school id dengan pecahan standard terbuka
-  const filtered = schools.filter(s =>
-    !search || s.schoolName.toLowerCase().includes(search.toLowerCase()) ||
-    s.schoolCode.toLowerCase().includes(search.toLowerCase())
-  )
+
+  useEffect(() => {
+    setLoading(true)
+    const handle = setTimeout(() => {
+      getSchools({
+        state: filterNegeri || undefined,
+        district: filterDaerah || undefined,
+        schoolType: filterJenis || undefined,
+        search: search || undefined,
+        limit: 50,
+      }).then(r => setResults(r.data.schools || [])).catch(() => setResults([])).finally(() => setLoading(false))
+    }, 300)
+    return () => clearTimeout(handle)
+  }, [search, filterNegeri, filterDaerah, filterJenis])
+
+  // Daerah (PPD) senarai — segar ikut negeri dipilih (satu negeri selamat
+  // bawah 500 sekolah), bukan diterbitkan daripada senarai terpotong.
+  useEffect(() => {
+    if (!filterNegeri) { setDaerahList([]); return }
+    getSchools({ state: filterNegeri, limit: 500 })
+      .then(r => setDaerahList([...new Set((r.data.schools || []).map(s => s.district).filter(Boolean))].sort()))
+      .catch(() => setDaerahList([]))
+  }, [filterNegeri])
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -79,16 +110,38 @@ function SchoolPicker({ schools, selected, onToggle, onSelectAll, onClearAll }) 
           {selected.length > 0 && <span style={{ marginLeft: 8, color: '#2563EB' }}>({selected.length} dipilih)</span>}
         </span>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button onClick={() => onSelectAll(filtered.map(s => s.id))}
+          <button onClick={() => onSelectAll(results)}
             className="text-xs font-medium px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">Pilih Semua</button>
           <button onClick={onClearAll}
             className="text-xs font-medium px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">Nyahpilih</button>
         </div>
       </div>
-      <input placeholder="Cari sekolah…" value={search} onChange={e => setSearch(e.target.value)}
-        className="input mb-2" />
+
+      <div className="grid grid-cols-2 gap-2 mb-2">
+        <select className="input text-xs py-1.5" value={filterNegeri}
+          onChange={e => { setFilterNegeri(e.target.value); setFilterDaerah('') }}>
+          <option value="">Semua Negeri</option>
+          {MALAYSIA_STATES.map(s => <option key={s}>{s}</option>)}
+        </select>
+        <select className="input text-xs py-1.5" value={filterDaerah}
+          onChange={e => setFilterDaerah(e.target.value)} disabled={!filterNegeri}>
+          <option value="">Semua Daerah</option>
+          {daerahList.map(d => <option key={d}>{d}</option>)}
+        </select>
+        <select className="input text-xs py-1.5" value={filterJenis} onChange={e => setFilterJenis(e.target.value)}>
+          <option value="">Semua Jenis</option>
+          {SCHOOL_TYPES.map(t => <option key={t}>{t}</option>)}
+        </select>
+        <input placeholder="Cari sekolah…" value={search} onChange={e => setSearch(e.target.value)}
+          className="input text-xs py-1.5" />
+      </div>
+
       <div style={{ maxHeight: 320, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {filtered.map(s => {
+        {loading ? (
+          <p style={{ textAlign: 'center', fontSize: 13, color: '#A1A1AA', padding: '20px 0' }}>Mencari sekolah…</p>
+        ) : results.length === 0 ? (
+          <p style={{ textAlign: 'center', fontSize: 13, color: '#A1A1AA', padding: '20px 0' }}>Tiada sekolah dijumpai</p>
+        ) : results.map(s => {
           const breakdown = s.jnDomainBreakdown || []
           const isOpen = expanded === s.id
           // Susun ikut urutan standard SKPM rasmi; domain bukan-SKPM
@@ -104,7 +157,7 @@ function SchoolPicker({ schools, selected, onToggle, onSelectAll, onClearAll }) 
               border: selected.includes(s.id) ? '1px solid #96B7FF' : '1px solid transparent',
             }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', cursor: 'pointer' }}>
-                <input type="checkbox" checked={selected.includes(s.id)} onChange={() => onToggle(s.id)} />
+                <input type="checkbox" checked={selected.includes(s.id)} onChange={() => onToggle(s)} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{s.schoolName}</div>
                   <div style={{ fontSize: 11, color: '#A1A1AA' }}>
@@ -169,7 +222,7 @@ const DOMAIN_LABELS = Object.fromEntries(SKPM_STANDARDS.map(d => [d.key, d.label
 // ══════════════════════════════════════════════════════════════════════════
 // TAB A — Fasa A: Kemaskini Baseline JN
 // ══════════════════════════════════════════════════════════════════════════
-function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
+function JNBaselineTab({ selSchools, toggleSchool, selectAllSchools, clearAllSchools, onDone }) {
   const [sources, setSources]     = useState([])
   const [selSource, setSelSource] = useState(null)
   const [file, setFile]           = useState(null)
@@ -467,11 +520,10 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
               {selSource?.sourceType === 'api' && !isSKAS ? '2' : '3'}. Pilih Sekolah
             </h4>
             <SchoolPicker
-              schools={schools}
               selected={selSchools}
-              onToggle={id => setSelSchools(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])}
-              onSelectAll={ids => setSelSchools(ids)}
-              onClearAll={() => setSelSchools([])}
+              onToggle={toggleSchool}
+              onSelectAll={selectAllSchools}
+              onClearAll={clearAllSchools}
             />
           </Card>
 
@@ -568,7 +620,7 @@ function JNBaselineTab({ schools, selSchools, setSelSchools, onDone }) {
 // ══════════════════════════════════════════════════════════════════════════
 // TAB B — Fasa B: Data Luar (Perbandingan)
 // ══════════════════════════════════════════════════════════════════════════
-function OutsourceTab({ schools, selSchools, setSelSchools, onRecordsCreated }) {
+function OutsourceTab({ selSchools, selSchoolsMap, toggleSchool, selectAllSchools, clearAllSchools, onRecordsCreated }) {
   const [sources, setSources]     = useState([])
   const [selSource, setSelSource] = useState(null)
   const [file, setFile]           = useState(null)
@@ -590,7 +642,7 @@ function OutsourceTab({ schools, selSchools, setSelSchools, onRecordsCreated }) 
   useEffect(() => {
     if (selSource && selSchools.length > 0) {
       setPreviewLoading(true); setMappingPreview(null)
-      const codes = schools.filter(s => selSchools.includes(s.id)).map(s => s.schoolCode)
+      const codes = Object.values(selSchoolsMap).map(s => s.schoolCode)
       getMappingPreview(selSource.sourceCode, codes)
         .then(r => setMappingPreview(r.data))
         .catch(() => setMappingPreview(null))
@@ -625,9 +677,12 @@ function OutsourceTab({ schools, selSchools, setSelSchools, onRecordsCreated }) 
     }
   }
 
-  // Check if any school has jnAuditScore
-  const schoolsWithJn = schools.filter(s => s.jnAuditScore != null)
-  const jnCoverage = schools.length > 0 ? Math.round((schoolsWithJn.length / schools.length) * 100) : 0
+  // Liputan skor JN sedia ada di kalangan sekolah yang DIPILIH (bukan
+  // keseluruhan direktori ~10,251 sekolah — itu perlukan agregat berasingan
+  // di backend, di luar skop pembetulan carian sekolah ini).
+  const selectedSchoolsList = Object.values(selSchoolsMap)
+  const schoolsWithJn = selectedSchoolsList.filter(s => s.jnAuditScore != null)
+  const jnCoverage = selectedSchoolsList.length > 0 ? Math.round((schoolsWithJn.length / selectedSchoolsList.length) * 100) : 0
 
   return (
     <div>
@@ -641,10 +696,12 @@ function OutsourceTab({ schools, selSchools, setSelSchools, onRecordsCreated }) 
             <strong> DI = |jnAuditScore − skor_ops| / 100</strong> bagi setiap sekolah.
             Rekod akan disimpan untuk semakan pegawai sebelum kes dijanakan.
           </p>
-          <div style={{ marginTop: 8, fontSize: 12, color: '#854D0E' }}>
-            📊 Liputan JN Baseline: <strong>{schoolsWithJn.length}/{schools.length} sekolah ({jnCoverage}%)</strong> telah ada skor JN.
-            {jnCoverage < 80 && <span style={{ marginLeft: 8, color: '#DC2626' }}>⚠ Kemaskini Fasa A dahulu untuk liputan yang lebih baik.</span>}
-          </div>
+          {selectedSchoolsList.length > 0 && (
+            <div style={{ marginTop: 8, fontSize: 12, color: '#854D0E' }}>
+              📊 Sekolah dipilih dengan skor JN sedia ada: <strong>{schoolsWithJn.length}/{selectedSchoolsList.length} ({jnCoverage}%)</strong>.
+              {jnCoverage < 80 && <span style={{ marginLeft: 8, color: '#DC2626' }}>⚠ Kemaskini Fasa A dahulu untuk sekolah tanpa skor JN.</span>}
+            </div>
+          )}
         </div>
       </div>
 
@@ -699,11 +756,10 @@ function OutsourceTab({ schools, selSchools, setSelSchools, onRecordsCreated }) 
               {selSource?.sourceType === 'api' ? '2' : '3'}. Pilih Sekolah
             </h4>
             <SchoolPicker
-              schools={schools}
               selected={selSchools}
-              onToggle={id => setSelSchools(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])}
-              onSelectAll={ids => setSelSchools(ids)}
-              onClearAll={() => setSelSchools([])}
+              onToggle={toggleSchool}
+              onSelectAll={selectAllSchools}
+              onClearAll={clearAllSchools}
             />
           </Card>
 
@@ -1079,13 +1135,30 @@ export default function DataIngestionPage() {
   const [recordsHighlight, setRecordsHighlight] = useState(0)
   const [completedSteps, setCompletedSteps]     = useState(new Set())
 
-  // Shared state: schools loaded once, selSchools carry over Fasa A → Fasa B
-  const [schools, setSchools]         = useState([])
-  const [selSchools, setSelSchools]   = useState([])
+  // Selection (id -> full school object) carries over Fasa A → Fasa B.
+  // SchoolPicker now searches the ~10,251-school directory server-side
+  // itself, so — unlike the old "fetch 500 once" approach — a school
+  // selected under one search/filter must still be found here even after
+  // the picker's results move on to a different page/filter.
+  const [selSchoolsMap, setSelSchoolsMap] = useState({})
+  const selSchools = Object.keys(selSchoolsMap)
 
-  useEffect(() => {
-    getSchools({ limit: 500 }).then(r => setSchools(r.data.schools || [])).catch(() => {})
-  }, [])
+  const toggleSchool = (school) => {
+    setSelSchoolsMap(prev => {
+      const next = { ...prev }
+      if (next[school.id]) delete next[school.id]
+      else next[school.id] = school
+      return next
+    })
+  }
+  const selectAllSchools = (schoolsArr) => {
+    setSelSchoolsMap(prev => {
+      const next = { ...prev }
+      schoolsArr.forEach(s => { next[s.id] = s })
+      return next
+    })
+  }
+  const clearAllSchools = () => setSelSchoolsMap({})
 
   const markDone = (key) => setCompletedSteps(prev => new Set([...prev, key]))
 
@@ -1180,17 +1253,20 @@ export default function DataIngestionPage() {
       {/* Tab content */}
       {tab === 'jn' && (
         <JNBaselineTab
-          schools={schools}
           selSchools={selSchools}
-          setSelSchools={setSelSchools}
+          toggleSchool={toggleSchool}
+          selectAllSchools={selectAllSchools}
+          clearAllSchools={clearAllSchools}
           onDone={handleFasaADone}
         />
       )}
       {tab === 'luar' && (
         <OutsourceTab
-          schools={schools}
           selSchools={selSchools}
-          setSelSchools={setSelSchools}
+          selSchoolsMap={selSchoolsMap}
+          toggleSchool={toggleSchool}
+          selectAllSchools={selectAllSchools}
+          clearAllSchools={clearAllSchools}
           onRecordsCreated={goToRecords}
         />
       )}

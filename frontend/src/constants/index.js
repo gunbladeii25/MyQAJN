@@ -39,6 +39,18 @@ export const MALAYSIA_STATES = [
   'Kelantan', 'Sabah', 'Sarawak', 'Labuan',
 ]
 
+// 19 nilai sebenar JENISSEKOLAH daripada senarai_sekolah.csv (backend/data,
+// diimport ke School.schoolType) — termasuk "SM  Agama (SABK)" dengan ruang
+// berganda, itu nilai sebenar dalam data sumber, bukan salah taip di sini.
+export const SCHOOL_TYPES = [
+  'Kolej Tingkatan 6', 'Kolej Vokasional', 'SJK(C)', 'SJK(T)', 'SK',
+  'SK (Pendidikan Khas)', 'SM  Agama (SABK)', 'SM (Pendidikan Khas)',
+  'SM + SR (Model Khas)', 'SM Berasrama Penuh', 'SM Teknik', 'SMK',
+  'SMK Agama', 'SR Agama (SABK)', 'SR Model Khas Komprehensif K9',
+  'Sekolah Bimbingan Jalinan Kasih', 'Sekolah Model Khas Komprehensif 11',
+  'Sekolah Seni', 'Sekolah Sukan',
+]
+
 export const SECTOR_NAMES = {
   SDTM: 'Sektor Dasar dan Tadbir Urus Maklumat',
   SPIP: 'Sektor Pemastian dan Intervensi Pentaksiran',

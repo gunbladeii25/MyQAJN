@@ -159,18 +159,22 @@ export default function BriefsPage() {
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm table-fixed">
+            {/* Every column gets an explicit width, including Sekolah — with
+                table-fixed + w-full and no "auto" column left, the browser
+                distributes any extra viewport width proportionally across
+                all of them instead of dumping it all onto a single column. */}
             <colgroup>
               {isTopManagement && <col className="w-8" />}
               <col className="w-10" />
+              <col className="w-32" />
+              <col className="w-56" />
               <col className="w-24" />
-              <col className="w-auto" />
-              <col className="w-20" />
-              <col className="w-20" />
+              <col className="w-24" />
+              <col className="w-24" />
               <col className="w-20" />
               <col className="w-16" />
-              <col className="w-14" />
-              <col className="w-14" />
-              <col className="w-28" />
+              <col className="w-16" />
+              <col className="w-32" />
             </colgroup>
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>

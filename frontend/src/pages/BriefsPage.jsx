@@ -152,29 +152,45 @@ export default function BriefsPage() {
         </div>
       )}
 
-      {/* Table */}
+      {/* Table — table-fixed with explicit per-column widths so the whole
+          row always fits the card's width; long header labels wrap onto two
+          lines instead of forcing the column (and the whole table) wider
+          than the viewport, which used to force a horizontal scrollbar. */}
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm table-fixed">
+            <colgroup>
+              {isTopManagement && <col className="w-8" />}
+              <col className="w-10" />
+              <col className="w-24" />
+              <col className="w-auto" />
+              <col className="w-20" />
+              <col className="w-20" />
+              <col className="w-20" />
+              <col className="w-16" />
+              <col className="w-14" />
+              <col className="w-14" />
+              <col className="w-28" />
+            </colgroup>
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 {isTopManagement && (
-                  <th className="px-4 py-3 text-left w-8">
+                  <th className="px-3 py-3 text-left">
                     <input type="checkbox"
                       checked={filtered.some(b => !(b.signedByKetuaJn && b.signedByAuditDirector)) &&
                         filtered.filter(b => !(b.signedByKetuaJn && b.signedByAuditDirector)).every(b => selected.has(b.caseId))}
                       onChange={() => toggleSelectAll(filtered)} />
                   </th>
                 )}
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Bil.</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Bil.</th>
                 {['ID Kes', 'Sekolah', 'Negeri', 'Amaran', 'Tarikh', 'Model', 'Ketua Nazir Sekolah', 'Nazir Pemeriksa', ''].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide leading-tight">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filtered.length === 0 && (
-                <tr><td colSpan={isTopManagement ? 11 : 10} className="px-4 py-10 text-center text-gray-400 text-sm">
+                <tr><td colSpan={isTopManagement ? 11 : 10} className="px-3 py-10 text-center text-gray-400 text-sm">
                   {briefs.length === 0 ? 'Tiada executive brief lagi.' : 'Tiada brief sepadan dengan tapisan.'}
                 </td></tr>
               )}
@@ -184,25 +200,25 @@ export default function BriefsPage() {
                   <tr key={b.id} onClick={() => navigate(`/cases/${b.case?.id}`)}
                     className="hover:bg-gray-50 cursor-pointer transition-colors">
                     {isTopManagement && (
-                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
                         {!bothSigned && (
                           <input type="checkbox" checked={selected.has(b.caseId)} onChange={() => toggleSelect(b.caseId)} />
                         )}
                       </td>
                     )}
-                    <td className="px-4 py-3 text-xs text-gray-400 tabular-nums">{i + 1}</td>
-                    <td className="px-4 py-3 font-mono text-xs font-medium text-primary-600">{b.case?.caseId}</td>
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-gray-900 truncate max-w-[180px]">{b.case?.school?.schoolName}</p>
-                      <p className="text-gray-400 text-xs">{b.case?.school?.schoolCode}</p>
+                    <td className="px-3 py-3 text-xs text-gray-400 tabular-nums">{i + 1}</td>
+                    <td className="px-3 py-3 font-mono text-xs font-medium text-primary-600 truncate">{b.case?.caseId}</td>
+                    <td className="px-3 py-3 min-w-0">
+                      <p className="font-medium text-gray-900 truncate">{b.case?.school?.schoolName}</p>
+                      <p className="text-gray-400 text-xs truncate">{b.case?.school?.schoolCode}</p>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">{b.case?.school?.state || '—'}</td>
-                    <td className="px-4 py-3"><AlertBadge level={b.case?.alertLevel} /></td>
-                    <td className="px-4 py-3 text-xs text-gray-500">{new Date(b.createdAt).toLocaleDateString('ms-MY')}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500">{b.llmModelUsed}</td>
-                    <td className="px-4 py-3"><SignChip label="" signed={b.signedByKetuaJn} /></td>
-                    <td className="px-4 py-3"><SignChip label="" signed={b.signedByAuditDirector} /></td>
-                    <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                    <td className="px-3 py-3 text-xs text-gray-600 truncate">{b.case?.school?.state || '—'}</td>
+                    <td className="px-3 py-3"><AlertBadge level={b.case?.alertLevel} /></td>
+                    <td className="px-3 py-3 text-xs text-gray-500 truncate">{new Date(b.createdAt).toLocaleDateString('ms-MY')}</td>
+                    <td className="px-3 py-3 text-xs text-gray-500 truncate">{b.llmModelUsed}</td>
+                    <td className="px-3 py-3"><SignChip label="" signed={b.signedByKetuaJn} /></td>
+                    <td className="px-3 py-3"><SignChip label="" signed={b.signedByAuditDirector} /></td>
+                    <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                       {user?.role === 'top_management' && !bothSigned ? (
                         <button onClick={() => setSignModal(b)} className="btn-primary text-xs py-1.5 whitespace-nowrap">
                           Tandatangan

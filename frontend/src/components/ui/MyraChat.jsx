@@ -124,6 +124,21 @@ const MyraAvatar = ({ size = 36, pulse = false }) => (
 )
 
 // ── Main Myra Chat Widget ─────────────────────────────────────────────────
+// Persisted so the widget stays wherever the user last dragged it to,
+// across reloads. Defaults clear of the mobile bottom tab bar
+// (MobileTabBar.jsx, ~64px + safe-area) — it used to sit right on top of
+// the "Lagi" tab.
+const POS_STORAGE_KEY = 'myra-widget-pos'
+const DEFAULT_POS = { bottom: 88, right: 16 }
+
+function loadPos() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(POS_STORAGE_KEY))
+    if (saved && typeof saved.bottom === 'number' && typeof saved.right === 'number') return saved
+  } catch { /* ignore malformed/missing */ }
+  return DEFAULT_POS
+}
+
 export default function MyraChat() {
   const [open, setOpen]       = useState(false)
   const [msgs, setMsgs]       = useState([
@@ -134,8 +149,52 @@ export default function MyraChat() {
   const [speaking, setSpeaking] = useState(false)
   const [speakId, setSpeakId] = useState(null)
   const [unread, setUnread]   = useState(1)
+  const [pos, setPos]         = useState(loadPos)
   const bottomRef = useRef(null)
   const inputRef  = useRef(null)
+  const drag      = useRef({ dragging: false, moved: false, startX: 0, startY: 0, startBottom: 0, startRight: 0 })
+
+  // Drag-to-reposition — bound to whichever element passes onPointerDown as
+  // the handle (the closed avatar button, or the open window's header bar),
+  // never the whole widget, so scrolling messages / clicking buttons inside
+  // the open chat still works normally.
+  const clamp = (bottom, right) => {
+    const margin = 8
+    const w = window.innerWidth, h = window.innerHeight
+    const boxW = open ? Math.min(360, w - 32) : 58
+    const boxH = open ? Math.min(560, h - 120) : 58
+    return {
+      right: Math.min(Math.max(right, margin), Math.max(margin, w - boxW - margin)),
+      bottom: Math.min(Math.max(bottom, margin), Math.max(margin, h - boxH - margin)),
+    }
+  }
+  const onDragStart = (e) => {
+    drag.current = {
+      dragging: true, moved: false,
+      startX: e.clientX, startY: e.clientY,
+      startBottom: pos.bottom, startRight: pos.right,
+    }
+    e.currentTarget.setPointerCapture?.(e.pointerId)
+  }
+  const onDragMove = (e) => {
+    if (!drag.current.dragging) return
+    const dx = e.clientX - drag.current.startX
+    const dy = e.clientY - drag.current.startY
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) drag.current.moved = true
+    if (drag.current.moved) setPos(clamp(drag.current.startBottom - dy, drag.current.startRight - dx))
+  }
+  const onDragEnd = () => {
+    if (!drag.current.dragging) return
+    drag.current.dragging = false
+    if (drag.current.moved) {
+      setPos((p) => { localStorage.setItem(POS_STORAGE_KEY, JSON.stringify(p)); return p })
+    }
+  }
+  // Suppress the "open chat" click that would otherwise fire right after a drag.
+  const onTriggerClick = () => {
+    if (drag.current.moved) { drag.current.moved = false; return }
+    setOpen(true)
+  }
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -194,8 +253,10 @@ export default function MyraChat() {
         .myra-input:focus { outline: none; border-color: #f97316; box-shadow: 0 0 0 2px rgba(249,115,22,0.2) }
       `}</style>
 
-      {/* Floating trigger button */}
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6" style={{ zIndex: 2000 }}>
+      {/* Floating trigger button — position is drag-controlled (see `pos`
+          state above), not a fixed Tailwind corner, so it can be moved
+          off whatever it's blocking (e.g. the mobile bottom tab bar). */}
+      <div className="fixed" style={{ zIndex: 2000, bottom: pos.bottom, right: pos.right }}>
         {!open && (
           <div style={{ position: 'relative' }}>
             {unread > 0 && (
@@ -203,18 +264,23 @@ export default function MyraChat() {
                 position: 'absolute', top: -4, right: -4, width: 20, height: 20,
                 borderRadius: '50%', background: '#dc2626', color: '#fff',
                 fontSize: 11, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                zIndex: 1, border: '2px solid #fff',
+                zIndex: 1, border: '2px solid #fff', pointerEvents: 'none',
               }}>{unread}</div>
             )}
             <button
-              onClick={() => setOpen(true)}
-              title="Chat dengan Myra — Pembantu AI"
+              onClick={onTriggerClick}
+              onPointerDown={onDragStart}
+              onPointerMove={onDragMove}
+              onPointerUp={onDragEnd}
+              onPointerCancel={onDragEnd}
+              title="Chat dengan Myra — Pembantu AI (boleh diseret)"
               style={{
-                width: 58, height: 58, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                width: 58, height: 58, borderRadius: '50%', border: 'none', cursor: 'grab',
                 background: 'linear-gradient(135deg, #f97316 0%, #dc2626 100%)',
                 boxShadow: '0 6px 24px rgba(249,115,22,0.45)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 animation: 'myra-bounce 2.5s ease-in-out infinite',
+                touchAction: 'none',
               }}>
               <MyraAvatar size={40} />
             </button>
@@ -231,12 +297,19 @@ export default function MyraChat() {
             display: 'flex', flexDirection: 'column', overflow: 'hidden',
             animation: 'myra-fadein 0.25s ease-out both',
           }}>
-            {/* Header */}
-            <div style={{
-              background: 'linear-gradient(135deg, #f97316 0%, #dc2626 100%)',
-              padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10,
-              flexShrink: 0,
-            }}>
+            {/* Header — also the drag handle while open (dragging by the
+                avatar bubble only works when closed, so the panel needs
+                its own grab surface too). */}
+            <div
+              onPointerDown={onDragStart}
+              onPointerMove={onDragMove}
+              onPointerUp={onDragEnd}
+              onPointerCancel={onDragEnd}
+              style={{
+                background: 'linear-gradient(135deg, #f97316 0%, #dc2626 100%)',
+                padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10,
+                flexShrink: 0, cursor: 'grab', touchAction: 'none',
+              }}>
               <MyraAvatar size={38} pulse={loading} />
               <div style={{ flex: 1 }}>
                 <div style={{ color: '#fff', fontWeight: 800, fontSize: 15 }}>Myra</div>
@@ -244,7 +317,7 @@ export default function MyraChat() {
                   {loading ? '✍️ sedang menaip…' : '🟢 Online — Pembantu MyQA@JN'}
                 </div>
               </div>
-              <button onClick={() => setOpen(false)} style={{
+              <button onClick={() => setOpen(false)} onPointerDown={(e) => e.stopPropagation()} style={{
                 background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 8,
                 padding: '5px 8px', cursor: 'pointer', color: '#fff', fontSize: 16, lineHeight: 1,
               }}>✕</button>

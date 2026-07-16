@@ -85,10 +85,13 @@ const STATUS_COLORS = ['#2563EB', '#16A34A', '#EA580C', '#6B6B74'] // primary-60
 // gradient SVG), yang tidak sah sebagai CSS `background` di luar konteks SVG
 // (bulatan legend jadi tiada warna). Guna STATUS_COLORS terus mengikut index
 // yang sama seperti Cell supaya warna legend sepadan dengan hirisan carta.
+// Horizontal, centered below the donut (not beside it) — a vertical legend
+// pinned to the right ate too much width on a narrow mobile card, squeezing
+// the chart down into a corner instead of filling the card.
 const PieLegend = ({ payload }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginLeft: 16 }}>
+  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 14, marginTop: 6 }}>
     {payload.map((entry, i) => (
-      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
         <span style={{ width: 10, height: 10, borderRadius: '50%', background: STATUS_COLORS[i % STATUS_COLORS.length], flexShrink: 0 }} />
         <span style={{ color: '#374151' }}>{entry.value}</span>
       </div>
@@ -361,12 +364,12 @@ export default function DashboardPage() {
             <span className="text-xs text-gray-400">{(data?.byStatus || []).reduce((a, b) => a + b._count, 0)} jumlah</span>
           </div>
           {(data?.byStatus || []).length === 0 ? (
-            <div style={{ height: 210, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontSize: 13 }}>
+            <div style={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontSize: 13 }}>
               Tiada data
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height={210}>
-              <PieChart>
+            <ResponsiveContainer width="100%" height={240}>
+              <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                 <defs>
                   {STATUS_COLORS.map((c, i) => (
                     <linearGradient key={i} id={`pieGrad${i}`} x1="0" y1="0" x2="1" y2="1">
@@ -377,7 +380,7 @@ export default function DashboardPage() {
                 </defs>
                 <Pie
                   data={(data?.byStatus || []).map((s) => ({ name: CASE_STATUS[s.status]?.label || s.status, value: s._count, status: s.status }))}
-                  cx="42%" cy="50%"
+                  cx="50%" cy="45%"
                   innerRadius={52} outerRadius={82}
                   paddingAngle={3} dataKey="value"
                   labelLine={false} label={<PieLabel />}
@@ -396,7 +399,7 @@ export default function DashboardPage() {
                     <Cell key={i} fill={`url(#pieGrad${i % STATUS_COLORS.length})`} />
                   ))}
                 </Pie>
-                <Legend layout="vertical" align="right" verticalAlign="middle" content={<PieLegend />} />
+                <Legend layout="horizontal" align="center" verticalAlign="bottom" content={<PieLegend />} />
                 <Tooltip
                   contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 2px 6px 0 rgba(24,24,27,.05), 0 12px 50px 0 rgba(24,24,27,.10)', fontSize: 13 }}
                   formatter={(value, name) => [`${value} kes`, name]}

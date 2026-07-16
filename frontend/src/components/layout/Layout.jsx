@@ -2,35 +2,33 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import MobileTabBar from './MobileTabBar'
 import MyraChat from '../ui/MyraChat'
+import MoreSheet from '../ui/MoreSheet'
 import { ToastProvider } from '../ui/Toast'
 import { useRouteTranslation } from '../../contexts/LanguageContext'
 
 export default function Layout() {
   useRouteTranslation() // re-apply translation on every route change
 
-  // Sidebar is a fixed off-canvas drawer below the `md` breakpoint (opened
-  // via Header's hamburger button) and a normal static flex item at `md`+ —
-  // this state only ever matters on mobile, Sidebar ignores it on desktop.
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  // Mobile nav is a bottom tab bar + "Lagi" sheet (app-vibe redesign),
+  // replacing the old hamburger/off-canvas-drawer approach entirely on
+  // small screens. Sidebar reverts to a desktop-only static flex item.
+  const [moreOpen, setMoreOpen] = useState(false)
 
   return (
     <ToastProvider>
       <div className="flex h-screen bg-gray-50 overflow-hidden">
-        {sidebarOpen && (
-          <div
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-30 bg-gray-900/50 md:hidden"
-          />
-        )}
-        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Header onMenuClick={() => setSidebarOpen(true)} />
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <Header />
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 pb-20 md:pb-6">
             <Outlet />
           </main>
         </div>
         <MyraChat />
+        <MobileTabBar onMoreClick={() => setMoreOpen(true)} />
+        <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} />
       </div>
     </ToastProvider>
   )

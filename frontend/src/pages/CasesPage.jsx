@@ -55,11 +55,22 @@ export default function CasesPage() {
           </p>
         </div>
         {canSubmit && (
-          <button onClick={() => navigate('/cases/new')} className="btn-primary">
+          <button onClick={() => navigate('/cases/new')} className="btn-primary hidden sm:inline-flex flex-shrink-0">
             <Plus className="w-4 h-4" /> Submit Kes (Manual)
           </button>
         )}
       </div>
+
+      {/* Mobile FAB — replaces the inline button, which would cramp the
+          title on a phone-width header row. */}
+      {canSubmit && (
+        <button onClick={() => navigate('/cases/new')}
+          className="sm:hidden fixed z-30 flex items-center justify-center w-14 h-14 rounded-full
+            bg-gradient-to-br from-primary-600 to-primary-800 text-white shadow-menu"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom) + 76px)', right: 16 }}>
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
 
       {isPenyelarasJpn && jpnPending > 0 && !stripDismissed && (
         <div className="flex items-center justify-between gap-4 bg-primary-50 border border-primary-100 rounded-md px-4 py-3 text-sm">
@@ -90,8 +101,9 @@ export default function CasesPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="card overflow-hidden">
+      {/* Table — desktop only, past the point a table is even usable
+          on a phone; mobile gets a card list instead (below). */}
+      <div className="card overflow-hidden hidden md:block">
         {loading ? <PageLoader /> : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -132,6 +144,31 @@ export default function CasesPage() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* Mobile card list */}
+      <div className="md:hidden space-y-2.5">
+        {loading ? <PageLoader /> : cases.length === 0 ? (
+          <p className="text-center text-sm text-gray-400 py-10">
+            {isPenyelarasJpn ? 'Tiada kes dieskalasi ke negeri anda buat masa ini.' : 'Tiada kes ditemui.'}
+          </p>
+        ) : cases.map((c) => (
+          <div key={c.id} onClick={() => navigate(`/cases/${c.id}`)}
+            className="card p-3.5 active:bg-gray-50">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="font-mono text-xs font-semibold text-primary-600">{c.caseId}</p>
+                <p className="font-medium text-sm text-gray-900 mt-0.5 truncate">{c.school?.schoolName}</p>
+              </div>
+              <AlertBadge level={c.alertLevel} />
+            </div>
+            <p className="text-xs text-gray-400 mt-1">{c.school?.schoolCode} · {c.school?.state || '—'}</p>
+            <div className="flex items-center justify-between mt-2.5">
+              <StatusBadge status={c.status} colorMap={CASE_STATUS} />
+              <span className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleDateString('ms-MY')}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )

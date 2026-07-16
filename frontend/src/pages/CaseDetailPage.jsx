@@ -296,9 +296,30 @@ export default function CaseDetailPage() {
         </div>
       </div>
 
-      {/* DI Summary Banner */}
+      {/* DI Summary Banner — mobile shows a gauge + stat-tile grid (a raw
+          "0.3173" reads slower on a phone than a ring you can eyeball at
+          a glance); desktop keeps the original flex-wrap row unchanged. */}
       <div className={`rounded-xl border p-5 ${alertColor.bg} ${alertColor.border}`}>
-        <div className="flex flex-wrap items-center gap-6">
+        <div className="sm:hidden flex flex-col items-center text-center mb-4">
+          <DiGauge value={Number(c.discrepancyIndex)} level={c.alertLevel} />
+          <div className="mt-2"><DiClassBadge classification={c.diClassification} /></div>
+          <div className="grid grid-cols-3 gap-2 mt-4 w-full">
+            <div className="bg-white/60 rounded-lg py-2 px-1">
+              <p className="text-[10px] text-gray-500">Skor Operasi</p>
+              <p className="text-sm font-bold text-gray-800 mt-0.5">{Number(c.operationalScore).toFixed(1)}</p>
+            </div>
+            <div className="bg-white/60 rounded-lg py-2 px-1">
+              <p className="text-[10px] text-gray-500">Skor Audit JN</p>
+              <p className="text-sm font-bold text-gray-800 mt-0.5">{Number(c.jnAuditScore).toFixed(1)}</p>
+            </div>
+            <div className="bg-white/60 rounded-lg py-2 px-1">
+              <p className="text-[10px] text-gray-500">Anomali</p>
+              <p className={`text-sm font-bold mt-0.5 ${c.anomalyDetected ? 'text-danger-700' : 'text-success-700'}`}>{c.anomalyDetected ? 'YA' : 'TIDAK'}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="hidden sm:flex flex-wrap items-center gap-6">
           <div>
             <p className={`text-xs font-semibold uppercase tracking-wide ${alertColor.text}`}>Discrepancy Index</p>
             <p className="text-3xl font-bold text-gray-900 mt-1">{Number(c.discrepancyIndex).toFixed(4)}</p>
@@ -882,6 +903,34 @@ function Row({ label, value }) {
     <div className="flex items-start justify-between gap-4">
       <span className="text-gray-500 flex-shrink-0">{label}</span>
       <span className="text-gray-900 font-medium text-right">{value}</span>
+    </div>
+  )
+}
+
+// Mobile-only DI visualisation (see the DI Summary Banner above) — matches
+// the ALERT_COLORS hue per level so it agrees with the AlertBadge/DiClassBadge
+// shown right next to it, just as a hex since SVG stroke can't take a
+// Tailwind class.
+const DI_GAUGE_HEX = { RED: '#DC2626', ORANGE: '#EA580C', YELLOW: '#CA8A04', BLUE: '#2563EB', GREEN: '#16A34A' }
+function DiGauge({ value, level }) {
+  const color = DI_GAUGE_HEX[level] || '#6B6B74'
+  const pct = Math.min(1, Math.max(0, value))
+  const r = 38
+  const circumference = 2 * Math.PI * r
+  return (
+    <div className="relative w-24 h-24">
+      <svg width="96" height="96" viewBox="0 0 96 96" style={{ transform: 'rotate(-90deg)' }}>
+        <circle cx="48" cy="48" r={r} fill="none" stroke="#E4E4E7" strokeWidth="9" />
+        <circle
+          cx="48" cy="48" r={r} fill="none" stroke={color} strokeWidth="9" strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={circumference * (1 - pct)}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-lg font-heading font-bold text-gray-900">{value.toFixed(3)}</span>
+        <span className="text-[9px] text-gray-400 font-semibold tracking-wide">DI SCORE</span>
+      </div>
     </div>
   )
 }

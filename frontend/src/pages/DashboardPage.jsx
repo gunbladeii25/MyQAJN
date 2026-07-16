@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertTriangle, FileText, Clock, TrendingUp, X, ExternalLink, MessageSquare } from 'lucide-react'
+import { AlertTriangle, FileText, Clock, TrendingUp, X, ExternalLink, MessageSquare, Database, BookOpen, Users } from 'lucide-react'
 import { getDashboard, getCases, dashboardStreamUrl } from '../services/api'
 import { useToast } from '../components/ui/Toast'
 import { useAuthStore } from '../stores/authStore'
 import { AlertBadge, DiClassBadge, StatusBadge } from '../components/ui/AlertBadge'
-import { CASE_STATUS } from '../constants'
+import { CASE_STATUS, ROLES } from '../constants'
 import { PageLoader } from '../components/ui/Spinner'
 import PageBanner from '../components/ui/PageBanner'
 import {
@@ -220,6 +220,17 @@ export default function DashboardPage() {
     ? 'Semua kes telah disemak dan tiada respons Penyelaras JPN tertunggak — tiada tindakan segera diperlukan.'
     : `${pendingReview} kes menunggu semakan${jpnPending > 0 ? ` dan ${jpnPending} respons Penyelaras JPN belum lengkap` : ''} — semak baki tugasan minggu ini.`
 
+  // Same role scoping as Sidebar.jsx's navItems, reshaped into an icon
+  // grid for the mobile-only app header below (desktop keeps the sidebar).
+  const quickActions = [
+    { to: '/ingestion', icon: Database, label: 'Ingestion Data', roles: ['admin', 'peneraju_sektor'], bg: 'bg-primary-100 text-primary-700' },
+    { to: '/cases', icon: FileText, label: 'Pengurusan Kes', roles: ['admin', 'peneraju_sektor', 'top_management'], bg: 'bg-warning-100 text-warning-700', badge: data?.pendingReview },
+    { to: '/briefs', icon: BookOpen, label: 'Executive Briefs', roles: ['admin', 'peneraju_sektor', 'top_management'], bg: 'bg-success-100 text-success-700', badge: data?.briefsPendingSign },
+    { to: '/users', icon: Users, label: 'Pengurusan Pengguna', roles: ['admin'], bg: 'bg-purple-100 text-purple-700' },
+  ].filter((q) => q.roles.includes(user?.role))
+
+  const initials = (user?.name || '').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
+
   return (
     <div className="space-y-6">
       {modal && (
@@ -231,14 +242,58 @@ export default function DashboardPage() {
         />
       )}
 
-      <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
+      {/* Mobile app-header + quick-action grid — replaces the plain h1 +
+          PageBanner welcome text on phones (desktop keeps those, below).
+          Bleeds edge-to-edge past main's own padding via negative margin. */}
+      <div className="md:hidden -mx-4 sm:-mx-6 -mt-4 sm:-mt-6">
+        <div className="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 px-5 pt-6 pb-16 text-white">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -top-10 -left-8 w-40 h-40 rounded-full bg-primary-400/30 blur-3xl" />
+            <div className="absolute -bottom-10 right-0 w-36 h-36 rounded-full bg-warning-300/15 blur-3xl" />
+          </div>
+          <p className="relative text-xs text-white/70">
+            {new Date().toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          </p>
+          <div className="relative flex flex-col items-center mt-3">
+            <div className="w-16 h-16 rounded-full bg-white border-[3px] border-white/50 flex items-center justify-center text-lg font-heading font-bold text-primary-700">
+              {initials}
+            </div>
+            <p className="mt-2 text-[15px] font-heading font-bold">{user?.name}</p>
+            <span className="mt-1 text-[10.5px] font-bold uppercase tracking-wide bg-white/20 px-2.5 py-1 rounded-full">
+              {ROLES[user?.role]?.label}
+            </span>
+          </div>
+        </div>
 
-      <PageBanner
-        title={`Selamat kembali, ${user?.name} 👋`}
-        subtitle={bannerSubtitle}
-        ctaLabel="Lihat Kes Tertunggak"
-        onCta={() => navigate('/cases')}
-      />
+        <div className="px-4 -mt-9 relative z-10">
+          <div className="bg-white rounded-2xl shadow-card p-4 grid grid-cols-4 gap-2">
+            {quickActions.map((q) => (
+              <button key={q.to} onClick={() => navigate(q.to)} className="flex flex-col items-center gap-1.5 relative">
+                {q.badge > 0 && (
+                  <span className="absolute -top-1 right-2 bg-danger-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">
+                    {q.badge}
+                  </span>
+                )}
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${q.bg}`}>
+                  <q.icon className="w-5 h-5" />
+                </div>
+                <span className="text-[9.5px] font-semibold text-gray-700 text-center leading-tight">{q.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <h1 className="hidden md:block text-xl font-bold text-gray-900">Dashboard</h1>
+
+      <div className="hidden md:block">
+        <PageBanner
+          title={`Selamat kembali, ${user?.name} 👋`}
+          subtitle={bannerSubtitle}
+          ctaLabel="Lihat Kes Tertunggak"
+          onCta={() => navigate('/cases')}
+        />
+      </div>
 
       {/* KPI Cards — clickable */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">

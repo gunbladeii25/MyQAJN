@@ -1,10 +1,13 @@
-import { LogOut, User, Globe, Loader2, Menu } from 'lucide-react'
+import { LogOut, User, Globe, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { ROLES, SECTOR_NAMES } from '../../constants'
 
-export default function Header({ onMenuClick }) {
+// On mobile this whole bar simplifies to just the page title — language
+// switch, user/role info, and logout all move into MoreSheet ("Lagi") since
+// mobile nav is a bottom tab bar now, not this header (see Layout.jsx).
+export default function Header() {
   const { user, logout } = useAuthStore()
   const { lang, languages, setLanguage, translating } = useLanguage()
   const navigate = useNavigate()
@@ -16,32 +19,19 @@ export default function Header({ onMenuClick }) {
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between flex-shrink-0 gap-3">
-      <div className="flex items-center gap-3 min-w-0">
-        <button
-          onClick={onMenuClick}
-          className="md:hidden flex-shrink-0 p-2 -ml-1 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-        <div className="min-w-0">
-          <h2 className="text-sm font-heading font-semibold text-gray-900 truncate">
-            {user?.sector ? SECTOR_NAMES[user.sector] : 'Dashboard Sistem'}
-          </h2>
-          <p className="text-xs text-gray-500 mt-0.5 truncate">
-            {new Date().toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
-        </div>
+      <div className="min-w-0">
+        <h2 className="text-sm font-heading font-semibold text-gray-900 truncate">
+          {user?.sector ? SECTOR_NAMES[user.sector] : 'Dashboard Sistem'}
+        </h2>
+        <p className="text-xs text-gray-500 mt-0.5 truncate">
+          {new Date().toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        </p>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+      <div className="hidden md:flex items-center gap-3 flex-shrink-0">
         {/* Penukar bahasa — dropdown, skop untuk tambah bahasa akan datang
             (SUPPORTED_LANGUAGES di constants/index.js) */}
-        {/* Dibataskan lebar pada mudah alih (native <select> akan cuba muat
-            keseluruhan teks pilihan semasa dipilih, boleh tolak/tindih
-            ikon hamburger jika tidak dihadkan) — teks penuh tetap
-            kelihatan bila dropdown dibuka, hanya paparan tertutup dipotong. */}
-        <div className="relative flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-full border border-gray-200 bg-gray-50 select-none
-          max-w-[76px] sm:max-w-none overflow-hidden"
+        <div className="relative flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-full border border-gray-200 bg-gray-50 select-none"
           style={{ opacity: translating ? 0.7 : 1 }}>
           {translating
             ? <Loader2 className="w-3.5 h-3.5 text-gray-400 animate-spin flex-shrink-0" />

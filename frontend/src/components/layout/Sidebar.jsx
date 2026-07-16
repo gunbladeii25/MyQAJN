@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, FileText, Users, BookOpen, Database, X } from 'lucide-react'
+import { LayoutDashboard, FileText, Users, BookOpen, Database } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { clsx } from 'clsx'
 
@@ -53,7 +53,7 @@ const navItems = [
   },
 ]
 
-export default function Sidebar({ open, onClose }) {
+export default function Sidebar() {
   const user = useAuthStore((s) => s.user)
 
   const visible = navItems.filter((item) => item.roles.includes(user?.role))
@@ -61,19 +61,12 @@ export default function Sidebar({ open, onClose }) {
   const stepItems = visible.filter((i) => i.step !== null)
 
   return (
+    // Desktop-only chrome — mobile nav is the bottom tab bar + "Lagi" sheet
+    // (MobileTabBar.jsx / MoreSheet.jsx), not a collapsed version of this.
     <aside
-      onClick={onClose}
-      className={clsx(
-        // Mobile: fixed off-canvas drawer, slides in/out with `open`.
-        // md+: back to a normal static flex item, always visible —
-        // translate-x-0 there overrides whatever `open` says on mobile.
-        'fixed inset-y-0 left-0 z-40 w-64 flex flex-col overflow-hidden',
-        'transform transition-transform duration-300 md:transform-none',
-        'md:relative md:flex-shrink-0',
-        open ? 'translate-x-0' : '-translate-x-full',
-        'bg-gradient-to-b from-primary-700/90 via-primary-800/85 to-primary-900/90',
-        'backdrop-blur-xl border-r border-white/10 shadow-2xl'
-      )}
+      className="hidden md:flex relative w-64 flex-col flex-shrink-0 overflow-hidden
+        bg-gradient-to-b from-primary-700/90 via-primary-800/85 to-primary-900/90
+        backdrop-blur-xl border-r border-white/10 shadow-2xl"
     >
 
       {/* Ambient blurred colour blobs — behind the nav, give the
@@ -95,12 +88,6 @@ export default function Sidebar({ open, onClose }) {
             <p className="text-white font-heading font-semibold text-sm leading-tight">MyQA@JN</p>
             <p className="text-white/55 text-xs">AI-Powered School QA Resolution Agent</p>
           </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); onClose?.() }}
-            className="md:hidden flex-shrink-0 p-1.5 rounded-md text-white/60 hover:bg-white/10 hover:text-white"
-          >
-            <X className="w-5 h-5" />
-          </button>
         </div>
       </div>
 

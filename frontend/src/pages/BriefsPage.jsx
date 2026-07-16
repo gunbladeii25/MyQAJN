@@ -152,11 +152,8 @@ export default function BriefsPage() {
         </div>
       )}
 
-      {/* Table — table-fixed with explicit per-column widths so the whole
-          row always fits the card's width; long header labels wrap onto two
-          lines instead of forcing the column (and the whole table) wider
-          than the viewport, which used to force a horizontal scrollbar. */}
-      <div className="card overflow-hidden">
+      {/* Table — desktop only, mobile gets a card list (below). */}
+      <div className="card overflow-hidden hidden md:block">
         <div className="overflow-x-auto">
           <table className="w-full text-sm table-fixed">
             {/* Every column gets an explicit width, including Sekolah — with
@@ -239,6 +236,61 @@ export default function BriefsPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Mobile card list */}
+      <div className="md:hidden space-y-2.5">
+        {isTopManagement && filtered.length > 0 && (
+          <button
+            onClick={() => toggleSelectAll(filtered)}
+            className="text-xs font-medium text-primary-600 px-1"
+          >
+            {filtered.filter(b => !(b.signedByKetuaJn && b.signedByAuditDirector)).every(b => selected.has(b.caseId)) && filtered.some(b => !(b.signedByKetuaJn && b.signedByAuditDirector))
+              ? 'Nyahpilih Semua' : 'Pilih Semua Belum Ditandatangani'}
+          </button>
+        )}
+        {filtered.length === 0 ? (
+          <p className="text-center text-sm text-gray-400 py-10">
+            {briefs.length === 0 ? 'Tiada executive brief lagi.' : 'Tiada brief sepadan dengan tapisan.'}
+          </p>
+        ) : filtered.map((b) => {
+          const bothSigned = b.signedByKetuaJn && b.signedByAuditDirector
+          return (
+            <div key={b.id} onClick={() => navigate(`/cases/${b.case?.id}`)} className="card p-3.5 active:bg-gray-50">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start gap-2.5 min-w-0">
+                  {isTopManagement && !bothSigned && (
+                    <input type="checkbox" checked={selected.has(b.caseId)}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={() => toggleSelect(b.caseId)} className="mt-1 flex-shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-mono text-xs font-semibold text-primary-600">{b.case?.caseId}</p>
+                    <p className="font-medium text-sm text-gray-900 mt-0.5 truncate">{b.case?.school?.schoolName}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{b.case?.school?.schoolCode} · {b.case?.school?.state || '—'}</p>
+                  </div>
+                </div>
+                <AlertBadge level={b.case?.alertLevel} />
+              </div>
+              <div className="flex items-center gap-2 mt-2.5">
+                <SignChip label="Ketua Nazir" signed={b.signedByKetuaJn} />
+                <SignChip label="Nazir Pemeriksa" signed={b.signedByAuditDirector} />
+              </div>
+              <div className="flex items-center justify-between mt-2.5">
+                <span className="text-xs text-gray-400">{new Date(b.createdAt).toLocaleDateString('ms-MY')}</span>
+                {user?.role === 'top_management' && !bothSigned ? (
+                  <button onClick={(e) => { e.stopPropagation(); setSignModal(b) }} className="btn-primary text-xs py-1.5">
+                    Tandatangan
+                  </button>
+                ) : (
+                  <button onClick={(e) => { e.stopPropagation(); navigate(`/cases/${b.case?.id}`) }} className="btn-secondary text-xs py-1.5">
+                    <FileText className="w-3.5 h-3.5" /> Lihat Kes
+                  </button>
+                )}
+              </div>
+            </div>
+          )
+        })}
       </div>
 
       {/* Sign modal */}

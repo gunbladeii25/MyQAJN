@@ -66,12 +66,15 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       # Shared with certbot on the host — lets it complete the Let's
       # Encrypt HTTP-01 challenge (and renewals) without ever stopping
-      # this container. /etc/letsencrypt gets mounted too once a real
-      # cert exists (see nginx.conf's 443 server block, added separately).
+      # this container.
       - ./certbot-webroot:/var/www/certbot
+      # Real cert lives on the host (issued via certbot on the VM, outside
+      # this repo/image) — read-only so it survives every image rebuild.
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - backend
 

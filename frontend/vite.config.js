@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon-32.png', 'apple-touch-icon.png', 'KPMJN-Hitam.png'],
+      includeAssets: ['favicon-32.png', 'apple-touch-icon.png', 'KPMJN-Hitam.png', 'logo-myqajn.png'],
       manifest: {
         name: 'MyQA@JN — AI-Powered School QA Resolution Agent',
         short_name: 'MyQA@JN',

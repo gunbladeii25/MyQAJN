@@ -82,7 +82,7 @@ export default function Sidebar() {
       <div className="relative z-10 p-5 border-b border-white/10">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center p-1 shadow-button flex-shrink-0">
-            <img src="/KPMJN-Hitam.png" alt="Jata KPM Jemaah Nazir" className="w-full h-full object-contain" />
+            <img src="/logo-myqajn.png" alt="MyQA@JN" className="w-full h-full object-contain" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white font-heading font-semibold text-sm leading-tight">MyQA@JN</p>

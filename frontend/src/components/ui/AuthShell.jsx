@@ -46,7 +46,7 @@ export default function AuthShell({ children, footer }) {
           <div className="relative w-16 h-16 mx-auto mb-4">
             <div className="animate-auth-glow absolute inset-0 rounded-2xl bg-white/50 blur-xl" />
             <div className="relative w-16 h-16 rounded-2xl bg-white flex items-center justify-center p-2 shadow-lg">
-              <img src="/KPMJN-Hitam.png" alt="Jata KPM Jemaah Nazir" className="w-full h-full object-contain" />
+              <img src="/logo-myqajn.png" alt="MyQA@JN" className="w-full h-full object-contain" />
             </div>
           </div>
           <h1 className="text-2xl font-heading font-bold text-white">MyQA@JN</h1>

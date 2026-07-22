@@ -91,8 +91,10 @@ const diTrend = async (req, res) => {
 }
 
 const bySector = async (req, res) => {
+  const where = _scopedCaseWhere(req.user)
   const results = await prisma.case.groupBy({
     by: ['alertLevel'],
+    where,
     _count: true,
     orderBy: { _count: { alertLevel: 'desc' } },
   })

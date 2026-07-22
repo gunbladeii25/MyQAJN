@@ -861,11 +861,13 @@ function RecordsTab({ highlight }) {
   const [rejectReason, setRejectReason] = useState('')
   const [actionMsg, setActionMsg] = useState('')
   const [createdCaseId, setCreatedCaseId] = useState(null)
+  const [approvingInProgress, setApprovingInProgress] = useState(false)
+  const [rejectingInProgress, setRejectingInProgress] = useState(false)
 
   const load = useCallback(() => {
     setLoading(true)
     getIngestionRecords({ status: filter || undefined, limit: 30 })
-      .then(r => { setRecords(r.data.records); setTotal(r.data.total) })
+      .then(r => { setRecords(r.data.records || []); setTotal(r.data.total) })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [filter])
@@ -877,6 +879,7 @@ function RecordsTab({ highlight }) {
     if (!incidentText || incidentText.length < 20)
       return setActionMsg('Sila masukkan teks insiden (min 20 aksara) sebelum meluluskan.')
     setActionMsg('')
+    setApprovingInProgress(true)
     try {
       const r = await approveIngestionRecord(id, { incidentText })
       setCreatedCaseId(r.data.case?.id)
@@ -885,10 +888,13 @@ function RecordsTab({ highlight }) {
       load()
     } catch (e) {
       setActionMsg(e.response?.data?.error || 'Gagal meluluskan rekod.')
+    } finally {
+      setApprovingInProgress(false)
     }
   }
 
   const doReject = async (id) => {
+    setRejectingInProgress(true)
     try {
       await rejectIngestionRecord(id, { reason: rejectReason })
       setActionMsg('Rekod telah ditolak.')
@@ -896,6 +902,8 @@ function RecordsTab({ highlight }) {
       load()
     } catch {
       setActionMsg('Gagal menolak rekod.')
+    } finally {
+      setRejectingInProgress(false)
     }
   }
 
@@ -1000,7 +1008,7 @@ function RecordsTab({ highlight }) {
                   </div>
 
                   {approving?.id === rec.id && (
-                    <Modal onClose={() => setApproving(null)}>
+                    <Modal onClose={() => { if (!approvingInProgress) setApproving(null) }}>
                       <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 15, color: '#1E3A8A' }}>
                         Luluskan Rekod → Cipta Kes Baharu
                       </p>
@@ -1014,13 +1022,20 @@ function RecordsTab({ highlight }) {
                       )}
                       <textarea rows={4} placeholder="Huraikan insiden atau konteks discrepancy (min 20 aksara)…"
                         value={incidentText} onChange={e => setIncidentText(e.target.value)}
+                        disabled={approvingInProgress}
                         className="input resize-y" />
+                      {approvingInProgress && (
+                        <p className="text-xs text-primary-700 bg-primary-50 px-3 py-2 rounded-md mt-2.5 mb-0 flex items-center gap-2">
+                          <span className="inline-block w-3 h-3 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+                          Sedang menjalankan AI Pipeline (Agent A/B/C)… ini boleh mengambil masa sehingga seminit.
+                        </p>
+                      )}
                       <div style={{ display: 'flex', gap: 8, marginTop: 14, justifyContent: 'flex-end' }}>
-                        <button onClick={() => setApproving(null)} className="btn-secondary">
+                        <button onClick={() => setApproving(null)} disabled={approvingInProgress} className="btn-secondary">
                           Batal
                         </button>
-                        <button onClick={() => doApprove(rec.id)} disabled={incidentText.length < 20} className="btn-primary">
-                          ✅ Sahkan & Jalankan AI Pipeline
+                        <button onClick={() => doApprove(rec.id)} disabled={incidentText.length < 20 || approvingInProgress} className="btn-primary">
+                          {approvingInProgress ? '⏳ Memproses…' : '✅ Sahkan & Jalankan AI Pipeline'}
                         </button>
                       </div>
                     </Modal>
@@ -1033,19 +1048,20 @@ function RecordsTab({ highlight }) {
         )}
 
       {rejecting && (
-        <Modal onClose={() => setRejecting(null)}>
+        <Modal onClose={() => { if (!rejectingInProgress) setRejecting(null) }}>
           <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 15, color: '#991B1B' }}>Tolak Rekod</p>
           <p style={{ margin: '0 0 14px', fontSize: 13, color: '#6B6B74' }}>
             {rejecting.school?.schoolName || rejecting.schoolCodeRaw}
           </p>
           <input placeholder="Sebab penolakan (pilihan)…" value={rejectReason} onChange={e => setRejectReason(e.target.value)}
+            disabled={rejectingInProgress}
             className="input" />
           <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-            <button onClick={() => setRejecting(null)} className="btn-secondary">
+            <button onClick={() => setRejecting(null)} disabled={rejectingInProgress} className="btn-secondary">
               Batal
             </button>
-            <button onClick={() => doReject(rejecting.id)} className="btn-danger">
-              Tolak Rekod
+            <button onClick={() => doReject(rejecting.id)} disabled={rejectingInProgress} className="btn-danger">
+              {rejectingInProgress ? '⏳ Memproses…' : 'Tolak Rekod'}
             </button>
           </div>
         </Modal>
@@ -1062,7 +1078,7 @@ function RunsTab() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getIngestionRuns().then(r => setRuns(r.data.runs)).catch(() => {}).finally(() => setLoading(false))
+    getIngestionRuns().then(r => setRuns(r.data.runs || [])).catch(() => {}).finally(() => setLoading(false))
   }, [])
 
   const runStatus = (s) => ({

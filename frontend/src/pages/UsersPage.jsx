@@ -16,9 +16,14 @@ export default function UsersPage() {
 
   const load = async () => {
     setLoading(true)
-    const res = await getUsers({ search, limit: 50 })
-    setUsers(res.data.users); setTotal(res.data.total)
-    setLoading(false)
+    try {
+      const res = await getUsers({ search, limit: 50 })
+      setUsers(res.data.users || []); setTotal(res.data.total)
+    } catch {
+      setUsers([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { load() }, [search])

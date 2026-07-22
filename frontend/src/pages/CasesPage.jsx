@@ -34,8 +34,10 @@ export default function CasesPage() {
     try {
       const params = Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== ''))
       const res = await getCases(params)
-      setCases(res.data.cases)
+      setCases(res.data.cases || [])
       setTotal(res.data.total)
+    } catch {
+      setCases([])
     } finally {
       setLoading(false)
     }

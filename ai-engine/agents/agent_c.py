@@ -36,7 +36,7 @@ def _ollama_generate(prompt: str) -> str:
         "messages": [{"role": "user", "content": prompt}],
         "stream": False,
         "format": "json",
-        "options": {"temperature": 0.0},
+        "options": {"temperature": 0.0, "num_predict": 900},
     }).encode()
     req = urllib.request.Request(
         f"{OLLAMA_URL}/api/chat",

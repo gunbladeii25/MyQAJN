@@ -31,7 +31,7 @@ export default function BriefsPage() {
 
   const isTopManagement = user?.role === 'top_management'
 
-  const load = () => getBriefs().then((r) => setBriefs(r.data.briefs)).finally(() => setLoading(false))
+  const load = () => getBriefs().then((r) => setBriefs(r.data.briefs || [])).catch(() => setBriefs([])).finally(() => setLoading(false))
   useEffect(() => { load() }, [])
 
   const handleSign = async (caseId, signType) => {

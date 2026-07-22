@@ -690,12 +690,11 @@ const approveRecord = async (req, res) => {
   logger.info(`Ingestion record approved → Case ${newCase.caseId}`)
 
   // Eskalasi ke Penyelaras JPN negeri (selepas syor Agent C sedia) — sama
-  // seperti laluan submitCase manual (cases.controller.js).
-  try {
-    await escalateToStatePic({ caseRecord: newCase, directiveText: agent_c.directive_text, school: record.school })
-  } catch (err) {
-    logger.error(`Escalation error for ${newCase.caseId}: ${err.message}`)
-  }
+  // seperti laluan submitCase manual (cases.controller.js). Best-effort dan
+  // tidak menyekat response — kegagalan hanya dilog, tidak batalkan kes.
+  escalateToStatePic({ caseRecord: newCase, directiveText: agent_c.directive_text, school: record.school })
+    .catch(err => logger.error(`Escalation error for ${newCase.caseId}: ${err.message}`))
+
   return res.json({ message: 'Kes berjaya dicipta.', case: { id: newCase.id, caseId: newCase.caseId, alertLevel: newCase.alertLevel, discrepancyIndex: newCase.discrepancyIndex } })
 }
 

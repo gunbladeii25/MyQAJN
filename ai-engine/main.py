@@ -148,7 +148,9 @@ def mapping_preview(req: MappingPreviewRequest):
     # Kumpul semua jn_dimension yang ada dalam mapping
     mapped_dimensions = {}
     for field, cfg in mappings.items():
-        dim = cfg["jn_dimension"]
+        dim = cfg.get("jn_dimension")
+        if not dim:
+            raise HTTPException(status_code=422, detail=f"field_mappings['{field}'] tiada 'jn_dimension'.")
         if dim not in mapped_dimensions:
             mapped_dimensions[dim] = []
         mapped_dimensions[dim].append({
@@ -386,7 +388,10 @@ async def ingest_jn_document(
 
     Untuk satu sekolah sahaja: fallback kepada run() single-mode.
     """
-    codes = json.loads(school_codes)
+    try:
+        codes = json.loads(school_codes)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=422, detail="school_codes mesti JSON array yang sah, cth. [\"SMK001\"].")
 
     filename = file.filename or ""
     ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "txt"
@@ -486,10 +491,13 @@ async def ingest_document(
     Upload dokumen (PDF/DOCX/Excel) → Agent 0 parse + AI convert kualitatif →
     mapping engine → compute DI (komposit + per standard) vs JN scores.
     """
-    codes      = json.loads(school_codes)
-    jn_map     = json.loads(jn_scores)
-    jn_dom_map = json.loads(jn_domain_scores)
-    field_map  = json.loads(field_mappings)
+    try:
+        codes      = json.loads(school_codes)
+        jn_map     = json.loads(jn_scores)
+        jn_dom_map = json.loads(jn_domain_scores)
+        field_map  = json.loads(field_mappings)
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=422, detail=f"Ralat format JSON pada medan borang: {str(e)}")
 
     # Detect file type
     filename = file.filename or ""

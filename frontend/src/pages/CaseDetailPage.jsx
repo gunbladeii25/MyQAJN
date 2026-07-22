@@ -259,7 +259,7 @@ export default function CaseDetailPage() {
   if (!caseData) return <p className="text-center text-gray-500 mt-10">Kes tidak dijumpai.</p>
 
   const c = caseData
-  const alertColor = ALERT_COLORS[c.alertLevel]
+  const alertColor = ALERT_COLORS[c.alertLevel] || ALERT_COLORS.BLUE
   const brief = c.executiveBrief
 
   const handleStatusUpdate = async (status) => {

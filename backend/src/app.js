@@ -1,4 +1,5 @@
 require('dotenv').config()
+require('express-async-errors')
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
@@ -25,9 +26,9 @@ app.use(express.json({ limit: '10mb' }))
 
 // Rate limit for login endpoint
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: { error: 'Terlalu banyak percubaan log masuk. Cuba lagi dalam 15 minit.' },
+  windowMs: 5 * 60 * 1000,
+  max: 10,
+  message: { error: 'Terlalu banyak percubaan log masuk. Cuba lagi dalam 5 minit.' },
 })
 
 // Rate limit untuk forgot-password — elak spam e-mel reset / percubaan

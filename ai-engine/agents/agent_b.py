@@ -71,8 +71,22 @@ def run(payload: dict, agent_a_output: dict) -> dict:
         repeat_count=payload.get("repeat_count", 0),
     )
 
+    # Domain SKPM terlemah — untuk syor Agent C yang spesifik kepada bidang
+    # (bukan kenyataan generik). Utamakan domain_di (perbandingan dua belah
+    # dari kelulusan ingestion); fallback ke jn_domain_scores (snapshot audit
+    # JN sahaja) apabila kes dicipta secara manual tanpa mapping ingestion.
+    # Dikira SEBELUM anomaly_detected/confidence supaya WEAK_DOMAIN_* flags
+    # turut dikira dalam len(risk_flags) — elak UI papar cangang (cth. 2+
+    # flag tetapi anomaly_detected: false).
+    weak_domains = identify_weak_domains(
+        jn_domain_scores=payload.get("jn_domain_scores"),
+        domain_di=payload.get("domain_di"),
+    )
+    for wd in weak_domains:
+        risk_flags.append(f"WEAK_DOMAIN_{wd['domain'].upper()}")
+
     # Anomaly score — Isolation Forest (ML, enhancement only)
-    hygiene_val = float(payload.get("canteen_hygiene_score") or 100)
+    hygiene_val = float(payload.get("canteen_hygiene_score")) if payload.get("canteen_hygiene_score") is not None else 100.0
     risk_idx = float(payload.get("integrity_risk_index", 0))
     a_conf = float(agent_a_output.get("confidence", 0.5))
     days_stale = 0
@@ -105,17 +119,6 @@ def run(payload: dict, agent_a_output: dict) -> dict:
         policy = get_policy_for_flag(flag)
         if policy:
             policy_recommendations.append({"flag": flag, **policy})
-
-    # Domain SKPM terlemah — untuk syor Agent C yang spesifik kepada bidang
-    # (bukan kenyataan generik). Utamakan domain_di (perbandingan dua belah
-    # dari kelulusan ingestion); fallback ke jn_domain_scores (snapshot audit
-    # JN sahaja) apabila kes dicipta secara manual tanpa mapping ingestion.
-    weak_domains = identify_weak_domains(
-        jn_domain_scores=payload.get("jn_domain_scores"),
-        domain_di=payload.get("domain_di"),
-    )
-    for wd in weak_domains:
-        risk_flags.append(f"WEAK_DOMAIN_{wd['domain'].upper()}")
 
     return {
         "di_value": di_value,

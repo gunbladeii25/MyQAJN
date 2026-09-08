@@ -24,13 +24,15 @@ const SCHOOL_TYPES = [
   'Sekolah Seni', 'Sekolah Sukan',
 ]
 
+// Sepadan dengan DI_LABELS (constants/index.js) — HURUF BESAR untuk gaya
+// chip di halaman ini, bukan istilah Inggeris berasingan.
 const diClass = (di) => {
   if (di === null || di === undefined) return null
-  if (di >= 0.75) return { label: 'EXTREME', color: 'text-danger-700 bg-danger-100' }
-  if (di >= 0.50) return { label: 'SEVERE',  color: 'text-warning-700 bg-warning-100' }
-  if (di >= 0.25) return { label: 'MODERATE',color: 'text-warning-700 bg-warning-50' }
+  if (di >= 0.75) return { label: 'EKSTREM', color: 'text-danger-700 bg-danger-100' }
+  if (di >= 0.50) return { label: 'TERUK',   color: 'text-warning-700 bg-warning-100' }
+  if (di >= 0.25) return { label: 'SEDERHANA', color: 'text-warning-700 bg-warning-50' }
   if (di >= 0.10) return { label: 'MINOR',   color: 'text-primary-700 bg-primary-100' }
-  return { label: 'ALIGNED', color: 'text-success-700 bg-success-100' }
+  return { label: 'SELARAS', color: 'text-success-700 bg-success-100' }
 }
 
 export default function SubmitCasePage() {

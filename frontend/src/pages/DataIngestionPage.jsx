@@ -24,12 +24,14 @@ const TONE_HEX = {
   success: '#16A34A', danger: '#DC2626', warning: '#CA8A04', primary: '#2563EB', gray: '#3F3F46',
 }
 
+// Sepadan dengan DI_LABELS (constants/index.js) — hanya versi HURUF BESAR
+// bagi gaya chip di halaman ini.
 const DI_BADGE = {
-  EXTREME_DISCREPANCY:  { tone: 'danger',  label: 'EXTREME'  },
-  SEVERE_DISCREPANCY:   { tone: 'danger',  label: 'SEVERE'   },
+  EXTREME_DISCREPANCY:  { tone: 'danger',  label: 'EKSTREM'  },
+  SEVERE_DISCREPANCY:   { tone: 'danger',  label: 'TERUK'    },
   MODERATE_DISCREPANCY: { tone: 'warning', label: 'SEDERHANA'},
   MINOR_DISCREPANCY:    { tone: 'primary', label: 'MINOR'    },
-  DATA_ALIGNED:         { tone: 'success', label: 'SEJAJAR'  },
+  DATA_ALIGNED:         { tone: 'success', label: 'SELARAS'  },
 }
 const diBadge = (cls) => DI_BADGE[cls] || { tone: 'gray', label: cls || '—' }
 
@@ -847,7 +849,7 @@ const ROUTINE_DI_CLASSIFICATIONS = ['DATA_ALIGNED', 'MINOR_DISCREPANCY']
 
 function suggestedIncidentText(rec) {
   if (!ROUTINE_DI_CLASSIFICATIONS.includes(rec.diClassification)) return ''
-  return `Tiada anomali dikesan bagi ${rec.school?.schoolName || rec.schoolCodeRaw}; Discrepancy Index (${rec.discrepancyIndex?.toFixed(3) ?? '—'}) dalam julat diterima. Rekod disahkan untuk pemantauan rutin.`
+  return `Tiada anomali dikesan bagi ${rec.school?.schoolName || rec.schoolCodeRaw}; Indeks Perbezaan (${rec.discrepancyIndex?.toFixed(3) ?? '—'}) dalam julat diterima. Rekod disahkan untuk pemantauan rutin.`
 }
 
 function RecordsTab({ highlight }) {
@@ -1195,7 +1197,7 @@ export default function DataIngestionPage() {
       {/* Page header */}
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: '#18181B' }}>
-          🗄️ Pengurusan Ingestion Data
+          🗄️ Ingestion Data
         </h1>
         <p style={{ margin: '4px 0 0', color: '#6B6B74', fontSize: 14 }}>
           <strong>Fasa A</strong>: Kemaskini skor audit JN →{' '}

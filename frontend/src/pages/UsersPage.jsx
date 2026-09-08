@@ -90,7 +90,7 @@ export default function UsersPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button onClick={() => openEdit(u)} className="p-1.5 hover:bg-primary-50 text-primary-600 rounded-lg transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => openReset(u)} className="p-1.5 hover:bg-warning-50 text-warning-600 rounded-lg transition-colors" title="Reset Password"><RotateCcw className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => openReset(u)} className="p-1.5 hover:bg-warning-50 text-warning-600 rounded-lg transition-colors" title="Reset Kata Laluan"><RotateCcw className="w-3.5 h-3.5" /></button>
                       <button onClick={() => openDelete(u)} className="p-1.5 hover:bg-danger-50 text-danger-600 rounded-lg transition-colors" title="Padam"><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
                   </td>

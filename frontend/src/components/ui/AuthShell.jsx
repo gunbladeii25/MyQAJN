@@ -1,4 +1,5 @@
 import { GraduationCap, ShieldCheck, FileCheck2, Building2, ClipboardCheck } from 'lucide-react'
+import InteractiveGridBackground from './InteractiveGridBackground'
 
 // Motif ikon profesional (pendidikan/audit) melayang perlahan di latar —
 // posisi/saiz/kelewatan berbeza untuk rasa organik, bukan berbaris kemas.
@@ -11,9 +12,9 @@ const FLOATING_ICONS = [
 ]
 
 // Bekas kongsi untuk semua halaman pengesahan (log masuk, lupa kata laluan,
-// reset kata laluan) — latar bergerak (blob + ikon melayang) + logo/kad
-// dengan animasi masuk, supaya identiti visual & rasa "hidup" konsisten
-// merentas ketiga-tiga halaman tanpa menduplikasi markup.
+// reset kata laluan) — latar bergerak (blob + grid interaktif + ikon melayang)
+// + logo/kad dengan animasi masuk, supaya identiti visual & rasa "hidup"
+// konsisten merentas ketiga-tiga halaman tanpa menduplikasi markup.
 export default function AuthShell({ children, footer }) {
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 flex items-center justify-center p-4">
@@ -25,11 +26,8 @@ export default function AuthShell({ children, footer }) {
         <div className="animate-auth-blob absolute -bottom-28 left-1/4 w-[26rem] h-[26rem] rounded-full bg-primary-300/20 blur-3xl" style={{ animationDelay: '8s' }} />
       </div>
 
-      {/* Tekstur titik halus */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '28px 28px' }}
-      />
+      {/* Grid interaktif — bertindak balas pada kedudukan tetikus, gantian tekstur titik statik */}
+      <InteractiveGridBackground />
 
       {/* Ikon melayang — motif pendidikan & audit */}
       <div className="pointer-events-none absolute inset-0 hidden md:block">

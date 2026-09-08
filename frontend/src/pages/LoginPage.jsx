@@ -31,7 +31,11 @@ export default function LoginPage() {
         © 2026 Kementerian Pendidikan Malaysia · MyQA@JN
       </p>
     }>
-      <h2 className="text-lg font-semibold text-gray-900 mb-6">Log Masuk</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-2">Log Masuk</h2>
+      <p className="text-sm text-gray-500 mb-6">
+        Log masuk untuk melaporkan isu kualiti sekolah, menjejak status penyelesaian, dan
+        menerima cadangan tindakan berbantukan AI.
+      </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>

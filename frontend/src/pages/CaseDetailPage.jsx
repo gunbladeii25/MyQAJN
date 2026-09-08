@@ -321,7 +321,7 @@ export default function CaseDetailPage() {
 
         <div className="hidden sm:flex flex-wrap items-center gap-6">
           <div>
-            <p className={`text-xs font-semibold uppercase tracking-wide ${alertColor.text}`}>Discrepancy Index</p>
+            <p className={`text-xs font-semibold uppercase tracking-wide ${alertColor.text}`}>Indeks Perbezaan (DI)</p>
             <p className="text-3xl font-bold text-gray-900 mt-1">{Number(c.discrepancyIndex).toFixed(4)}</p>
           </div>
           <div className="h-10 w-px bg-gray-200" />
@@ -363,7 +363,7 @@ export default function CaseDetailPage() {
             <Row label={<><GlossaryTip term="Anomaly Score (IF)">Anomaly Score (IF)</GlossaryTip></>} value={<span className="font-mono">{Number(c.anomalyScore).toFixed(4)}</span>} />
             <Row label={<><GlossaryTip term="Confidence">Confidence</GlossaryTip></>} value={`${(Number(c.agentBConfidence) * 100).toFixed(1)}%`} />
             <div>
-              <p className="text-xs text-gray-500 mb-1.5">Risk Flags ({(c.riskFlags || []).length})</p>
+              <p className="text-xs text-gray-500 mb-1.5">Penanda Risiko ({(c.riskFlags || []).length})</p>
               {(c.riskFlags || []).length === 0
                 ? <span className="text-xs text-success-600">Tiada flag</span>
                 : <div className="flex flex-wrap gap-1">

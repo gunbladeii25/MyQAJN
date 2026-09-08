@@ -72,12 +72,16 @@ export const ALERT_COLORS = {
   GREEN:  { bg: 'bg-success-100', text: 'text-success-700', dot: 'bg-success-500', border: 'border-success-300' },
 }
 
+// Sepadan persis dengan ALERT_LABELS (DashboardPage.jsx/Header.jsx) yang
+// mengklasifikasikan skala amaran RED/ORANGE/YELLOW/BLUE/GREEN yang sama —
+// satu set istilah BM tunggal untuk elak percanggahan terjemahan merentas
+// DiClassBadge, DataIngestionPage, dan SubmitCasePage.
 export const DI_LABELS = {
-  EXTREME_DISCREPANCY: 'Discrepancy Ekstrem',
-  SEVERE_DISCREPANCY:  'Discrepancy Teruk',
-  MODERATE_DISCREPANCY:'Discrepancy Sederhana',
-  MINOR_DISCREPANCY:   'Discrepancy Minor',
-  DATA_ALIGNED:        'Data Selaras',
+  EXTREME_DISCREPANCY: 'Ekstrem',
+  SEVERE_DISCREPANCY:  'Teruk',
+  MODERATE_DISCREPANCY:'Sederhana',
+  MINOR_DISCREPANCY:   'Minor',
+  DATA_ALIGNED:        'Selaras',
 }
 
 export const CASE_STATUS = {

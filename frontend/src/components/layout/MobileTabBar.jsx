@@ -9,9 +9,9 @@ import { clsx } from 'clsx'
 // Mirrors the role scoping already in Sidebar.jsx's navItems, just reshaped
 // for a max-4-tab bar rather than an unbounded vertical list.
 const TAB_CONFIG = {
-  admin:             [{ to: '/dashboard', icon: Home, label: 'Home' }, { to: '/cases', icon: FileText, label: 'Kes' }, { to: '/briefs', icon: BookOpen, label: 'Briefs' }],
-  peneraju_sektor:   [{ to: '/dashboard', icon: Home, label: 'Home' }, { to: '/cases', icon: FileText, label: 'Kes' }, { to: '/briefs', icon: BookOpen, label: 'Briefs' }],
-  top_management:    [{ to: '/dashboard', icon: Home, label: 'Home' }, { to: '/cases', icon: FileText, label: 'Kes' }, { to: '/briefs', icon: BookOpen, label: 'Briefs' }],
+  admin:             [{ to: '/dashboard', icon: Home, label: 'Dashboard' }, { to: '/cases', icon: FileText, label: 'Kes' }, { to: '/briefs', icon: BookOpen, label: 'Briefs' }],
+  peneraju_sektor:   [{ to: '/dashboard', icon: Home, label: 'Dashboard' }, { to: '/cases', icon: FileText, label: 'Kes' }, { to: '/briefs', icon: BookOpen, label: 'Briefs' }],
+  top_management:    [{ to: '/dashboard', icon: Home, label: 'Dashboard' }, { to: '/cases', icon: FileText, label: 'Kes' }, { to: '/briefs', icon: BookOpen, label: 'Briefs' }],
   penyelaras_jpn:    [{ to: '/cases', icon: FileText, label: 'Kes' }],
   penganalisis_data: [{ to: '/ingestion', icon: Database, label: 'Ingestion' }],
 }

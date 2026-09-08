@@ -10,7 +10,7 @@ export const GLOSSARY = {
   'SKPMG2': 'Standard Kualiti Pendidikan Malaysia Gelombang 2 — kerangka penilaian kualiti sekolah oleh JN merangkumi 5 domain utama.',
   'Confidence (ML)': 'Tahap keyakinan model AI dalam klasifikasinya. 100% = yakin sepenuhnya, 25% = tidak pasti.',
   'Confidence': 'Tahap keyakinan AI. Lebih tinggi % = AI lebih yakin dengan klasifikasi/keputusannya.',
-  'DATA_ALIGNED': 'Skor sekolah selaras dengan audit JN — tiada discrepancy yang signifikan.',
+  'DATA_ALIGNED': 'Skor sekolah selaras dengan audit JN — tiada perbezaan yang signifikan.',
   'EXTREME_DISCREPANCY': 'Perbezaan sangat kritikal (DI ≥ 0.75) — tindakan segera diperlukan.',
   'SEVERE_DISCREPANCY': 'Perbezaan teruk (DI 0.50–0.74) — perlu perhatian segera.',
   'MODERATE_DISCREPANCY': 'Perbezaan sederhana (DI 0.25–0.49) — perlu tindakan susulan.',

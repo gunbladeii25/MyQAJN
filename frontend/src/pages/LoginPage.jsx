@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { Eye, EyeOff, ClipboardCheck, ShieldCheck, FileCheck2 } from 'lucide-react'
+import { Eye, EyeOff, ClipboardCheck, ShieldCheck, FileCheck2, Building2 } from 'lucide-react'
 import { login } from '../services/api'
 import { useAuthStore } from '../stores/authStore'
 import { DEFAULT_ROUTE_BY_ROLE } from '../constants'
@@ -24,6 +24,11 @@ const LOGIN_SLIDES = [
     Icon: FileCheck2,
     title: 'Jejak Status Penyelesaian',
     description: 'Pantau status setiap laporan secara masa nyata, dari penyerahan sehingga isu selesai.',
+  },
+  {
+    Icon: Building2,
+    title: 'Liputan Menyeluruh Sekolah',
+    description: 'Direka untuk semua peringkat sekolah di bawah Kementerian Pendidikan Malaysia, dari sekolah rendah hingga menengah.',
   },
 ]
 

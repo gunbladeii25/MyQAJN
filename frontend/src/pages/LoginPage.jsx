@@ -1,11 +1,31 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, ClipboardCheck, ShieldCheck, FileCheck2 } from 'lucide-react'
 import { login } from '../services/api'
 import { useAuthStore } from '../stores/authStore'
 import { DEFAULT_ROUTE_BY_ROLE } from '../constants'
 import AuthShell from '../components/ui/AuthShell'
+import AuthDescriptionCarousel from '../components/ui/AuthDescriptionCarousel'
+
+// Slaid penerangan sistem untuk panel kiri kad log masuk.
+const LOGIN_SLIDES = [
+  {
+    Icon: ClipboardCheck,
+    title: 'Lapor Isu Kualiti Sekolah',
+    description: 'Kemukakan laporan isu kualiti sekolah dengan pantas — terus disalurkan kepada pihak yang bertanggungjawab untuk tindakan.',
+  },
+  {
+    Icon: ShieldCheck,
+    title: 'Cadangan Tindakan Berbantukan AI',
+    description: 'Sistem menganalisis corak isu yang serupa dan mencadangkan tindakan penyelesaian yang paling sesuai.',
+  },
+  {
+    Icon: FileCheck2,
+    title: 'Jejak Status Penyelesaian',
+    description: 'Pantau status setiap laporan secara masa nyata, dari penyerahan sehingga isu selesai.',
+  },
+]
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -26,13 +46,17 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthShell footer={
-      <p className="text-center text-white/40 text-xs mt-6">
-        © 2026 Kementerian Pendidikan Malaysia · MyQA@JN
-      </p>
-    }>
+    <AuthShell
+      split
+      aside={<AuthDescriptionCarousel slides={LOGIN_SLIDES} />}
+      footer={
+        <p className="text-center text-white/40 text-xs mt-6">
+          © 2026 Kementerian Pendidikan Malaysia · MyQA@JN
+        </p>
+      }
+    >
       <h2 className="text-lg font-semibold text-gray-900 mb-2">Log Masuk</h2>
-      <p className="text-sm text-gray-500 mb-6">
+      <p className="text-sm text-gray-500 mb-6 md:hidden">
         Log masuk untuk melaporkan isu kualiti sekolah, menjejak status penyelesaian, dan
         menerima cadangan tindakan berbantukan AI.
       </p>

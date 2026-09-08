@@ -15,7 +15,7 @@ const FLOATING_ICONS = [
 // reset kata laluan) — latar bergerak (blob + grid interaktif + ikon melayang)
 // + logo/kad dengan animasi masuk, supaya identiti visual & rasa "hidup"
 // konsisten merentas ketiga-tiga halaman tanpa menduplikasi markup.
-export default function AuthShell({ children, footer }) {
+export default function AuthShell({ children, footer, split = false, aside }) {
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 flex items-center justify-center p-4">
 
@@ -39,7 +39,7 @@ export default function AuthShell({ children, footer }) {
         ))}
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
+      <div className={`relative z-10 w-full ${split ? 'max-w-4xl' : 'max-w-md'}`}>
         <div className="text-center mb-8 animate-auth-fade-in">
           <div className="relative w-16 h-16 mx-auto mb-4">
             <div className="animate-auth-glow absolute inset-0 rounded-2xl bg-white/50 blur-xl" />
@@ -55,9 +55,20 @@ export default function AuthShell({ children, footer }) {
         {/* Hero card radius kept above the xl (14px) token as a deliberate
             brand exception — MYDS's scale tops out there, but this is a
             marketing-style hero card, not a content card. */}
-        <div className="animate-auth-fade-up bg-white rounded-2xl shadow-menu p-8" style={{ animationDelay: '0.15s' }}>
-          {children}
-        </div>
+        {split ? (
+          <div className="animate-auth-fade-up grid md:grid-cols-2 bg-white rounded-2xl shadow-menu overflow-hidden" style={{ animationDelay: '0.15s' }}>
+            <div className="hidden md:flex flex-col justify-center bg-gradient-to-br from-primary-600 to-primary-800 p-10">
+              {aside}
+            </div>
+            <div className="p-8 flex flex-col justify-center">
+              {children}
+            </div>
+          </div>
+        ) : (
+          <div className="animate-auth-fade-up bg-white rounded-2xl shadow-menu p-8" style={{ animationDelay: '0.15s' }}>
+            {children}
+          </div>
+        )}
 
         {footer}
       </div>

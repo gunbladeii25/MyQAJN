@@ -19,7 +19,7 @@ _rag_index = None  # (TfidfVectorizer, matrix, docs_list, sources_list)
 KNOWLEDGE_BASE = [
     {"source": "Akta Pendidikan 1996, Seksyen 59", "text": "Pengetua atau Guru Besar sekolah bertanggungjawab memastikan rekod dan data sekolah adalah tepat dan tidak dipalsukan. Kegagalan berbuat demikian boleh mengakibatkan tindakan tatatertib."},
     {"source": "PKPA Bil. 5/2007", "text": "Penjaminan kualiti perkhidmatan awam memerlukan pemantauan berterusan. Agensi perlu mewujudkan mekanisme pengesanan anomali data dan melaporkan kepada pihak berkuasa dalam tempoh yang ditetapkan."},
-    {"source": "SKPMG2 Standard 2017", "text": "Standard Kualiti Pendidikan Malaysia Gelombang 2 menetapkan skor rujukan bagi setiap domain: Kepimpinan, Pengurusan Organisasi, Pengurusan Kurikulum, Kokurikulum, dan Hal Ehwal Murid. Discrepancy antara skor dilaporkan dan skor audit melebihi 25 mata memerlukan siasatan segera."},
+    {"source": "SK@S Standard 2017", "text": "Standard Kualiti Pendidikan Malaysia menetapkan skor rujukan bagi setiap domain: Kepimpinan, Pengurusan Organisasi, Pengurusan Kurikulum, Kokurikulum, dan Hal Ehwal Murid. Discrepancy antara skor dilaporkan dan skor audit melebihi 25 mata memerlukan siasatan segera."},
     {"source": "Arahan Perbendaharaan 2017, Perenggan 28", "text": "Semua agensi kerajaan hendaklah menjalani audit dalaman sekurang-kurangnya sekali setahun. Sekolah yang tidak diaudit dalam tempoh tiga tahun (1095 hari) dianggap berisiko tinggi dan perlu diaudit dalam 60 hari."},
     {"source": "Akta SPRM 2009 (Akta 694)", "text": "Suruhanjaya Pencegahan Rasuah Malaysia mempunyai bidang kuasa untuk menyiasat kes rasuah, salah guna kuasa, dan penyelewengan dalam sektor awam termasuk institusi pendidikan. Kes yang melibatkan manipulasi data dengan niat menipu perlu dirujuk kepada SPRM."},
     {"source": "Dasar EMIS KPM 2022", "text": "Akses kepada Educational Management Information System (EMIS) boleh digantung apabila didapati data yang dimasukkan tidak tepat atau telah dimanipulasi. Penggantungan akses memerlukan kelulusan Pengarah Pendidikan Negeri."},
@@ -192,7 +192,7 @@ def _static_template_fallback(payload: dict, agent_a: dict, agent_b: dict) -> st
             f"Tahap amaran: {agent_b.get('alert_level')}. Tindakan segera diperlukan."
         ),
         "penemuan_utama": penemuan_utama,
-        "konteks_undang_undang": "Akta Pendidikan 1996, PKPA Bil. 5/2007, SKPMG2 Standard 2017",
+        "konteks_undang_undang": "Akta Pendidikan 1996, PKPA Bil. 5/2007, SK@S Standard 2017",
         "arahan_khusus": arahan_khusus,
         "tempoh_tindakan": get_tempoh_tindakan(agent_b.get("di_classification", "DATA_ALIGNED")),
         "nota_penutup": "Dokumen ini dijana secara automatik oleh sistem MyQA@JN dan MESTI disemak serta ditandatangani oleh pegawai yang bertanggungjawab sebelum pengedaran rasmi.",

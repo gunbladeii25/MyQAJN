@@ -1,12 +1,12 @@
 """
 JN Connector — Dapatan Data Audit Jemaah Nazir
 
-Ini mock data untuk dapatan JN (SKPMG2 audit scores).
+Ini mock data untuk dapatan JN (SK@S audit scores).
 Dalam sistem sebenar, data JN sudah ada dalam DB sekolah (jn_audit_score).
 Connector ini ready untuk sync dengan JN API endpoint masa hadapan.
 
 MOCK MODE:
-  Returns domain-level audit scores per sekolah berdasarkan SKPMG2.
+  Returns domain-level audit scores per sekolah berdasarkan SK@S.
 
 REAL API MODE (USE_MOCK=False):
   Sync dengan sistem JN internal (bila API JN tersedia dari KPM).
@@ -20,8 +20,8 @@ from .base_connector import BaseConnector
 
 logger = logging.getLogger(__name__)
 
-# ── Mock SKPMG2 Domain scores baseline ──────────────────────────────────────
-# 6 domain SKPMG2 per jenis sekolah
+# ── Mock SK@S Domain scores baseline ────────────────────────────────────────
+# 6 domain SK@S per jenis sekolah
 MOCK_JN_BASELINE = {
     "SBP":  {"domain_kepimpinan": 90, "domain_pengurusan": 88, "domain_kurikulum": 87, "domain_pdpc": 85, "domain_kemajuan_murid": 88, "domain_keselamatan": 92},
     "MRSM": {"domain_kepimpinan": 86, "domain_pengurusan": 85, "domain_kurikulum": 84, "domain_pdpc": 82, "domain_kemajuan_murid": 85, "domain_keselamatan": 89},
@@ -35,7 +35,7 @@ DEFAULT_JN = {"domain_kepimpinan": 68, "domain_pengurusan": 65, "domain_kurikulu
 
 class JNConnector(BaseConnector):
     SOURCE_CODE = "JN_INTERNAL"
-    SOURCE_NAME = "Dapatan Audit Jemaah Nazir (SKPMG2)"
+    SOURCE_NAME = "Dapatan Audit Jemaah Nazir (SK@S)"
     USE_MOCK    = True   # ← Tukar ke False bila JN API tersedia
 
     def pull(self, school_codes: list[str], month: int, year: int) -> list[dict]:

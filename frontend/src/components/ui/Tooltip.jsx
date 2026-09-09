@@ -7,7 +7,7 @@ export const GLOSSARY = {
   'Isolation Forest': 'Algoritma machine learning untuk kesan data yang luar biasa (anomali). Nilai negatif bermakna anomali dikesan.',
   'DI': 'Discrepancy Index — ukuran perbezaan antara skor audit JN dengan data operasi sekolah. Skala 0.0 (tiada beza) hingga 1.0 (beza maksimum).',
   'Anomaly Score (IF)': 'Skor pengesanan anomali oleh Isolation Forest. Nilai negatif = anomali, positif = normal.',
-  'SKPMG2': 'Standard Kualiti Pendidikan Malaysia Gelombang 2 — kerangka penilaian kualiti sekolah oleh JN merangkumi 5 domain utama.',
+  'SK@S': 'Standard Kualiti Pendidikan Malaysia, kerangka penilaian kualiti sekolah oleh JN merangkumi 5 domain utama.',
   'Confidence (ML)': 'Tahap keyakinan model AI dalam klasifikasinya. 100% = yakin sepenuhnya, 25% = tidak pasti.',
   'Confidence': 'Tahap keyakinan AI. Lebih tinggi % = AI lebih yakin dengan klasifikasi/keputusannya.',
   'DATA_ALIGNED': 'Skor sekolah selaras dengan audit JN — tiada perbezaan yang signifikan.',

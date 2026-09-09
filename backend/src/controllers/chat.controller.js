@@ -24,7 +24,7 @@ PENGETAHUAN SISTEM MyQA@JN:
    - Tahap Amaran: GREEN (selaras), BLUE (minor), YELLOW (sederhana), ORANGE (teruk), RED (ekstrem/kritikal)
    - Fasa A (JN Baseline): Kemaskini skor audit rasmi JN ke dalam sistem
    - Fasa B (Data Luar): Tarik data operasi dari sistem lain untuk dibanding dengan skor JN
-   - SK@S: Sistem Kualiti Pendidikan Malaysia — sumber skor audit SKPMG2 JN
+   - SK@S: Sistem Kualiti Pendidikan Malaysia, sumber skor audit JN
    - SKPK: Sistem Kualiti Pra Sekolah
    - EMIS: Education Management Information System
    - APDM: Aplikasi Pangkalan Data Murid

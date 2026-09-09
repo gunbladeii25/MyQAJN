@@ -24,13 +24,13 @@ const LOGIN_SLIDES = [
   {
     Icon: ShieldCheck,
     title: 'Analisis AI Tiga Peringkat',
-    description: 'Agen AI mengklasifikasikan isu, mengira Indeks Perbezaan (DI), dan mengesan corak anomali supaya tahap amaran yang diberikan tepat mengikut keterukan kes.',
+    description: 'Agen AI mengklasifikasikan isu, mengira Indeks Perbezaan (DI), dan mengesan corak anomali supaya tahap amaran yang diberikan tepat mengikut tahap risiko kes.',
     image: loginImage2,
   },
   {
     Icon: FileCheck2,
     title: 'Draf Surat Arahan Rasmi',
-    description: 'AI menjana draf surat arahan berpandukan Akta Pendidikan, SKPMG2 dan polisi KPM, namun tetap memerlukan tandatangan pegawai kanan sebelum diedar secara rasmi.',
+    description: 'AI menjana draf surat arahan berpandukan Akta Pendidikan, SK@S dan polisi KPM, namun tetap memerlukan tandatangan pegawai kanan sebelum diedar secara rasmi.',
     image: loginImage3,
   },
   {

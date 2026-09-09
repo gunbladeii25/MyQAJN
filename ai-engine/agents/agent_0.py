@@ -38,7 +38,8 @@ QUAL_SCALE = {
     "outstanding": 95, "adequate": 60, "inadequate": 38,
 }
 
-# ── SKPMG2 Dimensi ────────────────────────────────────────────────────────────
+# ── SK@S Dimensi (nama pemboleh ubah SKPMG2_DIMENSIONS dikekalkan — istilah
+# lama, hanya kandungan/teks dikemas kini kepada SK@S) ──────────────────────
 SKPMG2_DIMENSIONS = [
     "kepimpinan", "leadership", "pengurusan organisasi", "organization",
     "program pendidikan", "kurikulum", "curriculum", "academic",
@@ -254,9 +255,9 @@ def _extract_qualitative_parts(text: str) -> str:
 def _ollama_convert(qualitative_text: str, context: str) -> dict:
     """
     Hantar teks kualitatif ke Ollama llama3.2.
-    Minta skor numerik 0-100 untuk dimensi SKPMG2.
+    Minta skor numerik 0-100 untuk dimensi SK@S.
     """
-    prompt = f"""Anda adalah pakar penilaian sekolah Malaysia (SKPMG2).
+    prompt = f"""Anda adalah pakar penilaian sekolah Malaysia (SK@S).
 Baca petikan laporan berikut dan jana skor numerik 0-100 untuk setiap dimensi yang disebut.
 
 Dimensi yang boleh dinilai:

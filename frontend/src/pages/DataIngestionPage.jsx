@@ -302,7 +302,7 @@ function JNBaselineTab({ selSchools, toggleSchool, selectAllSchools, clearAllSch
         <div>
           <p style={{ margin: 0, fontWeight: 700, color: '#1E40AF', fontSize: 14 }}>Fasa A — Kemaskini Data Audit JN (Baseline)</p>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: '#3A75F6' }}>
-            Tarik skor audit SKPMG2 daripada SK@S, SKPK, atau dokumen Pemeriksaan JN.
+            Tarik skor audit daripada SK@S, SKPK, atau dokumen Pemeriksaan JN.
             Nilai ini akan dikemaskini terus ke <strong>School.jnAuditScore</strong> — tiada semakan diperlukan.
             Lakukan Fasa A terlebih dahulu sebelum tarik data luar (Fasa B).
           </p>

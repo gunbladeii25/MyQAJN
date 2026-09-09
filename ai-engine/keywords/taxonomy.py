@@ -15,7 +15,7 @@ TAXONOMY = {
         "renovation": 0.6, "equipment": 0.6,
     },
     "Academic_Quality": {
-        "skpmg2": 1.0, "pencapaian": 0.8, "akademik": 0.8, "peperiksaan": 0.8,
+        "sk@s": 1.0, "skpmg2": 1.0, "pencapaian": 0.8, "akademik": 0.8, "peperiksaan": 0.8,
         "keputusan": 0.7, "upsr": 0.9, "spm": 0.9, "stpm": 0.9, "pt3": 0.9,
         "kurikulum": 0.8, "pdpc": 0.8, "guru": 0.5, "pelajar": 0.5,
         "prestasi": 0.8, "band": 0.7, "markah": 0.7, "gred": 0.7,

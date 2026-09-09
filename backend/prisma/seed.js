@@ -195,7 +195,7 @@ async function main() {
       apiUrl:         'https://skas.moe.gov.my/api/v1',
       apiAuthType:    'bearer',
       pullSchedule:   'manual',
-      description:    'Sistem Kualiti Pendidikan Malaysia (JN). Menyediakan skor audit SKPMG2 per domain — Kurikulum, Kepimpinan, Kemajuan Murid, Pengurusan, Keselamatan. Kemaskini jnAuditScore sekolah.',
+      description:    'Sistem Kualiti Pendidikan Malaysia (JN). Menyediakan skor audit per domain: Kurikulum, Kepimpinan, Kemajuan Murid, Pengurusan, Keselamatan. Kemaskini jnAuditScore sekolah.',
       fieldMappings: JSON.stringify({}),
     },
     {

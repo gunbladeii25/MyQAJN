@@ -65,7 +65,7 @@ FLAG_POLICY_MAP = {
     },
     "POTENTIAL_DATA_MANIPULATION": {
         "legal": "Akta Pendidikan 1996, Seksyen 59 & Akta SPRM 2009",
-        "action": "Wajibkan laporan SKPMG2 bertandatangan digital; rujuk SPRM jika disahkan",
+        "action": "Wajibkan laporan SK@S bertandatangan digital; rujuk SPRM jika disahkan",
     },
     "CRITICAL_SEVERITY_INCIDENT": {
         "legal": "Akta SPRM 2009 (Akta 694) & Arahan Keselamatan KPM",
@@ -76,7 +76,7 @@ FLAG_POLICY_MAP = {
         "action": "Semak semula sebab penggantungan terdahulu sebelum memulihkan akses",
     },
     "NO_AUDIT_RECORD_FOUND": {
-        "legal": "Dasar SKPMG2 Standard 1.0 — Liputan Pemeriksaan",
+        "legal": "Dasar SK@S Standard 1.0 — Liputan Pemeriksaan",
         "action": "Daftar sekolah dalam sistem JN dalam tempoh 14 hari kalender",
     },
     "REPEATED_DISCREPANCY": {

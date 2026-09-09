@@ -67,7 +67,10 @@ const createUser = async (req, res) => {
 
   const passwordHash = await bcrypt.hash(password, 12)
   const user = await prisma.user.create({
-    data: { name, email, passwordHash, role, sector: sector || null, state: state || null },
+    // mustChangePassword: true — this password was chosen by the admin, not
+    // the account's owner, so it's treated as temporary (see login/
+    // authenticate middleware for the forced-change enforcement).
+    data: { name, email, passwordHash, role, sector: sector || null, state: state || null, mustChangePassword: true },
     select: { id: true, name: true, email: true, role: true, sector: true, state: true, isActive: true, createdAt: true },
   })
 
@@ -145,7 +148,8 @@ const resetPassword = async (req, res) => {
   if (!existing) return res.status(404).json({ error: 'Pengguna tidak dijumpai.' })
 
   const passwordHash = await bcrypt.hash(newPassword, 12)
-  await prisma.user.update({ where: { id }, data: { passwordHash } })
+  // Same "admin-chosen password is temporary" rule as createUser above.
+  await prisma.user.update({ where: { id }, data: { passwordHash, mustChangePassword: true } })
 
   await prisma.auditLog.create({
     data: { userId: req.user.id, action: 'RESET_PASSWORD', resourceType: 'users', resourceId: id },

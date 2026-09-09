@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Database, Users, Globe, LogOut, X, Loader2 } from 'lucide-react'
+import { Database, Users, ShieldCheck, Globe, LogOut, X, Loader2 } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { useLanguage } from '../../contexts/LanguageContext'
 
@@ -7,11 +7,12 @@ import { useLanguage } from '../../contexts/LanguageContext'
 // language switch + logout — everything the desktop Sidebar/Header expose
 // that a 4-tab mobile bar has no room for.
 const EXTRA_ITEMS = {
-  admin:             [{ to: '/ingestion', icon: Database, label: 'Ingestion Data' }, { to: '/users', icon: Users, label: 'Pengurusan Pengguna' }],
+  admin:             [{ to: '/ingestion', icon: Database, label: 'Ingestion Data' }, { to: '/users', icon: Users, label: 'Pengurusan Pengguna' }, { to: '/detector-jn', icon: ShieldCheck, label: 'Detector@JN' }],
   peneraju_sektor:   [{ to: '/ingestion', icon: Database, label: 'Ingestion Data' }],
   top_management:    [],
   penyelaras_jpn:    [],
   penganalisis_data: [],
+  pegawai_nazir:     [],
 }
 
 export default function MoreSheet({ open, onClose }) {

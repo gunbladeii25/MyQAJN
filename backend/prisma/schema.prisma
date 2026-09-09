@@ -12,6 +12,11 @@ model User {
   name         String
   email        String   @unique
   passwordHash String   @map("password_hash")
+  // true right after an admin sets/resets this password (create or reset) —
+  // cleared by changePassword once the user picks their own. Not set for
+  // self-service resets (forgot-password) since the user already chose that
+  // password themselves.
+  mustChangePassword Boolean @default(false) @map("must_change_password")
   role         String   // admin | peneraju_sektor | top_management | penyelaras_jpn | penganalisis_data
   sector       String?  // SDTM | SPIP | SPHEMK | SDP | SPK | SPKN — untuk peneraju_sektor
   state        String?  // negeri Malaysia — untuk penyelaras_jpn (PIC eskalasi kes peringkat negeri)

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, FileText, BookOpen, Database, MoreHorizontal } from 'lucide-react'
+import { Home, FileText, BookOpen, Database, ShieldCheck, MoreHorizontal } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { clsx } from 'clsx'
 
@@ -14,6 +14,7 @@ const TAB_CONFIG = {
   top_management:    [{ to: '/dashboard', icon: Home, label: 'Dashboard' }, { to: '/cases', icon: FileText, label: 'Kes' }, { to: '/briefs', icon: BookOpen, label: 'Briefs' }],
   penyelaras_jpn:    [{ to: '/cases', icon: FileText, label: 'Kes' }],
   penganalisis_data: [{ to: '/ingestion', icon: Database, label: 'Ingestion' }],
+  pegawai_nazir:     [{ to: '/detector-jn', icon: ShieldCheck, label: 'Detector@JN' }],
 }
 
 export default function MobileTabBar({ onMoreClick }) {

@@ -15,12 +15,21 @@ api.interceptors.response.use(
       localStorage.removeItem('token')
       window.location.href = '/login'
     }
+    // Server-side safety net (auth.middleware.js) for a user who's on some
+    // other tab/page when mustChangePassword applies — LoginPage.jsx's own
+    // redirect is the normal path, this just makes sure it isn't optional.
+    if (err.response?.status === 403 && err.response?.data?.code === 'MUST_CHANGE_PASSWORD'
+        && window.location.pathname !== '/force-password') {
+      window.location.href = '/force-password'
+    }
     return Promise.reject(err)
   }
 )
 
 // Auth
 export const login = (data) => api.post('/auth/login', data)
+export const loginWithGoogle = (idToken) => api.post('/auth/google', { idToken })
+export const getDetectorJnSsoUrl = () => api.get('/auth/detector-jn-sso')
 export const getMe = () => api.get('/auth/me')
 export const changePassword = (data) => api.put('/auth/change-password', data)
 export const forgotPassword = (email) => api.post('/auth/forgot-password', { email })

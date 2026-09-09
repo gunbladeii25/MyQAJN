@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, FileText, Users, BookOpen, Database } from 'lucide-react'
+import { LayoutDashboard, FileText, Users, BookOpen, Database, ShieldCheck } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { clsx } from 'clsx'
 
@@ -43,6 +43,13 @@ const navItems = [
     step: 3,
     hint: 'Surat arahan & laporan',
     roles: ['admin', 'peneraju_sektor', 'top_management'],
+  },
+  {
+    to: '/detector-jn',
+    icon: ShieldCheck,
+    label: 'Detector@JN',
+    step: null,
+    roles: ['pegawai_nazir', 'admin'],
   },
   {
     to: '/users',

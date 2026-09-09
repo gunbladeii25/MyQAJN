@@ -15,6 +15,7 @@ export const ROLES = {
   top_management: { label: 'Pengurusan Atasan', color: 'bg-success-100 text-success-700' },
   penyelaras_jpn: { label: 'Penyelaras JPN', color: 'bg-teal-100 text-teal-700' },
   penganalisis_data: { label: 'Penganalisis Data', color: 'bg-warning-100 text-warning-700' },
+  pegawai_nazir: { label: 'Pegawai Nazir', color: 'bg-indigo-100 text-indigo-700' },
 }
 
 // Halaman utama (landing) selepas log masuk, mengikut peranan — dipadankan
@@ -26,6 +27,7 @@ export const DEFAULT_ROUTE_BY_ROLE = {
   top_management: '/dashboard',
   penyelaras_jpn: '/cases',
   penganalisis_data: '/ingestion',
+  pegawai_nazir: '/detector-jn',
 }
 
 export const SECTORS = ['SDTM', 'SPIP', 'SPHEMK', 'SDP', 'SPK', 'SPKN']

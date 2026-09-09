@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
+const { OAuth2Client } = require('google-auth-library')
 const prisma = require('../utils/prisma')
 const logger = require('../utils/logger')
 const { sendMail } = require('../utils/mailer')
@@ -11,6 +12,17 @@ const hashToken = (token) => crypto.createHash('sha256').update(token).digest('h
 
 const signToken = (userId) =>
   jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN })
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+const allowedGoogleDomains = (process.env.GOOGLE_ALLOWED_DOMAINS || 'moe.gov.my,moe-dl.edu.my')
+  .split(',')
+  .map((d) => d.trim().toLowerCase())
+  .filter(Boolean)
+
+// Roles allowed to request a Detector@JN SSO handoff — mirrors the nav-link
+// gating in Sidebar.jsx/App.jsx, checked again here server-side (defense in
+// depth: the frontend gate is just UI, this is what actually issues tokens).
+const DETECTOR_JN_SSO_ROLES = ['pegawai_nazir', 'admin']
 
 const login = async (req, res) => {
   const { email, password } = req.body
@@ -52,12 +64,105 @@ const login = async (req, res) => {
         email: user.email,
         role: user.role,
         sector: user.sector,
+        mustChangePassword: user.mustChangePassword,
       },
     })
   } catch (err) {
     logger.error(`Login error: ${err.message}`)
     return res.status(500).json({ error: 'Ralat server.' })
   }
+}
+
+// Google Sign-In — independent identity path alongside the email/password
+// login above. Verifies the ID token with Google, then looks up an EXISTING
+// active user by email (same pre-registration semantics as password login —
+// a valid MOE-domain Google account alone does not grant access, an admin
+// must have already created the account via UsersPage). Issues the same
+// JWT shape as password login, so auth.middleware.js needs no changes.
+const loginWithGoogle = async (req, res) => {
+  const { idToken } = req.body
+  if (!idToken) {
+    return res.status(400).json({ error: 'Token Google diperlukan.' })
+  }
+
+  let payload
+  try {
+    const ticket = await googleClient.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID })
+    payload = ticket.getPayload()
+  } catch (err) {
+    logger.error(`Google token verification failed: ${err.message}`)
+    return res.status(401).json({ error: 'Token Google tidak sah.' })
+  }
+
+  if (!payload?.email_verified) {
+    return res.status(401).json({ error: 'E-mel Google tidak disahkan.' })
+  }
+
+  const email = payload.email.trim().toLowerCase()
+  const domain = email.split('@')[1]
+  if (!allowedGoogleDomains.includes(domain)) {
+    return res.status(403).json({ error: 'Domain e-mel akaun ini tidak dibenarkan.' })
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user || !user.isActive) {
+      return res.status(403).json({ error: 'Akaun ini belum didaftarkan. Hubungi pentadbir untuk mendaftar.' })
+    }
+
+    const token = signToken(user.id)
+
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'LOGIN',
+        resourceType: 'auth',
+        details: JSON.stringify({ email: user.email, method: 'google' }),
+      },
+    })
+
+    logger.info(`User login (Google): ${user.email} (${user.role})`)
+
+    return res.json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        sector: user.sector,
+        mustChangePassword: user.mustChangePassword,
+      },
+    })
+  } catch (err) {
+    logger.error(`Google login error: ${err.message}`)
+    return res.status(500).json({ error: 'Ralat server.' })
+  }
+}
+
+// Detector@JN SSO handoff — mints a short-lived, purpose-scoped token so the
+// already-authenticated myqajn user lands straight in Detector@JN's dashboard
+// instead of seeing its own Google login screen. Deliberately signed with a
+// SEPARATE secret (SSO_HANDOFF_SECRET, not JWT_SECRET) so a leak of it can
+// only ever kick off this one handoff for one specific email — never forge a
+// full myqajn or Detector@JN session directly. Detector@JN's own auth-service
+// still re-checks that the email is pre-registered & active there; myqajn
+// does not provision Detector@JN accounts.
+const getDetectorJnSsoUrl = async (req, res) => {
+  if (!DETECTOR_JN_SSO_ROLES.includes(req.user.role)) {
+    return res.status(403).json({ error: 'Akses tidak dibenarkan.' })
+  }
+  if (!process.env.SSO_HANDOFF_SECRET || !process.env.DETECTOR_JN_URL) {
+    return res.status(503).json({ error: 'SSO Detector@JN belum dikonfigurasi.' })
+  }
+
+  const handoffToken = jwt.sign(
+    { email: req.user.email, purpose: 'detector-jn-sso' },
+    process.env.SSO_HANDOFF_SECRET,
+    { expiresIn: '60s' }
+  )
+
+  return res.json({ url: `${process.env.DETECTOR_JN_URL}/sso?token=${handoffToken}` })
 }
 
 const getMe = async (req, res) => {
@@ -75,7 +180,10 @@ const changePassword = async (req, res) => {
   if (!valid) return res.status(400).json({ error: 'Kata laluan semasa tidak betul.' })
 
   const hash = await bcrypt.hash(newPassword, 12)
-  await prisma.user.update({ where: { id: req.user.id }, data: { passwordHash: hash } })
+  // Clears mustChangePassword too — this is the only way that flag gets
+  // turned off (set by createUser/resetPassword in users.controller.js
+  // whenever an admin, not the user, chose the password).
+  await prisma.user.update({ where: { id: req.user.id }, data: { passwordHash: hash, mustChangePassword: false } })
 
   return res.json({ message: 'Kata laluan berjaya dikemas kini.' })
 }
@@ -226,4 +334,4 @@ const resetPassword = async (req, res) => {
   return res.json({ message: 'Kata laluan berjaya ditetapkan semula. Sila log masuk dengan kata laluan baharu.' })
 }
 
-module.exports = { login, getMe, changePassword, forgotPassword, verifyResetToken, resetPassword }
+module.exports = { login, loginWithGoogle, getDetectorJnSsoUrl, getMe, changePassword, forgotPassword, verifyResetToken, resetPassword }

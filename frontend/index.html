@@ -19,6 +19,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Google Identity Services — powers the "Sign in with Google" button
+         on LoginPage.jsx. Loaded globally here (not per-component) since
+         it defines window.google once and is only ever needed pre-login. -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body class="font-sans bg-gray-50">
     <div id="root"></div>

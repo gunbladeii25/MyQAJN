@@ -29,6 +29,8 @@ import SubmitCasePage from './pages/SubmitCasePage'
 import UsersPage from './pages/UsersPage'
 import BriefsPage from './pages/BriefsPage'
 import DataIngestionPage from './pages/DataIngestionPage'
+import DetectorJnPage from './pages/DetectorJnPage'
+import ForcePasswordChangePage from './pages/ForcePasswordChangePage'
 
 function ProtectedRoute({ children, allowedRoles }) {
   const user = useAuthStore((s) => s.user)
@@ -56,6 +58,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/force-password" element={<ProtectedRoute><ForcePasswordChangePage /></ProtectedRoute>} />
         <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<DefaultRedirect />} />
           <Route path="dashboard" element={
@@ -86,6 +89,11 @@ export default function App() {
           <Route path="ingestion" element={
             <ProtectedRoute allowedRoles={['admin', 'peneraju_sektor', 'penganalisis_data']}>
               <DataIngestionPage />
+            </ProtectedRoute>
+          } />
+          <Route path="detector-jn" element={
+            <ProtectedRoute allowedRoles={['pegawai_nazir', 'admin']}>
+              <DetectorJnPage />
             </ProtectedRoute>
           } />
           <Route path="users" element={

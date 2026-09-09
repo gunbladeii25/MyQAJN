@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Eye, EyeOff, ClipboardCheck, ShieldCheck, FileCheck2, Building2 } from 'lucide-react'
-import { login } from '../services/api'
+import { login, loginWithGoogle } from '../services/api'
 import { useAuthStore } from '../stores/authStore'
 import { DEFAULT_ROUTE_BY_ROLE } from '../constants'
 import AuthShell from '../components/ui/AuthShell'
@@ -47,17 +47,74 @@ export default function LoginPage() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
   const [apiError, setApiError] = useState('')
   const [showPw, setShowPw] = useState(false)
+  const googleButtonRef = useRef(null)
 
   const onSubmit = async (data) => {
     setApiError('')
     try {
       const res = await login(data)
       setAuth(res.data.token, res.data.user)
+      if (res.data.user?.mustChangePassword) {
+        // Carries the just-typed (admin-set, temporary) password forward so
+        // ForcePasswordChangePage.jsx doesn't need to ask for it again.
+        navigate('/force-password', { state: { tempPassword: data.password } })
+        return
+      }
       navigate(DEFAULT_ROUTE_BY_ROLE[res.data.user?.role] || '/dashboard')
     } catch (err) {
       setApiError(err.response?.data?.error || 'Ralat log masuk. Cuba sebentar lagi.')
     }
   }
+
+  const onGoogleCredential = async (response) => {
+    setApiError('')
+    try {
+      const res = await loginWithGoogle(response.credential)
+      setAuth(res.data.token, res.data.user)
+      if (res.data.user?.mustChangePassword) {
+        navigate('/force-password')
+        return
+      }
+      navigate(DEFAULT_ROUTE_BY_ROLE[res.data.user?.role] || '/dashboard')
+    } catch (err) {
+      setApiError(err.response?.data?.error || 'Log masuk Google gagal. Cuba sebentar lagi.')
+    }
+  }
+
+  // Google Identity Services' script tag (index.html) loads `async defer`,
+  // so `window.google` is frequently not ready yet on first mount here —
+  // poll briefly instead of silently giving up on the first check.
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+    if (!clientId) return
+
+    let cancelled = false
+
+    const renderGoogleButton = () => {
+      if (cancelled || !window.google || !googleButtonRef.current) return
+      window.google.accounts.id.initialize({ client_id: clientId, callback: onGoogleCredential })
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: 'outline', size: 'large', shape: 'pill', width: 320,
+      })
+    }
+
+    if (window.google) {
+      renderGoogleButton()
+    } else {
+      const intervalId = setInterval(() => {
+        if (window.google) {
+          clearInterval(intervalId)
+          renderGoogleButton()
+        }
+      }, 100)
+      const timeoutId = setTimeout(() => clearInterval(intervalId), 10000)
+      return () => {
+        cancelled = true
+        clearInterval(intervalId)
+        clearTimeout(timeoutId)
+      }
+    }
+  }, [])
 
   return (
     <AuthShell
@@ -117,6 +174,17 @@ export default function LoginPage() {
           {isSubmitting ? 'Mengesahkan...' : 'Log Masuk'}
         </button>
       </form>
+
+      {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+        <>
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-xs text-gray-400">atau</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+          <div ref={googleButtonRef} className="flex justify-center" />
+        </>
+      )}
     </AuthShell>
   )
 }

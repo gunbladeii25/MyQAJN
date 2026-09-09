@@ -210,7 +210,7 @@ function UserFormModal({ mode, user, apiError, setApiError, onClose, onSuccess }
             <label htmlFor="isActive" className="text-sm text-gray-700">Pengguna aktif</label>
           </div>
         )}
-        {apiError && <div className="bg-danger-50 border border-danger-200 text-danger-700 text-sm rounded-lg px-4 py-3">{apiError}</div>}
+        {apiError && <div className="bg-danger-50 text-danger-700 text-sm rounded-[18px] px-4 py-3" style={{ boxShadow: '0 4px 16px 0 rgba(220,38,38,0.08)' }}>{apiError}</div>}
         <div className="flex gap-3 justify-end pt-2">
           <button type="button" onClick={onClose} className="btn-secondary">Batal</button>
           <button type="submit" disabled={isSubmitting} className="btn-primary">
@@ -239,7 +239,7 @@ function ResetPasswordModal({ user, apiError, setApiError, onClose, onSuccess })
           <input type="password" className="input" {...register('newPassword', { required: true, minLength: { value: 8, message: 'Minimum 8 aksara' } })} />
           {errors.newPassword && <p className="text-danger-600 text-xs mt-1">{errors.newPassword.message}</p>}
         </div>
-        {apiError && <div className="bg-danger-50 text-danger-700 text-sm rounded-lg px-4 py-3">{apiError}</div>}
+        {apiError && <div className="bg-danger-50 text-danger-700 text-sm rounded-[18px] px-4 py-3" style={{ boxShadow: '0 4px 16px 0 rgba(220,38,38,0.08)' }}>{apiError}</div>}
         <div className="flex gap-3 justify-end">
           <button type="button" onClick={onClose} className="btn-secondary">Batal</button>
           <button type="submit" disabled={isSubmitting} className="btn-primary">{isSubmitting ? 'Menyimpan...' : 'Reset Kata Laluan'}</button>

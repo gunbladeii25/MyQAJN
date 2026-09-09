@@ -45,9 +45,12 @@ export default {
         xs: '4px', sm: '6px', md: '8px', lg: '12px', xl: '14px',
       },
       boxShadow: {
-        button: '0 1px 3px 0 rgba(24,24,27,0.07)',
-        card: '0 2px 6px 0 rgba(24,24,27,0.05), 0 6px 24px 0 rgba(24,24,27,0.05)',
-        menu: '0 2px 6px 0 rgba(24,24,27,0.05), 0 12px 50px 0 rgba(24,24,27,0.10)',
+        // "Soft Depth" tokens — colored, diffused shadows (tinted toward
+        // primary blue) instead of neutral-gray ones, doing double duty as
+        // the card boundary now that cards drop their border.
+        button: '0 1px 3px 0 rgba(30,58,138,0.08)',
+        card: '0 6px 20px 0 rgba(30,58,138,0.07)',
+        menu: '0 10px 30px 0 rgba(30,58,138,0.12)',
       },
       spacing: {
         18: '4.5rem',

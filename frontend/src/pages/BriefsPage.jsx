@@ -127,7 +127,7 @@ export default function BriefsPage() {
 
       {/* Bulk sign result banner */}
       {bulkResult && (
-        <div className="bg-success-50 border border-success-200 rounded-lg px-4 py-3 flex items-center justify-between">
+        <div className="bg-success-50 rounded-[18px] px-4 py-3 flex items-center justify-between" style={{ boxShadow: '0 4px 16px 0 rgba(22,163,74,0.08)' }}>
           <p className="text-sm text-success-800">
             ✅ {bulkResult.signed} brief berjaya ditandatangani pukal.
             {bulkResult.alreadySigned > 0 && ` ${bulkResult.alreadySigned} sudah ditandatangani sebelum ini (dilangkau).`}
@@ -138,7 +138,7 @@ export default function BriefsPage() {
 
       {/* Bulk action bar — Pengurusan Atasan sahaja, muncul apabila ada pilihan */}
       {isTopManagement && selected.size > 0 && (
-        <div className="card p-4 flex flex-wrap items-center justify-between gap-3 bg-primary-50 border-primary-200">
+        <div className="card p-4 flex flex-wrap items-center justify-between gap-3 bg-primary-50">
           <p className="text-sm font-medium text-gray-800">{selected.size} brief dipilih untuk tandatangan pukal</p>
           <div className="flex items-center gap-2">
             <button onClick={() => setBulkModal('ketua_jn')} className="btn-primary text-xs py-1.5 flex items-center gap-1.5">
@@ -300,7 +300,7 @@ export default function BriefsPage() {
             <p className="text-sm text-gray-600">
               Brief untuk kes <span className="font-mono font-bold">{signModal.case?.caseId}</span> memerlukan tandatangan sebelum pengedaran rasmi.
             </p>
-            <div className="bg-warning-50 border border-warning-200 rounded-lg p-3 text-xs text-warning-700">
+            <div className="bg-warning-50 rounded-[18px] p-3 text-xs text-warning-700" style={{ boxShadow: '0 4px 16px 0 rgba(202,138,4,0.08)' }}>
               ⚠️ Tandatangan ini mengesahkan bahawa anda telah menyemak kandungan brief dan bersetuju dengan cadangan tindakan yang disenaraikan.
             </div>
             <div className="space-y-2">
@@ -327,7 +327,7 @@ export default function BriefsPage() {
               Anda akan menandatangani <span className="font-bold">{selected.size} brief</span> sekaligus sebagai{' '}
               <span className="font-bold">{bulkModal === 'ketua_jn' ? 'Ketua Nazir Sekolah' : 'Nazir Pemeriksa'}</span>.
             </p>
-            <div className="bg-warning-50 border border-warning-200 rounded-lg p-3 text-xs text-warning-700">
+            <div className="bg-warning-50 rounded-[18px] p-3 text-xs text-warning-700" style={{ boxShadow: '0 4px 16px 0 rgba(202,138,4,0.08)' }}>
               ⚠️ Tandatangan ini mengesahkan bahawa anda telah menyemak kandungan setiap brief yang dipilih dan bersetuju dengan cadangan tindakan yang disenaraikan. Brief yang sudah ditandatangani untuk peranan ini akan dilangkau secara automatik.
             </div>
             <div className="flex gap-3 justify-end">

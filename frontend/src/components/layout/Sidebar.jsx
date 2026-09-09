@@ -63,36 +63,28 @@ export default function Sidebar() {
   return (
     // Desktop-only chrome — mobile nav is the bottom tab bar + "Lagi" sheet
     // (MobileTabBar.jsx / MoreSheet.jsx), not a collapsed version of this.
+    // "Soft Depth" treatment: floating white cards with soft shadows on a
+    // light blue-gray wash, rather than a dark glass panel.
     <aside
-      className="hidden md:flex relative w-64 flex-col flex-shrink-0 overflow-hidden
-        bg-gradient-to-b from-primary-700/90 via-primary-800/85 to-primary-900/90
-        backdrop-blur-xl border-r border-white/10 shadow-2xl"
+      className="hidden md:flex relative w-64 flex-col flex-shrink-0 overflow-y-auto
+        bg-gradient-to-b from-[#EFF4FC] to-[#F6F8FC] shadow-[2px_0_16px_0_rgba(30,58,138,0.06)]"
     >
 
-      {/* Ambient blurred colour blobs — behind the nav, give the
-          translucent/backdrop-blur "glass" surface something soft to
-          diffuse instead of sitting flat over a plain colour. */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-16 -left-10 w-56 h-56 rounded-full bg-primary-400/30 blur-3xl" />
-        <div className="absolute top-1/2 -right-16 w-64 h-64 rounded-full bg-primary-300/15 blur-3xl" />
-        <div className="absolute -bottom-20 left-1/4 w-56 h-56 rounded-full bg-primary-500/25 blur-3xl" />
-      </div>
-
       {/* Logo */}
-      <div className="relative z-10 p-5 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center p-1 shadow-button flex-shrink-0">
-            <img src="/logo-myqajn.png" alt="MyQA@JN" className="w-full h-full object-contain" />
+      <div className="p-5">
+        <div className="flex items-center gap-3 bg-white rounded-2xl shadow-[0_2px_10px_0_rgba(30,58,138,0.08)] p-3.5">
+          <div className="w-[34px] h-[34px] rounded-[11px] bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
+            <img src="/logo-myqajn.png" alt="MyQA@JN" className="w-6 h-6 object-contain" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white font-heading font-semibold text-sm leading-tight">MyQA@JN</p>
-            <p className="text-white/55 text-xs">AI-Powered School QA Resolution Agent</p>
+            <p className="text-slate-800 font-heading font-bold text-[13.5px] leading-tight">MyQA@JN</p>
+            <p className="text-slate-400 text-[10px]">AI-Powered School QA Resolution Agent</p>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="relative z-10 flex-1 p-3 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-4 pb-2">
         {/* Dashboard — no step */}
         {visible.filter(i => i.step === null && i.to !== '/users').map((item) => (
           <NavLink
@@ -100,22 +92,26 @@ export default function Sidebar() {
             to={item.to}
             className={({ isActive }) =>
               clsx(
-                'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all mb-2',
-                isActive ? 'bg-white/15 text-white shadow-button' : 'text-white/65 hover:bg-white/10 hover:text-white'
+                'flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-[13px] font-semibold transition-all mb-2.5',
+                isActive
+                  ? 'bg-white text-slate-800 shadow-[0_2px_8px_0_rgba(30,58,138,0.06)]'
+                  : 'text-slate-500 hover:bg-white/70'
               )
             }
           >
-            <item.icon className="w-4 h-4 flex-shrink-0" />
-            {item.label}
+            {({ isActive }) => (
+              <>
+                <item.icon className={clsx('w-4 h-4 flex-shrink-0', isActive ? 'text-indigo-600' : 'text-slate-400')} />
+                {item.label}
+              </>
+            )}
           </NavLink>
         ))}
 
         {/* Workflow steps */}
         {stepItems.length > 0 && (
           <>
-            <div className="px-3 pt-1 pb-2">
-              <p className="text-white/35 text-xs font-semibold uppercase tracking-widest">Aliran Kerja</p>
-            </div>
+            <p className="px-3.5 pt-1 pb-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Aliran Kerja</p>
 
             {/* Vertical step connector */}
             <div className="relative">
@@ -123,11 +119,12 @@ export default function Sidebar() {
               {stepItems.length > 1 && (
                 <div style={{
                   position: 'absolute',
-                  left: 22,
+                  left: 25,
                   top: 20,
                   bottom: 20,
-                  width: 1,
-                  background: 'rgba(255,255,255,0.15)',
+                  width: 2,
+                  background: '#DCE6F7',
+                  borderRadius: 2,
                   zIndex: 0,
                 }} />
               )}
@@ -138,8 +135,10 @@ export default function Sidebar() {
                   to={item.to}
                   className={({ isActive }) =>
                     clsx(
-                      'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all mb-1 relative z-10',
-                      isActive ? 'bg-white/15 text-white shadow-button' : 'text-white/65 hover:bg-white/10 hover:text-white'
+                      'flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-[12.5px] font-medium transition-all mb-1.5 relative z-10',
+                      isActive
+                        ? 'bg-white shadow-[0_2px_8px_0_rgba(30,58,138,0.06)]'
+                        : 'hover:bg-white/70'
                     )
                   }
                 >
@@ -147,18 +146,18 @@ export default function Sidebar() {
                     <>
                       {/* Step number badge */}
                       <div className={clsx(
-                        'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 border',
+                        'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0',
                         isActive
-                          ? 'bg-white text-primary-700 border-white'
-                          : 'bg-white/10 text-white/75 border-white/20'
+                          ? 'bg-gradient-to-br from-primary-500 to-indigo-600 text-white'
+                          : 'bg-white border-2 border-[#DCE6F7] text-slate-400'
                       )}>
                         {item.step}
                       </div>
-                      <item.icon className="w-4 h-4 flex-shrink-0 opacity-80" />
+                      <item.icon className={clsx('w-4 h-4 flex-shrink-0', isActive ? 'text-indigo-600' : 'text-slate-400')} />
                       <div className="min-w-0">
-                        <p className="leading-tight truncate">{item.label}</p>
+                        <p className={clsx('leading-tight truncate', isActive ? 'text-slate-800 font-semibold' : 'text-slate-500')}>{item.label}</p>
                         {item.hint && (
-                          <p className={clsx('text-xs leading-tight mt-0.5 truncate', isActive ? 'text-white/70' : 'text-white/35')}>
+                          <p className="text-[10px] leading-tight mt-0.5 truncate text-slate-400">
                             {item.hint}
                           </p>
                         )}
@@ -174,22 +173,26 @@ export default function Sidebar() {
         {/* Admin-only items */}
         {visible.filter(i => i.to === '/users').length > 0 && (
           <>
-            <div className="px-3 pt-3 pb-1">
-              <p className="text-white/35 text-xs font-semibold uppercase tracking-widest">Pentadbiran</p>
-            </div>
+            <p className="px-3.5 pt-4 pb-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Pentadbiran</p>
             {visible.filter(i => i.to === '/users').map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
                   clsx(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all',
-                    isActive ? 'bg-white/15 text-white shadow-button' : 'text-white/65 hover:bg-white/10 hover:text-white'
+                    'flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-[13px] font-semibold transition-all',
+                    isActive
+                      ? 'bg-white text-slate-800 shadow-[0_2px_8px_0_rgba(30,58,138,0.06)]'
+                      : 'text-slate-500 hover:bg-white/70'
                   )
                 }
               >
-                <item.icon className="w-4 h-4 flex-shrink-0" />
-                {item.label}
+                {({ isActive }) => (
+                  <>
+                    <item.icon className={clsx('w-4 h-4 flex-shrink-0', isActive ? 'text-indigo-600' : 'text-slate-400')} />
+                    {item.label}
+                  </>
+                )}
               </NavLink>
             ))}
           </>
@@ -197,9 +200,9 @@ export default function Sidebar() {
       </nav>
 
       {/* User info */}
-      <div className="relative z-10 p-4 border-t border-white/10">
-        <p className="text-white text-sm font-medium truncate">{user?.name}</p>
-        <p className="text-white/45 text-xs mt-0.5 truncate">{user?.email}</p>
+      <div className="m-4 mt-2 bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(30,58,138,0.06)] p-3.5">
+        <p className="text-slate-800 text-[12.5px] font-semibold truncate">{user?.name}</p>
+        <p className="text-slate-400 text-[10.5px] mt-0.5 truncate">{user?.email}</p>
       </div>
     </aside>
   )

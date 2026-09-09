@@ -35,7 +35,7 @@ const ALERT_SUBLABELS = {
 const RoundedBar = (props) => {
   const { x, y, width, height, fill } = props
   if (!height || height <= 0) return null
-  const r = Math.min(6, width / 2)
+  const r = Math.min(10, width / 2)
   return (
     <g>
       <defs>
@@ -113,7 +113,7 @@ function CasesModal({ title, subtitle, filters, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/45" onClick={onClose}>
-      <div className="bg-white rounded-lg shadow-menu w-full max-w-lg max-h-[80vh] flex flex-col"
+      <div className="bg-white rounded-[20px] shadow-menu w-full max-w-lg max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
@@ -249,11 +249,7 @@ export default function DashboardPage() {
           PageBanner welcome text on phones (desktop keeps those, below).
           Bleeds edge-to-edge past main's own padding via negative margin. */}
       <div className="md:hidden -mx-4 sm:-mx-6 -mt-4 sm:-mt-6">
-        <div className="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 px-5 pt-6 pb-16 text-white">
-          <div className="pointer-events-none absolute inset-0 overflow-hidden">
-            <div className="absolute -top-10 -left-8 w-40 h-40 rounded-full bg-primary-400/30 blur-3xl" />
-            <div className="absolute -bottom-10 right-0 w-36 h-36 rounded-full bg-warning-300/15 blur-3xl" />
-          </div>
+        <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-primary-500 to-sky-400 px-5 pt-6 pb-16 text-white">
           <p className="relative text-xs text-white/70">
             {new Date().toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
@@ -315,10 +311,10 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Alert Level Bar Chart */}
-        <div className="card p-5" style={{ background: 'linear-gradient(135deg, #fafafa 0%, #fff 100%)' }}>
+        <div className="bg-white rounded-[20px] p-5" style={{ boxShadow: '0 6px 20px 0 rgba(30,58,138,0.07)' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Kes Mengikut Tahap Amaran</h3>
-            <span className="text-xs text-gray-400">{alertData.reduce((a, b) => a + b.value, 0)} jumlah</span>
+            <h3 className="text-[13.5px] font-bold text-slate-800">Kes Mengikut Tahap Amaran</h3>
+            <span className="text-xs text-slate-400">{alertData.reduce((a, b) => a + b.value, 0)} jumlah</span>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={alertData} barSize={36} margin={{ top: 4, right: 4, left: -20, bottom: 8 }}>
@@ -358,10 +354,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Status Pie — modern donut */}
-        <div className="card p-5" style={{ background: 'linear-gradient(135deg, #fafafa 0%, #fff 100%)' }}>
+        <div className="bg-white rounded-[20px] p-5" style={{ boxShadow: '0 6px 20px 0 rgba(30,58,138,0.07)' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Status Kes</h3>
-            <span className="text-xs text-gray-400">{(data?.byStatus || []).reduce((a, b) => a + b._count, 0)} jumlah</span>
+            <h3 className="text-[13.5px] font-bold text-slate-800">Status Kes</h3>
+            <span className="text-xs text-slate-400">{(data?.byStatus || []).reduce((a, b) => a + b._count, 0)} jumlah</span>
           </div>
           {(data?.byStatus || []).length === 0 ? (
             <div style={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontSize: 13 }}>
@@ -411,18 +407,18 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Cases */}
-      <div className="card">
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-900">Kes Terbaru</h3>
+      <div className="bg-white rounded-[20px] overflow-hidden" style={{ boxShadow: '0 6px 20px 0 rgba(30,58,138,0.07)' }}>
+        <div className="px-5 py-4 border-b border-slate-50 flex items-center justify-between">
+          <h3 className="text-[13.5px] font-bold text-slate-800">Kes Terbaru</h3>
           <button onClick={() => navigate('/cases')} className="text-xs text-primary-600 hover:underline">Lihat Semua</button>
         </div>
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-slate-50">
           {(data?.recentCases || []).length === 0 && (
             <p className="text-sm text-gray-400 px-5 py-8 text-center">Tiada kes lagi.</p>
           )}
           {(data?.recentCases || []).map((c) => (
             <div key={c.id} onClick={() => navigate(`/cases/${c.id}`)}
-              className="px-5 py-3 hover:bg-gray-50 cursor-pointer flex items-center justify-between gap-4">
+              className="px-5 py-3 hover:bg-slate-50 cursor-pointer flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{c.caseId}</p>
                 <p className="text-xs text-gray-500 truncate">
@@ -440,9 +436,9 @@ export default function DashboardPage() {
 
       {/* Briefs pending sign */}
       {user?.role === 'top_management' && data?.briefsPendingSign > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-amber-50 rounded-[18px] p-4 flex items-center justify-between" style={{ boxShadow: '0 4px 16px 0 rgba(202,138,4,0.08)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center">
               <FileText className="w-4 h-4 text-amber-600" />
             </div>
             <div>
@@ -460,24 +456,28 @@ export default function DashboardPage() {
 }
 
 // ── KPI Card ──────────────────────────────────────────────────────────────────
+// Soft-depth treatment: each metric gets its own tinted background (matching
+// its meaning) instead of a shared white card, with a deeper-tint icon chip.
 function KpiCard({ icon: Icon, label, value, color, sub, onClick }) {
-  const colors = {
-    blue:   'bg-blue-50 text-blue-600',
-    red:    'bg-red-50 text-red-600',
-    orange: 'bg-orange-50 text-orange-600',
-    indigo: 'bg-indigo-50 text-indigo-600',
-    amber:  'bg-warning-50 text-warning-600',
+  const tones = {
+    blue:   { bg: 'bg-blue-50',    chip: 'bg-blue-100 text-blue-600',       value: 'text-blue-900',    label: 'text-blue-700/70',    shadow: 'rgba(37,99,235,0.10)' },
+    indigo: { bg: 'bg-indigo-50',  chip: 'bg-indigo-100 text-indigo-600',   value: 'text-indigo-900',  label: 'text-indigo-700/70',  shadow: 'rgba(79,70,229,0.10)' },
+    red:    { bg: 'bg-red-50',     chip: 'bg-red-100 text-red-600',         value: 'text-red-900',     label: 'text-red-700/70',     shadow: 'rgba(220,38,38,0.10)' },
+    orange: { bg: 'bg-orange-50',  chip: 'bg-orange-100 text-orange-600',   value: 'text-orange-900',  label: 'text-orange-700/70',  shadow: 'rgba(234,88,12,0.10)' },
+    amber:  { bg: 'bg-warning-50', chip: 'bg-warning-100 text-warning-600', value: 'text-warning-900', label: 'text-warning-700/70', shadow: 'rgba(202,138,4,0.10)' },
   }
+  const t = tones[color]
   return (
     <div onClick={onClick}
-      className="card p-5 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
-      <div className={`w-9 h-9 rounded-lg ${colors[color]} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-        <Icon className="w-5 h-5" />
+      className={`${t.bg} rounded-[18px] p-[18px] cursor-pointer hover:-translate-y-0.5 transition-all duration-200 group`}
+      style={{ boxShadow: `0 4px 16px 0 ${t.shadow}` }}>
+      <div className={`w-9 h-9 rounded-xl ${t.chip} flex items-center justify-center mb-3.5 group-hover:scale-110 transition-transform`}>
+        <Icon className="w-[17px] h-[17px]" />
       </div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-xs text-gray-500 mt-0.5">{label}</p>
-      {sub && <p className="text-xs text-success-600 mt-0.5">{sub}</p>}
-      <p className="text-xs text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity mt-1">Klik untuk lihat kes →</p>
+      <p className={`text-[27px] font-extrabold leading-none ${t.value}`}>{value}</p>
+      <p className={`text-xs mt-2 ${t.label}`}>{label}</p>
+      {sub && <p className="text-xs text-success-600 font-semibold mt-0.5">{sub}</p>}
+      <p className="text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity mt-1">Klik untuk lihat kes →</p>
     </div>
   )
 }

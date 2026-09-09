@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell footer={
       <p className="text-center text-white/40 text-xs mt-6">
-        © 2026 Kementerian Pendidikan Malaysia · MyQA@JN
+        © 2026 Kementerian Pendidikan · MyQA@JN
       </p>
     }>
       <h2 className="text-lg font-semibold text-gray-900 mb-2">Lupa Kata Laluan</h2>

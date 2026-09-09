@@ -18,7 +18,7 @@ export default function Layout() {
 
   return (
     <ToastProvider>
-      <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <div className="flex h-screen bg-[#F3F6FC] overflow-hidden">
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />

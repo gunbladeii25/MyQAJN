@@ -7,28 +7,37 @@ import { useAuthStore } from '../stores/authStore'
 import { DEFAULT_ROUTE_BY_ROLE } from '../constants'
 import AuthShell from '../components/ui/AuthShell'
 import AuthDescriptionCarousel from '../components/ui/AuthDescriptionCarousel'
+import loginImage1 from '../images/image1.jfif?url'
+import loginImage2 from '../images/image2.jpg?url'
+import loginImage3 from '../images/image3.jpg?url'
 
-// Slaid penerangan sistem untuk panel kiri kad log masuk.
+// Slaid penerangan sistem untuk panel kiri kad log masuk. Kandungan
+// mencerminkan tujuan sebenar sistem, rujuk pipeline Agen A/B/C dan Indeks
+// Perbezaan dalam ai-engine/, bukan sekadar tagline generik "pelaporan isu".
 const LOGIN_SLIDES = [
   {
     Icon: ClipboardCheck,
-    title: 'Lapor Isu Kualiti Sekolah',
-    description: 'Kemukakan laporan isu kualiti sekolah dengan pantas — terus disalurkan kepada pihak yang bertanggungjawab untuk tindakan.',
+    title: 'Kesan Percanggahan Data Sekolah',
+    description: 'Bandingkan laporan atau dapatan Bahagian, JPN dan PPD (kualitatif atau kuantitatif) dengan dapatan sebenar Jemaah Nazir (SK@S / laporan pemeriksaan) untuk kesan percanggahan.',
+    image: loginImage1,
   },
   {
     Icon: ShieldCheck,
-    title: 'Cadangan Tindakan Berbantukan AI',
-    description: 'Sistem menganalisis corak isu yang serupa dan mencadangkan tindakan penyelesaian yang paling sesuai.',
+    title: 'Analisis AI Tiga Peringkat',
+    description: 'Agen AI mengklasifikasikan isu, mengira Indeks Perbezaan (DI), dan mengesan corak anomali supaya tahap amaran yang diberikan tepat mengikut keterukan kes.',
+    image: loginImage2,
   },
   {
     Icon: FileCheck2,
-    title: 'Jejak Status Penyelesaian',
-    description: 'Pantau status setiap laporan secara masa nyata, dari penyerahan sehingga isu selesai.',
+    title: 'Draf Surat Arahan Rasmi',
+    description: 'AI menjana draf surat arahan berpandukan Akta Pendidikan, SKPMG2 dan polisi KPM, namun tetap memerlukan tandatangan pegawai kanan sebelum diedar secara rasmi.',
+    image: loginImage3,
   },
   {
     Icon: Building2,
-    title: 'Liputan Menyeluruh Sekolah',
-    description: 'Direka untuk semua peringkat sekolah di bawah Kementerian Pendidikan Malaysia, dari sekolah rendah hingga menengah.',
+    title: 'Eskalasi ke Penyelaras JPN Negeri',
+    description: 'Kes berisiko tinggi terus dieskalasi kepada penyelaras JPN setiap negeri untuk respons rasmi, merangkumi lebih 10,000 sekolah di seluruh negara.',
+    image: loginImage1,
   },
 ]
 
@@ -56,7 +65,7 @@ export default function LoginPage() {
       aside={<AuthDescriptionCarousel slides={LOGIN_SLIDES} />}
       footer={
         <p className="text-center text-white/40 text-xs mt-6">
-          © 2026 Kementerian Pendidikan Malaysia · MyQA@JN
+          © 2026 Kementerian Pendidikan · MyQA@JN
         </p>
       }
     >

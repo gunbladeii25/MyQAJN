@@ -59,7 +59,7 @@ const Card = ({ children, style = {}, className = '' }) => (
 function Modal({ children, onClose }) {
   return (
     <div onClick={onClose} className="fixed inset-0 z-[1000] flex items-center justify-center p-5 bg-gray-900/40 backdrop-blur-sm">
-      <div onClick={e => e.stopPropagation()} className="bg-white rounded-lg p-6 max-w-[440px] w-full shadow-menu">
+      <div onClick={e => e.stopPropagation()} className="bg-white rounded-[20px] p-6 max-w-[440px] w-full shadow-menu">
         {children}
       </div>
     </div>
@@ -297,7 +297,7 @@ function JNBaselineTab({ selSchools, toggleSchool, selectAllSchools, clearAllSch
   return (
     <div>
       {/* Info banner */}
-      <div style={{ background: '#EFF6FF', border: '1px solid #C2D5FF', borderRadius: 10, padding: '14px 18px', marginBottom: 20, display: 'flex', gap: 12 }}>
+      <div style={{ background: '#EFF6FF', borderRadius: 16, padding: '14px 18px', marginBottom: 20, display: 'flex', gap: 12, boxShadow: '0 6px 20px 0 rgba(37,99,235,0.10)' }}>
         <span style={{ fontSize: 20 }}>🔵</span>
         <div>
           <p style={{ margin: 0, fontWeight: 700, color: '#1E40AF', fontSize: 14 }}>Fasa A — Kemaskini Data Audit JN (Baseline)</p>
@@ -338,7 +338,7 @@ function JNBaselineTab({ selSchools, toggleSchool, selectAllSchools, clearAllSch
           </Card>
 
           {selSource?.sourceCode === 'SKPK' && (
-            <div style={{ background: '#FEFCE8', border: '1px solid #FDE047', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#854D0E', lineHeight: 1.5 }}>
+            <div style={{ background: '#FEFCE8', borderRadius: 14, padding: '10px 14px', fontSize: 12, color: '#854D0E', lineHeight: 1.5, boxShadow: '0 6px 20px 0 rgba(202,138,4,0.10)' }}>
               🧸 <strong>Instrumen SKPK (pra-sekolah)</strong> — menggunakan set standard tersendiri,
               bukan standard SKPM. Skor per standard SKPK akan disimpan dan dipaparkan dalam
               pecahan sekolah. <em>Struktur standard semasa adalah placeholder — akan digantikan
@@ -347,7 +347,7 @@ function JNBaselineTab({ selSchools, toggleSchool, selectAllSchools, clearAllSch
           )}
 
           {isPemeriksaan && (
-            <div style={{ background: '#EFF6FF', border: '1px solid #C2D5FF', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#1E40AF', lineHeight: 1.5 }}>
+            <div style={{ background: '#EFF6FF', borderRadius: 14, padding: '10px 14px', fontSize: 12, color: '#1E40AF', lineHeight: 1.5, boxShadow: '0 6px 20px 0 rgba(37,99,235,0.10)' }}>
               📜 <strong>Dokumen Syor Pemeriksaan JN</strong> — laluan utama:
               sistem <strong>tarik terus dari folder Google Drive</strong> rasmi.
               Dokumen lazimnya dalam format <strong>DOCX</strong> dan mengandungi
@@ -383,7 +383,7 @@ function JNBaselineTab({ selSchools, toggleSchool, selectAllSchools, clearAllSch
               {gdriveLoading ? (
                 <p className="text-sm text-gray-400 py-2.5 flex items-center gap-2"><Spinner size="sm" /> Menyenaraikan fail…</p>
               ) : gdriveFiles.length === 0 ? (
-                <div style={{ background: '#FEFCE8', border: '1px solid #FEF08A', borderRadius: 8, padding: '12px 14px', fontSize: 12, color: '#854D0E' }}>
+                <div style={{ background: '#FEFCE8', borderRadius: 14, padding: '12px 14px', fontSize: 12, color: '#854D0E', boxShadow: '0 6px 20px 0 rgba(202,138,4,0.10)' }}>
                   ⚠️ Tiada fail dijumpai dalam folder Google Drive untuk tahun semasa.
                   <br />Sila muat naik fail DOCX pemeriksaan secara manual.
                 </div>
@@ -542,7 +542,8 @@ function JNBaselineTab({ selSchools, toggleSchool, selectAllSchools, clearAllSch
           </button>
 
           {result && result.runCategory === 'jn_baseline' && (
-            <Card className={result.schoolsUpdated > 0 ? 'border-primary-300 bg-primary-50' : 'border-danger-300 bg-danger-50'}>
+            <Card className={result.schoolsUpdated > 0 ? 'bg-primary-50' : 'bg-danger-50'}
+              style={{ boxShadow: result.schoolsUpdated > 0 ? '0 6px 20px 0 rgba(37,99,235,0.12)' : '0 6px 20px 0 rgba(220,38,38,0.12)' }}>
               <div style={{ fontWeight: 700, color: result.schoolsUpdated > 0 ? '#1E40AF' : '#991B1B', marginBottom: 10 }}>
                 {result.schoolsUpdated > 0
                   ? `✅ ${result.schoolsUpdated} sekolah berjaya dikemaskini!`
@@ -551,7 +552,7 @@ function JNBaselineTab({ selSchools, toggleSchool, selectAllSchools, clearAllSch
               {(result.failedSchools || []).length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: (result.schools || []).length > 0 ? 10 : 0 }}>
                   {result.failedSchools.map(f => (
-                    <div key={f.schoolCode} style={{ padding: '8px 12px', background: '#fff', borderRadius: 8, border: '1px solid #FECACA' }}>
+                    <div key={f.schoolCode} style={{ padding: '8px 12px', background: '#fff', borderRadius: 12, boxShadow: '0 4px 14px 0 rgba(220,38,38,0.10)' }}>
                       <div style={{ fontWeight: 600, fontSize: 13, color: '#991B1B' }}>{f.schoolName || f.schoolCode}</div>
                       <div style={{ fontSize: 12, color: '#B91C1C', marginTop: 2 }}>{f.error}</div>
                     </div>
@@ -560,7 +561,7 @@ function JNBaselineTab({ selSchools, toggleSchool, selectAllSchools, clearAllSch
               )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {(result.schools || []).map(s => (
-                  <div key={s.schoolCode} style={{ padding: '8px 12px', background: '#fff', borderRadius: 8, border: '1px solid #C2D5FF' }}>
+                  <div key={s.schoolCode} style={{ padding: '8px 12px', background: '#fff', borderRadius: 12, boxShadow: '0 4px 14px 0 rgba(37,99,235,0.10)' }}>
                     <div style={{ fontWeight: 600, fontSize: 13 }}>{s.schoolName || s.schoolCode}</div>
                     <div style={{ fontSize: 12, color: '#3A75F6', marginTop: 2 }}>
                       Skor JN Baharu: <strong style={{ fontSize: 14, color: '#1E40AF' }}>{s.jnAuditScore?.toFixed(2)}</strong>
@@ -688,7 +689,7 @@ function OutsourceTab({ selSchools, selSchoolsMap, toggleSchool, selectAllSchool
   return (
     <div>
       {/* Info banner */}
-      <div style={{ background: '#FEFCE8', border: '1px solid #FEF08A', borderRadius: 10, padding: '14px 18px', marginBottom: 20, display: 'flex', gap: 12 }}>
+      <div style={{ background: '#FEFCE8', borderRadius: 16, padding: '14px 18px', marginBottom: 20, display: 'flex', gap: 12, boxShadow: '0 6px 20px 0 rgba(202,138,4,0.10)' }}>
         <span style={{ fontSize: 20 }}>🟠</span>
         <div style={{ flex: 1 }}>
           <p style={{ margin: 0, fontWeight: 700, color: '#854D0E', fontSize: 14 }}>Fasa B — Data Luar untuk Perbandingan DI</p>
@@ -766,12 +767,12 @@ function OutsourceTab({ selSchools, selSchoolsMap, toggleSchool, selectAllSchool
 
           {/* ── Mapping Preview ────────────────────────────────────────── */}
           {previewLoading && (
-            <Card className="border-warning-300 bg-warning-50">
+            <Card className="bg-warning-50" style={{ boxShadow: '0 6px 20px 0 rgba(202,138,4,0.10)' }}>
               <p className="text-sm text-warning-800 flex items-center gap-2 m-0"><Spinner size="sm" /> Menganalisis keserasian data...</p>
             </Card>
           )}
           {mappingPreview && !previewLoading && (
-            <Card className="border-primary-200 bg-primary-50">
+            <Card className="bg-primary-50" style={{ boxShadow: '0 6px 20px 0 rgba(37,99,235,0.10)' }}>
               <h4 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, color: '#1E40AF' }}>
                 📊 Keserasian Data: {mappingPreview.source_label} ↔ JN Baseline
               </h4>
@@ -822,7 +823,7 @@ function OutsourceTab({ selSchools, selSchoolsMap, toggleSchool, selectAllSchool
           </button>
 
           {result && result.runCategory === 'outsource' && (
-            <Card className="border-warning-200 bg-warning-50">
+            <Card className="bg-warning-50" style={{ boxShadow: '0 6px 20px 0 rgba(202,138,4,0.10)' }}>
               <div style={{ fontWeight: 700, color: '#854D0E', marginBottom: 8 }}>
                 ✅ {result.records} rekod berjaya diekstrak!
               </div>
@@ -1217,8 +1218,8 @@ export default function DataIngestionPage() {
           hidden` combination did exactly that on phones). */}
       <div style={{
         display: 'flex', marginBottom: 24, overflowX: 'auto',
-        background: '#FAFAFA', borderRadius: 10,
-        border: '1px solid #E4E4E7',
+        background: '#fff', borderRadius: 20,
+        boxShadow: '0 6px 20px 0 rgba(30,58,138,0.07)',
       }}>
         {STEPS.map((step, i) => {
           const isActive = step.key === tab

@@ -8,12 +8,14 @@
 }
 
 @layer components {
-  .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium text-sm shadow-button transition-all disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium text-sm shadow-button transition-all disabled:opacity-50 disabled:cursor-not-allowed; }
   .btn-primary { @apply btn bg-primary-600 text-white hover:bg-primary-700; }
-  .btn-secondary { @apply btn bg-white text-gray-700 border border-gray-300 shadow-none hover:bg-gray-50; }
+  .btn-secondary { @apply btn bg-white text-gray-700 border border-gray-200 shadow-none hover:bg-gray-50; }
   .btn-danger { @apply btn bg-danger-600 text-white hover:bg-danger-700; }
-  .card { @apply bg-white rounded-lg border border-gray-200 shadow-card; }
-  .input { @apply w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent; }
+  /* "Soft Depth" card — a colored diffused shadow stands in for the old
+     border, and the radius opens up considerably (see PROJECT redesign). */
+  .card { @apply bg-white rounded-[20px] shadow-card; }
+  .input { @apply w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent; }
   .label { @apply block text-sm font-medium text-gray-700 mb-1; }
 }
 

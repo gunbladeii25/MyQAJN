@@ -169,7 +169,7 @@ export default function SubmitCasePage() {
       {step === 1 && (
         <div className="space-y-5">
           {/* Redirect notice */}
-          <div className="card p-4 flex items-start gap-3 bg-primary-50 border border-primary-200">
+          <div className="card p-4 flex items-start gap-3 bg-primary-50" style={{ boxShadow: '0 4px 16px 0 rgba(37,99,235,0.08)' }}>
             <Info className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-primary-900">Halaman ini untuk Input Manual sahaja</p>
@@ -373,8 +373,9 @@ export default function SubmitCasePage() {
                 const r = submitResults.find(x => x.school.id === school.id)
                 return (
                   <div key={school.id}
-                    className={`flex items-center gap-3 p-3 rounded-xl border
-                      ${r?.case ? 'bg-success-50 border-success-200' : r?.error ? 'bg-danger-50 border-danger-200' : 'bg-gray-50 border-gray-200'}`}>
+                    className={`flex items-center gap-3 p-3 rounded-[18px]
+                      ${r?.case ? 'bg-success-50' : r?.error ? 'bg-danger-50' : 'bg-gray-50 border border-gray-200'}`}
+                    style={r?.case ? { boxShadow: '0 4px 16px 0 rgba(22,163,74,0.08)' } : r?.error ? { boxShadow: '0 4px 16px 0 rgba(220,38,38,0.08)' } : undefined}>
                     {r?.case
                       ? <CheckCircle className="w-4 h-4 text-success-600 flex-shrink-0" />
                       : r?.error

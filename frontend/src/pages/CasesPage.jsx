@@ -75,7 +75,7 @@ export default function CasesPage() {
       )}
 
       {isPenyelarasJpn && jpnPending > 0 && !stripDismissed && (
-        <div className="flex items-center justify-between gap-4 bg-primary-50 border border-primary-100 rounded-md px-4 py-3 text-sm">
+        <div className="flex items-center justify-between gap-4 bg-primary-50 rounded-[18px] px-4 py-3 text-sm" style={{ boxShadow: '0 4px 16px 0 rgba(37,99,235,0.08)' }}>
           <div className="flex items-center gap-2.5 text-primary-800">
             <MessageSquare className="w-[18px] h-[18px] flex-shrink-0" />
             <span>{jpnPending} kes eskalasi masih menunggu respons rasmi negeri anda.</span>

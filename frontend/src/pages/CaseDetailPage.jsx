@@ -91,8 +91,8 @@ function EscalationModal({ caseData, onClose, onConfirm }) {
       backdropFilter: 'blur(3px)',
     }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div style={{
-        background: '#fff', borderRadius: 14, width: '100%', maxWidth: 580,
-        boxShadow: '0 25px 60px rgba(0,0,0,0.25)',
+        background: '#fff', borderRadius: 20, width: '100%', maxWidth: 580,
+        boxShadow: '0 10px 30px 0 rgba(30,58,138,0.12)',
         margin: '0 16px', display: 'flex', flexDirection: 'column',
         maxHeight: '90vh', overflow: 'hidden',
       }}>
@@ -101,7 +101,7 @@ function EscalationModal({ caseData, onClose, onConfirm }) {
           background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
           padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 12,
         }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Zap size={18} color="#fff" />
           </div>
           <div style={{ flex: 1 }}>
@@ -129,7 +129,7 @@ function EscalationModal({ caseData, onClose, onConfirm }) {
         ) : (
           <div style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto', flex: 1 }}>
             {/* DI summary strip */}
-            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, padding: '10px 14px', display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+            <div style={{ background: '#FEF2F2', borderRadius: 18, padding: '10px 14px', display: 'flex', gap: 24, flexWrap: 'wrap', boxShadow: '0 4px 16px 0 rgba(220,38,38,0.08)' }}>
               <span style={{ fontSize: 12, color: '#991B1B' }}>DI: <strong style={{ fontSize: 15 }}>{Number(caseData.discrepancyIndex).toFixed(4)}</strong></span>
               <span style={{ fontSize: 12, color: '#991B1B' }}>Tahap: <strong>{caseData.alertLevel}</strong></span>
               <span style={{ fontSize: 12, color: '#991B1B' }}>Anomali: <strong>{caseData.anomalyDetected ? 'DIKESAN' : 'Tidak'}</strong></span>
@@ -260,6 +260,7 @@ export default function CaseDetailPage() {
 
   const c = caseData
   const alertColor = ALERT_COLORS[c.alertLevel] || ALERT_COLORS.BLUE
+  const alertShadowRgb = { RED: '220,38,38', ORANGE: '234,88,12', YELLOW: '202,138,4', BLUE: '37,99,235', GREEN: '22,163,74' }[c.alertLevel] || '37,99,235'
   const brief = c.executiveBrief
 
   const handleStatusUpdate = async (status) => {
@@ -299,7 +300,7 @@ export default function CaseDetailPage() {
       {/* DI Summary Banner — mobile shows a gauge + stat-tile grid (a raw
           "0.3173" reads slower on a phone than a ring you can eyeball at
           a glance); desktop keeps the original flex-wrap row unchanged. */}
-      <div className={`rounded-xl border p-5 ${alertColor.bg} ${alertColor.border}`}>
+      <div className={`rounded-[18px] p-5 ${alertColor.bg}`} style={{ boxShadow: `0 4px 16px 0 rgba(${alertShadowRgb},0.08)` }}>
         <div className="sm:hidden flex flex-col items-center text-center mb-4">
           <DiGauge value={Number(c.discrepancyIndex)} level={c.alertLevel} />
           <div className="mt-2"><DiClassBadge classification={c.diClassification} /></div>
@@ -336,7 +337,7 @@ export default function CaseDetailPage() {
         {/* Agent A */}
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-primary-100 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-xl bg-primary-100 flex items-center justify-center">
               <Shield className="w-4 h-4 text-primary-600" />
             </div>
             <h3 className="text-sm font-semibold text-gray-900">Agent A — Ingesti Semantik</h3>
@@ -353,7 +354,7 @@ export default function CaseDetailPage() {
         {/* Agent B */}
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-warning-100 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-xl bg-warning-100 flex items-center justify-center">
               <Flag className="w-4 h-4 text-warning-700" />
             </div>
             <h3 className="text-sm font-semibold text-gray-900">Agent B — Pengesanan Anomali</h3>
@@ -536,7 +537,7 @@ const LETTER_STYLES = {
   // ── Status chips ──
   chipRow:     { marginTop: 20, display: 'flex', gap: 10, flexWrap: 'wrap' },
   chipSigned:  { fontSize: 10, background: '#dcfce7', color: '#166534', padding: '3px 12px', borderRadius: 9999, border: '1px solid #bbf7d0' },
-  draftWarn:   { marginTop: 16, textAlign: 'center', fontSize: 10, color: '#b91c1c', border: '1px solid #fca5a5', background: '#fff5f5', padding: '8px 14px', borderRadius: 6 },
+  draftWarn:   { marginTop: 16, textAlign: 'center', fontSize: 10, color: '#b91c1c', background: '#fff5f5', padding: '8px 14px', borderRadius: 18, boxShadow: '0 4px 16px 0 rgba(220,38,38,0.08)' },
 }
 
 // Numbered Paragraph:  "1.  content"
@@ -685,7 +686,7 @@ function OfficialLetter({ brief, caseData, user, navigate, onRegenerate, regener
       {/* ── Toolbar ── */}
       <div className="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-xl bg-purple-100 flex items-center justify-center">
             <FileText className="w-4 h-4 text-purple-600" />
           </div>
           <span className="text-sm font-semibold text-gray-900">Agent C — Surat Arahan Rasmi</span>
@@ -814,7 +815,7 @@ function OfficialLetter({ brief, caseData, user, navigate, onRegenerate, regener
             {/* 3. Arahan umum (dari LLM / fallback) */}
             <LetterPara n={N()}>
               {fixed(toStr(directive.arahan_umum)) ||
-                'Sehubungan dengan itu, tuan/puan adalah dengan ini diarahkan untuk mengambil tindakan segera bagi menangani perbezaan data yang dikenal pasti dan memastikan pematuhan sepenuhnya kepada standard kualiti pendidikan yang ditetapkan oleh Kementerian Pendidikan Malaysia.'}
+                'Sehubungan dengan itu, tuan/puan adalah dengan ini diarahkan untuk mengambil tindakan segera bagi menangani perbezaan data yang dikenal pasti dan memastikan pematuhan sepenuhnya kepada standard kualiti pendidikan yang ditetapkan oleh Kementerian Pendidikan.'}
             </LetterPara>
 
             {/* 4. Enforcement Actions */}
@@ -872,7 +873,7 @@ function OfficialLetter({ brief, caseData, user, navigate, onRegenerate, regener
             <div style={S.sigLine} />
             <div style={S.sigName}>(NAHARUDEEN BIN OTHMAN, S.M.P)</div>
             <div style={S.sigPost}>Ketua Nazir Sekolah</div>
-            <div>Kementerian Pendidikan Malaysia</div>
+            <div>Kementerian Pendidikan</div>
           </div>
 
           {/* ── 9. STATUS TANDATANGAN / DRAFT ── */}
@@ -968,7 +969,7 @@ function StateEscalationCard({ escalations, user, onRespond, onAdd, onEdit, onDe
           const noPic = !esc.user
           const emailStatus = EMAIL_STATUS_LABEL[esc.emailStatus] || EMAIL_STATUS_LABEL.pending
           return (
-            <div key={esc.id || i} className="border border-gray-100 rounded-lg p-3">
+            <div key={esc.id || i} className="rounded-2xl shadow-card p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="text-sm font-medium text-gray-900">
@@ -995,7 +996,7 @@ function StateEscalationCard({ escalations, user, onRespond, onAdd, onEdit, onDe
                 </div>
               </div>
               {esc.responseText && (
-                <div className="mt-2 bg-primary-50 border border-primary-100 rounded-lg p-3">
+                <div className="mt-2 bg-primary-50 rounded-[18px] p-3" style={{ boxShadow: '0 4px 16px 0 rgba(37,99,235,0.08)' }}>
                   <p className="text-xs font-medium text-primary-900 mb-1">
                     Respons {esc.user?.name} · {esc.respondedAt ? new Date(esc.respondedAt).toLocaleDateString('ms-MY') : ''}
                   </p>

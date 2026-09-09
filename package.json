@@ -1,0 +1,11 @@
+{
+  "name": "myqajn-vm-dev",
+  "private": true,
+  "description": "Dev-only convenience runner — starts backend + frontend together",
+  "scripts": {
+    "dev": "concurrently -n BACKEND,FRONTEND -c blue,green \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

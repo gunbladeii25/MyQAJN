@@ -49,7 +49,7 @@ export default function AuthShell({ children, footer, split = false, aside }) {
           </div>
           <h1 className="text-2xl font-heading font-bold text-white">MyQA@JN</h1>
           <p className="text-white/70 text-sm mt-1">AI-Powered School QA Resolution Agent</p>
-          <p className="text-white/50 text-xs mt-1">Kementerian Pendidikan Malaysia</p>
+          <p className="text-white/50 text-xs mt-1">Kementerian Pendidikan</p>
         </div>
 
         {/* Hero card radius kept above the xl (14px) token as a deliberate
@@ -57,7 +57,7 @@ export default function AuthShell({ children, footer, split = false, aside }) {
             marketing-style hero card, not a content card. */}
         {split ? (
           <div className="animate-auth-fade-up grid md:grid-cols-2 bg-white rounded-2xl shadow-menu overflow-hidden" style={{ animationDelay: '0.15s' }}>
-            <div className="hidden md:flex flex-col justify-center bg-gradient-to-br from-primary-600 to-primary-800 p-10">
+            <div className="hidden md:block relative overflow-hidden bg-gradient-to-br from-primary-600 to-primary-800">
               {aside}
             </div>
             <div className="p-8 flex flex-col justify-center">

@@ -172,12 +172,12 @@ function UserFormModal({ mode, user, apiError, setApiError, onClose, onSuccess }
           <label className="label">E-mel <span className="text-danger-600">*</span></label>
           <input type="email" className="input" placeholder="nama@moe.gov.my" {...register('email', {
             required: 'E-mel diperlukan',
-            pattern: { value: /@moe\.gov\.my$/i, message: 'Hanya e-mel domain @moe.gov.my dibenarkan.' },
+            pattern: { value: /@(moe\.gov\.my|moe-dl\.edu\.my)$/i, message: 'Hanya e-mel domain @moe.gov.my atau @moe-dl.edu.my dibenarkan.' },
           })} />
           {errors.email && <p className="text-danger-600 text-xs mt-1">{errors.email.message}</p>}
           <p className="text-xs text-gray-400 mt-1">
             {mode === 'edit' ? 'Menukar e-mel akan menukar alamat log masuk pengguna ini. ' : ''}
-            Hanya domain rasmi @moe.gov.my dibenarkan berdaftar.
+            Hanya domain rasmi @moe.gov.my atau @moe-dl.edu.my dibenarkan berdaftar.
           </p>
         </div>
         {mode === 'create' && (

@@ -6,8 +6,15 @@ const logger = require('../utils/logger')
 
 // Keselamatan: hanya e-mel domain rasmi KPM dibenarkan berdaftar dalam sistem
 // — mengelakkan akaun domain luar (outsource) daripada didaftarkan.
-const ALLOWED_EMAIL_DOMAIN = '@moe.gov.my'
-const isAllowedEmail = (email) => email.toLowerCase().endsWith(ALLOWED_EMAIL_DOMAIN)
+// @moe-dl.edu.my turut dibenarkan kerana ia domain rasmi KPM untuk
+// pembelajaran digital (sama seperti Google SSO — lihat GOOGLE_ALLOWED_DOMAINS
+// dalam auth.controller.js).
+const ALLOWED_EMAIL_DOMAINS = ['@moe.gov.my', '@moe-dl.edu.my']
+const isAllowedEmail = (email) => {
+  const lower = email.toLowerCase()
+  return ALLOWED_EMAIL_DOMAINS.some((domain) => lower.endsWith(domain))
+}
+const ALLOWED_EMAIL_DOMAINS_LABEL = ALLOWED_EMAIL_DOMAINS.join(' / ')
 
 // Auto-provisions a Detector@JN account for a newly-created pegawai_nazir
 // user, so an admin doesn't have to separately register the same person in
@@ -85,7 +92,7 @@ const createUser = async (req, res) => {
     return res.status(400).json({ error: 'Nama, email, kata laluan, dan peranan diperlukan.' })
   }
   if (!isAllowedEmail(email)) {
-    return res.status(400).json({ error: `Hanya e-mel domain ${ALLOWED_EMAIL_DOMAIN} dibenarkan berdaftar dalam sistem.` })
+    return res.status(400).json({ error: `Hanya e-mel domain ${ALLOWED_EMAIL_DOMAINS_LABEL} dibenarkan berdaftar dalam sistem.` })
   }
   if (role === 'peneraju_sektor' && !sector) {
     return res.status(400).json({ error: 'Sektor diperlukan untuk peranan Peneraju Sektor.' })
@@ -134,7 +141,7 @@ const updateUser = async (req, res) => {
   }
   if (email && email !== existing.email) {
     if (!isAllowedEmail(email)) {
-      return res.status(400).json({ error: `Hanya e-mel domain ${ALLOWED_EMAIL_DOMAIN} dibenarkan berdaftar dalam sistem.` })
+      return res.status(400).json({ error: `Hanya e-mel domain ${ALLOWED_EMAIL_DOMAINS_LABEL} dibenarkan berdaftar dalam sistem.` })
     }
     const emailTaken = await prisma.user.findUnique({ where: { email } })
     if (emailTaken) return res.status(409).json({ error: 'Email telah digunakan oleh pengguna lain.' })

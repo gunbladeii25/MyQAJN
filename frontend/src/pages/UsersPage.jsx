@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, RotateCcw, Search } from 'lucide-react'
 import { getUsers, createUser, updateUser, deleteUser, resetUserPassword } from '../services/api'
 import { ROLES, SECTORS, MALAYSIA_STATES } from '../constants'
 import { PageLoader } from '../components/ui/Spinner'
+import { useToast } from '../components/ui/Toast'
 import Modal from '../components/ui/Modal'
 import { useForm } from 'react-hook-form'
 
@@ -139,12 +140,20 @@ function UserFormModal({ mode, user, apiError, setApiError, onClose, onSuccess }
     defaultValues: mode === 'edit' ? { name: user.name, email: user.email, role: user.role, sector: user.sector || '', state: user.state || '', isActive: user.isActive } : {}
   })
   const role = watch('role')
+  const toast = useToast()
 
   const onSubmit = async (data) => {
     setApiError('')
     try {
-      if (mode === 'create') await createUser(data)
-      else await updateUser(user.id, data)
+      if (mode === 'create') {
+        const res = await createUser(data)
+        // Non-blocking — the myqajn user is already created either way (see
+        // users.controller.js's createUser/provisionDetectorJnUser). Only
+        // shown for role pegawai_nazir, the one role that triggers it.
+        if (res.data.detectorJnProvisionWarning) toast.warning(res.data.detectorJnProvisionWarning)
+      } else {
+        await updateUser(user.id, data)
+      }
       onSuccess()
     } catch (err) {
       setApiError(err.response?.data?.error || 'Ralat.')

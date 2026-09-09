@@ -7,6 +7,7 @@ const ToastContext = createContext(null)
 const TONE = {
   success: { icon: CheckCircle2, classes: 'bg-success-50 border-success-200 text-success-700', iconClasses: 'text-success-600' },
   info:    { icon: Info,         classes: 'bg-primary-50 border-primary-200 text-primary-700',  iconClasses: 'text-primary-600' },
+  warning: { icon: Info,         classes: 'bg-warning-50 border-warning-200 text-warning-700',  iconClasses: 'text-warning-600' },
 }
 
 // Lightweight toast system — no toast library in this app yet, so this
@@ -29,6 +30,7 @@ export function ToastProvider({ children }) {
   const toast = {
     success: (message) => push(message, 'success'),
     info: (message) => push(message, 'info'),
+    warning: (message) => push(message, 'warning'),
   }
 
   return (

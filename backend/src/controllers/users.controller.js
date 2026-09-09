@@ -1,4 +1,6 @@
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const axios = require('axios')
 const prisma = require('../utils/prisma')
 const logger = require('../utils/logger')
 
@@ -6,6 +8,36 @@ const logger = require('../utils/logger')
 // — mengelakkan akaun domain luar (outsource) daripada didaftarkan.
 const ALLOWED_EMAIL_DOMAIN = '@moe.gov.my'
 const isAllowedEmail = (email) => email.toLowerCase().endsWith(ALLOWED_EMAIL_DOMAIN)
+
+// Auto-provisions a Detector@JN account for a newly-created pegawai_nazir
+// user, so an admin doesn't have to separately register the same person in
+// both systems. Signed with its OWN secret (PROVISION_SECRET) — deliberately
+// NOT the SSO_HANDOFF_SECRET used elsewhere (auth.controller.js), since this
+// capability is materially bigger (creates an arbitrary account with a
+// role) — see provision_secret's docstring in Detector@JN's core/config.py.
+// Never throws: Detector@JN being unreachable/misconfigured must not block
+// or roll back the myqajn user that was just created — the caller surfaces
+// the returned warning string (if any) instead.
+const provisionDetectorJnUser = async (email) => {
+  if (!process.env.PROVISION_SECRET || !process.env.DETECTOR_JN_API_URL) {
+    logger.info(`Detector@JN provisioning skipped for ${email}: belum dikonfigurasi.`)
+    return 'Provisioning Detector@JN belum dikonfigurasi — daftar akaun ini secara manual di sana.'
+  }
+
+  const provisionToken = jwt.sign(
+    { email, role: 'nazir', purpose: 'myqajn-provision' },
+    process.env.PROVISION_SECRET,
+    { expiresIn: '60s' }
+  )
+
+  try {
+    await axios.post(`${process.env.DETECTOR_JN_API_URL}/users/provision`, { provisionToken }, { timeout: 10000 })
+    return null
+  } catch (err) {
+    logger.error(`Detector@JN provisioning gagal untuk ${email}: ${err.message}`)
+    return 'Pengguna dicipta di myqajn, tetapi provisioning automatik Detector@JN gagal — daftar akaun ini secara manual di sana jika perlu.'
+  }
+}
 
 const listUsers = async (req, res) => {
   const { role, sector, isActive, search, page = 1, limit = 20 } = req.query
@@ -79,7 +111,12 @@ const createUser = async (req, res) => {
   })
 
   logger.info(`User created: ${email} by ${req.user.email}`)
-  return res.status(201).json({ user })
+
+  // Auto-provision Detector@JN only for the role that actually uses it —
+  // never blocks/rolls back the myqajn user above (see helper's docstring).
+  const detectorJnProvisionWarning = role === 'pegawai_nazir' ? await provisionDetectorJnUser(email) : null
+
+  return res.status(201).json({ user, detectorJnProvisionWarning })
 }
 
 const updateUser = async (req, res) => {
